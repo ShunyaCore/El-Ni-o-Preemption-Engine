@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { FarmerClaim } from '../types';
+import { ClipboardCheck, Search, Filter, CheckCircle2, AlertCircle, X, ExternalLink, ShieldCheck } from 'lucide-react';
 
 export const ClaimReviewView: React.FC = () => {
   const { claims, authorizeBatchClaims, updateClaimStatus, showToast } = useApp();
@@ -13,7 +14,11 @@ export const ClaimReviewView: React.FC = () => {
   const filteredClaims = claims.filter(c => {
     if (districtFilter !== 'all' && c.district.toLowerCase() !== districtFilter.toLowerCase()) return false;
     if (statusFilter !== 'all' && c.status !== statusFilter) return false;
-    if (searchId && !c.id.toLowerCase().includes(searchId.toLowerCase()) && !c.farmerName.toLowerCase().includes(searchId.toLowerCase())) {
+    if (
+      searchId &&
+      !c.id.toLowerCase().includes(searchId.toLowerCase()) &&
+      !c.farmerName.toLowerCase().includes(searchId.toLowerCase())
+    ) {
       return false;
     }
     return true;
@@ -21,336 +26,265 @@ export const ClaimReviewView: React.FC = () => {
 
   const handleApprove = (claim: FarmerClaim) => {
     updateClaimStatus(claim.id, 'Genuine');
+    showToast('Claim Approved', `${claim.farmerName} (${claim.id}) marked genuine for DBT disbursement.`, 'primary');
     setInspectingClaim(null);
   };
 
   const handleMarkReview = (claim: FarmerClaim) => {
     updateClaimStatus(claim.id, 'Needs Review');
+    showToast('Sent to Field Inspector', `${claim.id} flagged for Taluka Agricultural Officer ground inspection.`, 'warning');
     setInspectingClaim(null);
   };
 
   const handleMarkDuplicate = (claim: FarmerClaim) => {
     updateClaimStatus(claim.id, 'Duplicate');
+    showToast('Flagged as Duplicate', `${claim.id} marked as overlapping parcel record.`, 'error');
     setInspectingClaim(null);
   };
 
   return (
-    <div className="flex flex-col w-full gap-6 pb-8">
-      {/* Title Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="flex flex-col w-full gap-5 pb-10">
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-1">
         <div>
-          <div className="flex items-center gap-1.5 text-on-surface-variant font-label-md text-xs tracking-wider uppercase mb-1">
-            <span>Agrarian Insurance Verification</span>
-            <span className="material-symbols-outlined text-xs text-outline">chevron_right</span>
-            <span className="text-primary-fixed font-semibold">Sentinel-2 NDVI Cross-Reference</span>
-          </div>
-          <h1 className="font-headline-xl text-2xl lg:text-3xl text-on-surface font-bold tracking-tight">
-            Claim Evidence Review & Verification
+          <h1 className="text-xl font-bold text-[#111827] tracking-tight">
+            Crop Distress Claims Verification
           </h1>
-          <p className="font-body-md text-sm text-on-surface-variant mt-0.5">
-            Flag missing fields, NDVI inconsistencies, and potential duplicate land parcels automatically.
+          <p className="text-xs text-[#6B7280] mt-0.5">
+            Automated Sentinel-2 multispectral NDVI verification against self-reported farmer distress dossiers
           </p>
         </div>
 
         <button
           type="button"
           onClick={() => authorizeBatchClaims()}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary hover:bg-primary-fixed-dim text-on-primary font-headline-sm text-xs font-bold transition-all shadow-[0_0_16px_rgba(78,222,163,0.3)] self-start sm:self-center cursor-pointer"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#0F4C81] text-white text-xs font-semibold hover:bg-[#0A3963] shadow-[0_1px_2px_rgba(16,24,40,0.08)] transition-colors self-start sm:self-center"
         >
-          <span className="material-symbols-outlined text-base">fact_check</span>
-          <span>Authorize Verified Batch (142)</span>
+          <CheckCircle2 className="w-3.5 h-3.5 stroke-[1.5]" />
+          <span>Authorize verified claims</span>
         </button>
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="p-4 rounded-2xl bg-surface-container-low border border-outline-variant/30 backdrop-blur-xl shadow-md flex flex-col md:flex-row items-center justify-between gap-3">
-        <div className="grid grid-cols-2 sm:grid-cols-2 gap-2 w-full md:w-auto">
-          {/* District Filter */}
-          <div className="relative">
+      <div className="bg-white rounded-lg border border-[#E3E6EB] p-4 shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Search Input */}
+            <div className="relative">
+              <Search className="w-3.5 h-3.5 text-[#9CA3AF] absolute left-3 top-1/2 -translate-y-1/2 stroke-[1.5]" />
+              <input
+                type="text"
+                value={searchId}
+                onChange={e => setSearchId(e.target.value)}
+                placeholder="Search claim ID or farmer name..."
+                className="bg-[#F6F7F9] text-xs text-[#111827] pl-9 pr-3 py-1.5 rounded-md border border-[#E3E6EB] focus:bg-white focus:border-[#0F4C81] focus:ring-1 focus:ring-[#0F4C81] w-64"
+              />
+            </div>
+
+            {/* District Filter */}
             <select
-              aria-label="Filter by district"
               value={districtFilter}
               onChange={e => setDistrictFilter(e.target.value)}
-              className="bg-surface-container-lowest text-on-surface font-body-sm text-xs px-3 py-2 rounded-xl appearance-none focus:outline-none focus:ring-1 focus:ring-primary border border-outline-variant/30 w-full sm:w-44 cursor-pointer"
+              className="bg-[#F6F7F9] text-xs text-[#111827] px-3 py-1.5 rounded-md border border-[#E3E6EB] focus:bg-white focus:border-[#0F4C81]"
             >
               <option value="all">All Districts</option>
-              <option value="beed">Beed</option>
-              <option value="latur">Latur</option>
-              <option value="osmanabad">Osmanabad</option>
-              <option value="solapur">Solapur</option>
-              <option value="nanded">Nanded</option>
+              <option value="Beed">Beed</option>
+              <option value="Latur">Latur</option>
+              <option value="Dharashiv (Osmanabad)">Dharashiv</option>
+              <option value="Nanded">Nanded</option>
             </select>
-            <span className="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 text-sm text-on-surface-variant pointer-events-none">
-              expand_more
-            </span>
-          </div>
 
-          {/* Status Filter */}
-          <div className="relative">
+            {/* Status Filter */}
             <select
-              aria-label="Filter by status"
               value={statusFilter}
               onChange={e => setStatusFilter(e.target.value)}
-              className="bg-surface-container-lowest text-on-surface font-body-sm text-xs px-3 py-2 rounded-xl appearance-none focus:outline-none focus:ring-1 focus:ring-primary border border-outline-variant/30 w-full sm:w-44 cursor-pointer"
+              className="bg-[#F6F7F9] text-xs text-[#111827] px-3 py-1.5 rounded-md border border-[#E3E6EB] focus:bg-white focus:border-[#0F4C81]"
             >
               <option value="all">All Statuses</option>
-              <option value="Genuine">Genuine (Verified)</option>
+              <option value="Genuine">Genuine</option>
               <option value="Needs Review">Needs Review</option>
-              <option value="Duplicate">Duplicates Flagged</option>
+              <option value="Duplicate">Duplicate</option>
             </select>
-            <span className="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 text-sm text-on-surface-variant pointer-events-none">
-              expand_more
-            </span>
           </div>
-        </div>
 
-        {/* Search by Claim ID or Farmer Name */}
-        <div className="relative w-full md:w-72">
-          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-base">
-            search
-          </span>
-          <input
-            type="text"
-            value={searchId}
-            onChange={e => setSearchId(e.target.value)}
-            placeholder="Search claim ID or farmer..."
-            className="w-full bg-surface-container-lowest text-on-surface font-body-sm text-xs pl-9 pr-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary border border-outline-variant/30"
-          />
-        </div>
-      </div>
-
-      {/* Summary KPI Strip */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="p-4 rounded-2xl bg-surface-container-low border border-outline-variant/30 backdrop-blur-xl shadow-md">
-          <span className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-wider block font-semibold">
-            Total Claims Registered
-          </span>
-          <div className="flex items-baseline justify-between mt-1">
-            <span className="font-headline-xl text-2xl text-on-surface font-bold">8,432</span>
-            <span className="text-primary font-mono text-xs font-semibold">48,392 Total</span>
-          </div>
-        </div>
-
-        <div className="p-4 rounded-2xl bg-surface-container-low border border-outline-variant/30 backdrop-blur-xl shadow-md">
-          <span className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-wider block font-semibold">
-            Needs Field Review
-          </span>
-          <div className="flex items-baseline justify-between mt-1">
-            <span className="font-headline-xl text-2xl text-tertiary font-bold">1,248</span>
-            <span className="px-2 py-0.5 rounded-full bg-tertiary/10 text-tertiary text-xs font-bold">
-              14.8%
-            </span>
-          </div>
-        </div>
-
-        <div className="p-4 rounded-2xl bg-surface-container-low border border-outline-variant/30 backdrop-blur-xl shadow-md">
-          <span className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-wider block font-semibold">
-            Duplicates Flagged
-          </span>
-          <div className="flex items-baseline justify-between mt-1">
-            <span className="font-headline-xl text-2xl text-error font-bold">237</span>
-            <span className="px-2 py-0.5 rounded-full bg-error-container/30 text-error text-xs font-bold">
-              2.8%
-            </span>
-          </div>
-        </div>
-
-        <div className="p-4 rounded-2xl bg-surface-container-low border border-outline-variant/30 backdrop-blur-xl shadow-md">
-          <span className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-wider block font-semibold">
-            Missing Fields
-          </span>
-          <div className="flex items-baseline justify-between mt-1">
-            <span className="font-headline-xl text-2xl text-on-surface font-bold">412</span>
-            <span className="text-on-surface-variant text-xs">4.9%</span>
+          <div className="text-xs text-[#6B7280]">
+            Showing <strong className="text-[#111827]">{filteredClaims.length}</strong> of {claims.length} claims
           </div>
         </div>
       </div>
 
-      {/* Claims Data Table */}
-      <div className="p-5 rounded-2xl bg-surface-container-low border border-outline-variant/30 backdrop-blur-xl shadow-md">
-        <div className="flex items-center justify-between pb-3 border-b border-outline-variant/20 mb-3">
-          <span className="font-headline-sm text-sm text-on-surface font-bold">
-            Farmer Claims Ledger & Telemetry Analysis
-          </span>
-          <span className="font-body-sm text-xs text-on-surface-variant">
-            Showing {filteredClaims.length} records
-          </span>
-        </div>
-
+      {/* Claims Table */}
+      <div className="bg-white rounded-lg border border-[#E3E6EB] p-4 shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
         <div className="overflow-x-auto">
-          <table className="w-full text-left font-body-sm text-xs">
+          <table className="w-full text-left text-[13px] border-collapse">
             <thead>
-              <tr className="text-on-surface-variant font-label-md text-[11px] uppercase tracking-wider border-b border-outline-variant/20">
-                <th className="pb-3">Claim ID</th>
-                <th className="pb-3">Farmer & Location</th>
-                <th className="pb-3">Crop & Area</th>
-                <th className="pb-3 text-right">Claimed Loss</th>
-                <th className="pb-3 text-right">Sentinel-2 Loss</th>
-                <th className="pb-3 text-center">Status</th>
-                <th className="pb-3 text-right">Action</th>
+              <tr className="border-b border-[#E3E6EB] text-[11px] font-semibold text-[#6B7280] uppercase tracking-wider bg-[#FAFBFC]">
+                <th className="py-2.5 px-3">Claim ID</th>
+                <th className="py-2.5 px-3">Farmer & Taluka</th>
+                <th className="py-2.5 px-3">Crop & Area</th>
+                <th className="py-2.5 px-3">Reported Loss</th>
+                <th className="py-2.5 px-3">Satellite NDVI Index</th>
+                <th className="py-2.5 px-3">Verification Status</th>
+                <th className="py-2.5 px-3 text-right">Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-outline-variant/10">
-              {filteredClaims.map(claim => {
-                const diff = Math.abs(claim.claimedLoss - claim.spectralLossIndex);
-                const isMismatch = diff > 25;
+            <tbody className="divide-y divide-[#E3E6EB]">
+              {filteredClaims.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="py-8 text-center text-xs text-[#6B7280]">
+                    No claims match the selected criteria.
+                  </td>
+                </tr>
+              ) : (
+                filteredClaims.map(c => {
+                  const variance = Math.abs(c.claimedLoss - c.spectralLossIndex);
+                  const isHighVariance = variance > 25;
 
-                return (
-                  <tr key={claim.id} className="hover:bg-surface-container-high/60 transition-colors">
-                    <td className="py-3 font-mono font-bold text-on-surface">{claim.id}</td>
-                    <td className="py-3">
-                      <div className="font-semibold text-on-surface">{claim.farmerName}</div>
-                      <div className="text-[11px] text-on-surface-variant">
-                        {claim.district} ({claim.taluka})
-                      </div>
-                    </td>
-                    <td className="py-3">
-                      <div className="text-on-surface">{claim.cropType}</div>
-                      <div className="text-[11px] text-on-surface-variant">{claim.plotSizeHectares} ha</div>
-                    </td>
-                    <td className="py-3 text-right font-mono font-bold text-on-surface">
-                      {claim.claimedLoss}%
-                    </td>
-                    <td className="py-3 text-right font-mono font-bold">
-                      <span className={isMismatch ? 'text-error font-extrabold' : 'text-primary'}>
-                        {claim.spectralLossIndex}%
-                      </span>
-                    </td>
-                    <td className="py-3 text-center">
-                      <span
-                        className={`px-2.5 py-0.5 rounded-full font-label-md text-[10px] font-bold ${
-                          claim.status === 'Genuine'
-                            ? 'bg-primary-container/20 text-primary border border-primary/30'
-                            : claim.status === 'Needs Review'
-                            ? 'bg-tertiary-container/20 text-tertiary border border-tertiary/30'
-                            : 'bg-error-container/30 text-error border border-error/30'
-                        }`}
-                      >
-                        {claim.status}
-                      </span>
-                    </td>
-                    <td className="py-3 text-right">
-                      <button
-                        type="button"
-                        onClick={() => setInspectingClaim(claim)}
-                        className="px-3 py-1 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-primary font-label-md text-xs font-semibold transition-colors border border-outline-variant/30 cursor-pointer"
-                      >
-                        Inspect NDVI
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
+                  return (
+                    <tr key={c.id} className="hover:bg-[#F9FAFB] transition-colors">
+                      <td className="py-2.5 px-3 font-mono font-medium text-xs text-[#0F4C81]">
+                        {c.id}
+                      </td>
+                      <td className="py-2.5 px-3">
+                        <span className="font-semibold text-[#111827] block">{c.farmerName}</span>
+                        <span className="text-[11px] text-[#6B7280]">{c.taluka}, {c.district}</span>
+                      </td>
+                      <td className="py-2.5 px-3 text-xs text-[#4B5563]">
+                        {c.cropType} · {c.plotSizeHectares} Ha
+                      </td>
+                      <td className="py-2.5 px-3 font-semibold text-[#C62828] tabular-nums">
+                        {c.claimedLoss}%
+                      </td>
+                      <td className="py-2.5 px-3">
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-semibold text-[#111827] tabular-nums">
+                            {c.spectralLossIndex}%
+                          </span>
+                          {isHighVariance && (
+                            <span className="text-[10px] text-[#C62828] bg-[#FDECEA] px-1 rounded font-medium">
+                              Δ {variance}%
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="py-2.5 px-3">
+                        <div className="flex items-center gap-1.5">
+                          <span
+                            className={`w-2 h-2 rounded-full shrink-0 ${
+                              c.status === 'Genuine'
+                                ? 'bg-[#2E7D32]'
+                                : c.status === 'Needs Review'
+                                ? 'bg-[#B26A00]'
+                                : 'bg-[#C62828]'
+                            }`}
+                          />
+                          <span
+                            className={`text-xs font-medium ${
+                              c.status === 'Genuine'
+                                ? 'text-[#2E7D32]'
+                                : c.status === 'Needs Review'
+                                ? 'text-[#B26A00]'
+                                : 'text-[#C62828]'
+                            }`}
+                          >
+                            {c.status}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="py-2.5 px-3 text-right">
+                        <button
+                          type="button"
+                          onClick={() => setInspectingClaim(c)}
+                          className="text-xs font-semibold text-[#0F4C81] hover:underline"
+                        >
+                          Inspect dossier
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </table>
         </div>
       </div>
 
-      {/* Modal: Satellite Evidence Inspector */}
+      {/* Inspection Modal */}
       {inspectingClaim && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-center justify-center p-4">
-          <div className="bg-surface-container-high border border-outline-variant/40 rounded-2xl p-6 max-w-xl w-full shadow-2xl flex flex-col gap-4 animate-in zoom-in-95">
-            <div className="flex items-center justify-between pb-2 border-b border-outline-variant/30">
-              <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary text-xl">satellite_alt</span>
-                <h3 className="font-headline-sm text-base text-on-surface font-bold">
-                  Satellite Evidence: {inspectingClaim.id}
+        <div className="fixed inset-0 z-50 bg-[#111827]/40 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg border border-[#E3E6EB] shadow-xl max-w-lg w-full p-6">
+            <div className="flex justify-between items-start pb-3 border-b border-[#E3E6EB]">
+              <div>
+                <span className="text-[11px] font-mono text-[#0F4C81]">{inspectingClaim.id}</span>
+                <h3 className="text-base font-bold text-[#111827]">
+                  {inspectingClaim.farmerName}
                 </h3>
+                <p className="text-xs text-[#6B7280]">
+                  {inspectingClaim.taluka}, {inspectingClaim.district} · {inspectingClaim.cropType} ({inspectingClaim.plotSizeHectares} Ha)
+                </p>
               </div>
               <button
+                type="button"
                 onClick={() => setInspectingClaim(null)}
-                className="text-on-surface-variant hover:text-on-surface p-1"
+                className="text-[#9CA3AF] hover:text-[#111827]"
               >
-                <span className="material-symbols-outlined text-lg">close</span>
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="space-y-3 text-xs">
-              <div className="grid grid-cols-2 gap-2 bg-surface-container-lowest/80 p-3 rounded-xl border border-outline-variant/30">
-                <div>
-                  <span className="text-on-surface-variant block text-[11px]">Farmer</span>
-                  <span className="font-bold text-on-surface">{inspectingClaim.farmerName}</span>
-                </div>
-                <div>
-                  <span className="text-on-surface-variant block text-[11px]">Location</span>
-                  <span className="font-medium text-on-surface">
-                    {inspectingClaim.district} • {inspectingClaim.taluka}
+            <div className="my-4 space-y-3 text-xs">
+              <div className="grid grid-cols-2 gap-2">
+                <div className="p-3 rounded bg-[#F9FAFB] border border-[#E3E6EB]">
+                  <span className="text-[11px] text-[#6B7280]">Self-Reported Loss</span>
+                  <span className="text-lg font-bold text-[#C62828] block mt-0.5 tabular-nums">
+                    {inspectingClaim.claimedLoss}%
                   </span>
                 </div>
-                <div>
-                  <span className="text-on-surface-variant block text-[11px]">Crop & Area</span>
-                  <span className="text-on-surface font-medium">
-                    {inspectingClaim.cropType} ({inspectingClaim.plotSizeHectares} ha)
-                  </span>
-                </div>
-                <div>
-                  <span className="text-on-surface-variant block text-[11px]">Spectral Confidence</span>
-                  <span className="font-mono text-primary font-bold">
-                    {(inspectingClaim.confidence * 100).toFixed(0)}%
+                <div className="p-3 rounded bg-[#F9FAFB] border border-[#E3E6EB]">
+                  <span className="text-[11px] text-[#6B7280]">Sentinel-2 Spectral Loss</span>
+                  <span className="text-lg font-bold text-[#0F4C81] block mt-0.5 tabular-nums">
+                    {inspectingClaim.spectralLossIndex}%
                   </span>
                 </div>
               </div>
 
-              {/* Spectral Loss Visual Comparison */}
-              <div className="p-3 rounded-xl bg-surface-container-lowest border border-outline-variant/30 space-y-2">
-                <span className="font-bold text-on-surface text-xs block">
-                  NDVI Discrepancy Analysis
-                </span>
-                <div>
-                  <div className="flex justify-between text-xs mb-1">
-                    <span className="text-on-surface-variant">Self-Claimed Crop Loss:</span>
-                    <span className="font-bold text-on-surface">{inspectingClaim.claimedLoss}%</span>
-                  </div>
-                  <div className="w-full bg-surface-container-highest h-2 rounded-full overflow-hidden">
-                    <div
-                      className="bg-tertiary h-full rounded-full"
-                      style={{ width: `${inspectingClaim.claimedLoss}%` }}
-                    />
-                  </div>
+              <div className="p-3 rounded bg-[#F9FAFB] border border-[#E3E6EB] space-y-1.5">
+                <div className="flex justify-between">
+                  <span className="text-[#6B7280]">Plot Confidence Score:</span>
+                  <span className="font-semibold text-[#111827]">{inspectingClaim.confidence}%</span>
                 </div>
-
-                <div>
-                  <div className="flex justify-between text-xs mb-1">
-                    <span className="text-on-surface-variant">Sentinel-2 Verified Spectral Loss:</span>
-                    <span className="font-bold text-primary">{inspectingClaim.spectralLossIndex}%</span>
-                  </div>
-                  <div className="w-full bg-surface-container-highest h-2 rounded-full overflow-hidden">
-                    <div
-                      className="bg-primary h-full rounded-full"
-                      style={{ width: `${inspectingClaim.spectralLossIndex}%` }}
-                    />
-                  </div>
+                <div className="flex justify-between">
+                  <span className="text-[#6B7280]">Submission Date:</span>
+                  <span className="text-[#111827]">{inspectingClaim.submissionDate}</span>
                 </div>
-              </div>
-
-              <div className="p-3 rounded-xl bg-surface-container/60 border border-outline-variant/20 text-on-surface-variant text-[11px] leading-relaxed">
-                {Math.abs(inspectingClaim.claimedLoss - inspectingClaim.spectralLossIndex) > 25
-                  ? '⚠️ High anomaly detected: Claimed loss deviates by >25% from Sentinel-2 multispectral reflectance. Recommend physical field agent review.'
-                  : '✅ Spectral index aligns within allowable 5% margin of satellite vegetation anomaly.'}
+                <div className="flex justify-between">
+                  <span className="text-[#6B7280]">7/12 Land Revenue Record:</span>
+                  <span className="font-semibold text-[#2E7D32]">Digitally Verified (MahaBhulekh)</span>
+                </div>
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-2 pt-3 border-t border-outline-variant/30">
+            <div className="flex justify-end gap-2 pt-3 border-t border-[#E3E6EB]">
               <button
                 type="button"
                 onClick={() => handleMarkDuplicate(inspectingClaim)}
-                className="px-3 py-1.5 rounded-xl bg-error-container/30 hover:bg-error-container/50 text-error text-xs font-semibold cursor-pointer"
+                className="px-3 py-1.5 rounded-md border border-[#F5C6CB] text-xs font-medium text-[#C62828] hover:bg-[#FDECEA]"
               >
                 Flag Duplicate
               </button>
               <button
                 type="button"
                 onClick={() => handleMarkReview(inspectingClaim)}
-                className="px-3 py-1.5 rounded-xl bg-surface-container hover:bg-surface-container-highest text-on-surface text-xs font-semibold cursor-pointer"
+                className="px-3 py-1.5 rounded-md border border-[#FFE082] text-xs font-medium text-[#B26A00] hover:bg-[#FFF8E1]"
               >
                 Send to Field Review
               </button>
               <button
                 type="button"
                 onClick={() => handleApprove(inspectingClaim)}
-                className="px-4 py-1.5 rounded-xl bg-primary hover:bg-primary-fixed-dim text-on-primary text-xs font-bold shadow-md cursor-pointer"
+                className="px-4 py-1.5 rounded-md bg-[#0F4C81] text-white text-xs font-semibold hover:bg-[#0A3963]"
               >
-                Approve Claim
+                Authorize DBT Grant
               </button>
             </div>
           </div>

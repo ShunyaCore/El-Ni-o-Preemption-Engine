@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
+import { Phone, PhoneOff, Mic, MicOff, BellRing, X, Radio } from 'lucide-react';
 
 export const DriverCallModal: React.FC = () => {
   const { selectedConvoyForCall, setSelectedConvoyForCall, showToast } = useApp();
@@ -27,84 +28,67 @@ export const DriverCallModal: React.FC = () => {
 
   const handleEndCall = () => {
     setSelectedConvoyForCall(null);
-    showToast('Call Ended', `Secure dispatch call with ${selectedConvoyForCall.driverName} logged.`, 'secondary');
+    showToast('Call Ended', `Call with ${selectedConvoyForCall.driverName} logged to dispatch record.`, 'secondary');
   };
 
   return (
-    <div className="fixed inset-0 bg-black/75 backdrop-blur-md z-50 flex items-center justify-center p-4">
-      <div className="bg-surface-container-high border border-outline-variant/40 rounded-3xl p-6 max-w-sm w-full shadow-2xl flex flex-col items-center text-center gap-4 animate-in zoom-in-95">
-        <div className="relative">
-          <div className="w-20 h-20 rounded-full bg-primary/20 border-2 border-primary flex items-center justify-center">
-            <span className="material-symbols-outlined text-primary text-4xl">person</span>
-          </div>
-          <span className="absolute bottom-0 right-0 w-4 h-4 rounded-full bg-primary ring-2 ring-surface animate-ping" />
+    <div className="fixed inset-0 bg-[#111827]/40 z-50 flex items-center justify-center p-4">
+      <div className="bg-white border border-[#E3E6EB] rounded-lg p-6 max-w-sm w-full shadow-xl flex flex-col items-center text-center gap-4 animate-in zoom-in-95">
+        <div className="w-16 h-16 rounded-full bg-[#EEF4FA] border border-[#BCD4EC] flex items-center justify-center text-[#0F4C81]">
+          <Phone className="w-7 h-7 stroke-[1.5]" />
         </div>
 
         <div>
-          <h3 className="font-headline-sm text-lg text-on-surface font-bold">
+          <h3 className="text-base font-bold text-[#111827]">
             {selectedConvoyForCall.driverName}
           </h3>
-          <p className="text-xs text-primary font-mono font-semibold">
+          <p className="text-xs text-[#0F4C81] font-mono font-medium">
             {selectedConvoyForCall.driverPhone}
           </p>
-          <p className="text-xs text-on-surface-variant mt-1">
-            Convoy {selectedConvoyForCall.id} • {selectedConvoyForCall.vehicleNo}
+          <p className="text-xs text-[#6B7280] mt-0.5">
+            Convoy {selectedConvoyForCall.id} · {selectedConvoyForCall.vehicleNo}
           </p>
         </div>
 
-        {/* Audio Wave Simulation */}
-        <div className="flex items-center gap-1.5 h-8 my-2">
-          {[40, 70, 95, 60, 85, 45, 80, 50, 75, 90, 60].map((h, i) => (
-            <div
-              key={i}
-              className="w-1 bg-primary rounded-full animate-pulse"
-              style={{
-                height: `${h}%`,
-                animationDelay: `${i * 80}ms`
-              }}
-            />
-          ))}
-        </div>
-
-        <div className="font-mono text-sm font-bold text-on-surface">
+        <div className="font-mono text-base font-bold text-[#111827] tabular-nums">
           {formatTime(callDuration)}
         </div>
 
-        <p className="text-[11px] text-on-surface-variant">
-          Encrypted State Emergency Telematics Network (NavIC-GSM Channel 4)
+        <p className="text-[11px] text-[#6B7280]">
+          State Emergency Telematics Channel (NavIC / GSM Secure Link)
         </p>
 
         {/* Action Controls */}
-        <div className="flex items-center gap-4 mt-2">
+        <div className="flex items-center gap-3 mt-2">
           <button
             type="button"
             onClick={() => setIsMuted(!isMuted)}
-            className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors cursor-pointer ${
-              isMuted ? 'bg-tertiary text-on-tertiary' : 'bg-surface-container text-on-surface hover:bg-surface-container-highest'
+            className={`w-10 h-10 rounded-full flex items-center justify-center border transition-colors ${
+              isMuted
+                ? 'bg-[#FFF8E1] border-[#FFE082] text-[#B26A00]'
+                : 'bg-[#F1F3F5] border-[#E3E6EB] text-[#4B5563] hover:text-[#111827]'
             }`}
             title={isMuted ? 'Unmute' : 'Mute'}
           >
-            <span className="material-symbols-outlined text-xl">
-              {isMuted ? 'mic_off' : 'mic'}
-            </span>
+            {isMuted ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
           </button>
 
           <button
             type="button"
             onClick={handleEndCall}
-            className="w-14 h-14 rounded-full bg-error hover:bg-error/90 text-white flex items-center justify-center shadow-lg transition-transform hover:scale-105 cursor-pointer"
+            className="w-12 h-12 rounded-full bg-[#C62828] hover:bg-[#B71C1C] text-white flex items-center justify-center shadow-md transition-transform"
             title="End Call"
           >
-            <span className="material-symbols-outlined text-2xl">call_end</span>
+            <PhoneOff className="w-5 h-5" />
           </button>
 
           <button
             type="button"
-            onClick={() => showToast('Priority Signal Sent', 'Horn beacon ping sent to driver console.', 'secondary')}
-            className="w-12 h-12 rounded-full bg-surface-container text-on-surface hover:bg-surface-container-highest flex items-center justify-center transition-colors cursor-pointer"
-            title="Send Emergency Ping"
+            onClick={() => showToast('Ping Sent', 'Dispatch alert chime transmitted to in-cab console.', 'secondary')}
+            className="w-10 h-10 rounded-full bg-[#F1F3F5] border border-[#E3E6EB] text-[#4B5563] hover:text-[#111827] flex items-center justify-center transition-colors"
+            title="Send Chime Ping"
           >
-            <span className="material-symbols-outlined text-xl">notifications_active</span>
+            <BellRing className="w-4 h-4" />
           </button>
         </div>
       </div>

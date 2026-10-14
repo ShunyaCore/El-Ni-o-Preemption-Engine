@@ -1,6 +1,145 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { TOPOGRAPHIC_MAP_BG } from '../data/mockData';
+import { CloudRain, AlertTriangle, ArrowRight, Layers, FileDown } from 'lucide-react';
+
+interface CropLossProfile {
+  id: string;
+  name: string;
+  talukas: string;
+  overallLossRiskPct: number;
+  totalAcreageHa: string;
+  projectedYieldShortfallMT: string;
+  economicExposureCr: number;
+  soilRootDeficit: string;
+  ndviAnomalyDelta: string;
+  preemptiveIntervention: string;
+  crops: {
+    name: string;
+    lossRisk: number;
+    acreage: string;
+    stage: string;
+    severity: 'Critical' | 'Severe' | 'Moderate';
+  }[];
+  polygonPath: string;
+  centroid: { x: number; y: number };
+}
+
+const REGIONAL_CROP_PROFILES: Record<string, CropLossProfile> = {
+  beed: {
+    id: 'beed',
+    name: 'Beed',
+    talukas: 'Patoda, Ashti, Majalgaon & Georai',
+    overallLossRiskPct: 74,
+    totalAcreageHa: '6.7 Lakh Hectares',
+    projectedYieldShortfallMT: '420,000 MT',
+    economicExposureCr: 284,
+    soilRootDeficit: '-64% root-zone moisture saturation',
+    ndviAnomalyDelta: '-0.28 vs 5-yr baseline',
+    preemptiveIntervention: 'Emergency borewell recharge tranches + 34 potable water tanker units',
+    crops: [
+      { name: 'Soybean', lossRisk: 78, acreage: '3.4 L Ha', stage: 'Pod filling / grain development', severity: 'Critical' },
+      { name: 'Cotton (Bt)', lossRisk: 71, acreage: '2.1 L Ha', stage: 'Boll formation stress', severity: 'Critical' },
+      { name: 'Bajra / Pearl Millet', lossRisk: 58, acreage: '1.2 L Ha', stage: 'Flowering & earhead emergence', severity: 'Severe' }
+    ],
+    polygonPath: 'M 290 170 L 410 155 L 450 215 L 415 275 L 325 270 L 275 210 Z',
+    centroid: { x: 360, y: 215 }
+  },
+  latur: {
+    id: 'latur',
+    name: 'Latur',
+    talukas: 'Ausa, Nilanga, Renapur & Udgir',
+    overallLossRiskPct: 68,
+    totalAcreageHa: '5.9 Lakh Hectares',
+    projectedYieldShortfallMT: '385,000 MT',
+    economicExposureCr: 256,
+    soilRootDeficit: '-58% deep aquifer depletion',
+    ndviAnomalyDelta: '-0.24 vs 5-yr baseline',
+    preemptiveIntervention: 'Deep aquifer recharge funding + emergency fodder bank subsidies',
+    crops: [
+      { name: 'Soybean', lossRisk: 72, acreage: '3.8 L Ha', stage: 'Seed maturation failure', severity: 'Critical' },
+      { name: 'Pigeon Pea (Tur)', lossRisk: 64, acreage: '1.4 L Ha', stage: 'Vegetative growth stunt', severity: 'Severe' },
+      { name: 'Gram / Chickpea', lossRisk: 48, acreage: '0.7 L Ha', stage: 'Pre-sowing moisture deficit', severity: 'Moderate' }
+    ],
+    polygonPath: 'M 450 215 L 530 205 L 575 275 L 515 330 L 435 305 L 415 275 Z',
+    centroid: { x: 485, y: 265 }
+  },
+  osmanabad: {
+    id: 'osmanabad',
+    name: 'Dharashiv (Osmanabad)',
+    talukas: 'Tuljapur, Bhoom, Paranda & Kalamb',
+    overallLossRiskPct: 58,
+    totalAcreageHa: '4.8 Lakh Hectares',
+    projectedYieldShortfallMT: '275,000 MT',
+    economicExposureCr: 195,
+    soilRootDeficit: '-49% upper topsoil dryness',
+    ndviAnomalyDelta: '-0.19 vs 5-yr baseline',
+    preemptiveIntervention: 'Cattle fodder depot supply expansion + micro-irrigation grants',
+    crops: [
+      { name: 'Soybean', lossRisk: 62, acreage: '2.5 L Ha', stage: 'Flowering abortion', severity: 'Severe' },
+      { name: 'Sugarcane (Ratoon)', lossRisk: 59, acreage: '1.1 L Ha', stage: 'Severe stalk moisture stress', severity: 'Severe' },
+      { name: 'Kharif Jowar', lossRisk: 46, acreage: '1.2 L Ha', stage: 'Grain filling stage', severity: 'Moderate' }
+    ],
+    polygonPath: 'M 325 270 L 415 275 L 435 305 L 415 365 L 345 375 L 295 325 Z',
+    centroid: { x: 370, y: 320 }
+  },
+  nanded: {
+    id: 'nanded',
+    name: 'Nanded',
+    talukas: 'Mukhed, Biloli, Degloor & Loha',
+    overallLossRiskPct: 46,
+    totalAcreageHa: '6.2 Lakh Hectares',
+    projectedYieldShortfallMT: '215,000 MT',
+    economicExposureCr: 148,
+    soilRootDeficit: '-41% Godavari tributary basin drop',
+    ndviAnomalyDelta: '-0.14 vs 5-yr baseline',
+    preemptiveIntervention: 'Agrarian pump electricity subsidies + drought seed bank kits',
+    crops: [
+      { name: 'Cotton', lossRisk: 51, acreage: '3.1 L Ha', stage: 'Squaring & vegetative', severity: 'Severe' },
+      { name: 'Turmeric', lossRisk: 44, acreage: '0.8 L Ha', stage: 'Rhizome development', severity: 'Moderate' },
+      { name: 'Soybean', lossRisk: 42, acreage: '2.3 L Ha', stage: 'Pod setting', severity: 'Moderate' }
+    ],
+    polygonPath: 'M 530 145 L 640 165 L 685 245 L 575 275 L 530 205 L 505 155 Z',
+    centroid: { x: 590, y: 215 }
+  },
+  solapur: {
+    id: 'solapur',
+    name: 'Solapur',
+    talukas: 'Karmala, Sangola, Pandharpur & Madha',
+    overallLossRiskPct: 49,
+    totalAcreageHa: '7.1 Lakh Hectares',
+    projectedYieldShortfallMT: '240,000 MT',
+    economicExposureCr: 162,
+    soilRootDeficit: '-38% Ujani canal tail-end shortfall',
+    ndviAnomalyDelta: '-0.16 vs 5-yr baseline',
+    preemptiveIntervention: 'Potable water convoy line SH-142 + fruit orchard drip relief',
+    crops: [
+      { name: 'Pomegranate & Horticulture', lossRisk: 58, acreage: '0.9 L Ha', stage: 'Fruit cracking & defoliation', severity: 'Severe' },
+      { name: 'Rabi Jowar', lossRisk: 45, acreage: '3.4 L Ha', stage: 'Sowing moisture risk', severity: 'Moderate' },
+      { name: 'Sugarcane', lossRisk: 48, acreage: '1.8 L Ha', stage: 'High irrigation deficit', severity: 'Moderate' }
+    ],
+    polygonPath: 'M 215 285 L 295 325 L 345 375 L 295 425 L 195 395 L 185 330 Z',
+    centroid: { x: 255, y: 355 }
+  },
+  jalna: {
+    id: 'jalna',
+    name: 'Jalna',
+    talukas: 'Ambad, Partur, Ghansawangi & Bhokardan',
+    overallLossRiskPct: 53,
+    totalAcreageHa: '4.9 Lakh Hectares',
+    projectedYieldShortfallMT: '190,000 MT',
+    economicExposureCr: 135,
+    soilRootDeficit: '-44% dry plateau moisture depletion',
+    ndviAnomalyDelta: '-0.17 vs 5-yr baseline',
+    preemptiveIntervention: 'Seed pouch pre-positioning + agricultural feeder power guarantees',
+    crops: [
+      { name: 'Sweet Orange (Mosambi)', lossRisk: 64, acreage: '0.6 L Ha', stage: 'Fruit drop due to water stress', severity: 'Severe' },
+      { name: 'Cotton', lossRisk: 52, acreage: '2.6 L Ha', stage: 'Boll retention drop', severity: 'Severe' },
+      { name: 'Maize', lossRisk: 41, acreage: '1.2 L Ha', stage: 'Tasseling stage', severity: 'Moderate' }
+    ],
+    polygonPath: 'M 315 110 L 435 95 L 505 155 L 410 155 L 290 170 L 285 125 Z',
+    centroid: { x: 385, y: 135 }
+  }
+};
 
 export const DroughtRiskView: React.FC = () => {
   const { districts, setCurrentModule, showToast } = useApp();
@@ -8,52 +147,75 @@ export const DroughtRiskView: React.FC = () => {
   const [selectedDistrictId, setSelectedDistrictId] = useState<string>('beed');
 
   const selectedDist = districts.find(d => d.id === selectedDistrictId) || districts[0];
+  const activeCropProfile = REGIONAL_CROP_PROFILES[selectedDistrictId] || REGIONAL_CROP_PROFILES.beed;
 
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   const years = [2026, 2025, 2024, 2023, 2022, 2021, 2020];
 
-  // Synthetic VCI Heatmap colors
   const getCellColor = (year: number, monthIdx: number) => {
     if (year === 2026 && monthIdx >= 6) {
-      if (monthIdx === 7 || monthIdx === 8 || monthIdx === 9) return 'bg-error'; // Extreme drought in Aug-Oct
-      return 'bg-tertiary';
+      if (monthIdx === 7 || monthIdx === 8 || monthIdx === 9) return 'bg-[#C62828] text-white';
+      return 'bg-[#B26A00] text-white';
     }
-    if (year === 2024 && (monthIdx === 5 || monthIdx === 6)) return 'bg-error';
-    if ((year + monthIdx) % 7 === 0) return 'bg-error/80';
-    if ((year + monthIdx) % 3 === 0) return 'bg-tertiary';
-    if ((year + monthIdx) % 4 === 0) return 'bg-yellow-400';
-    return 'bg-primary-container/80';
+    if (year === 2024 && (monthIdx === 5 || monthIdx === 6)) return 'bg-[#C62828] text-white';
+    if ((year + monthIdx) % 7 === 0) return 'bg-[#EF5350] text-white';
+    if ((year + monthIdx) % 3 === 0) return 'bg-[#FFF8E1] text-[#B26A00] font-medium';
+    return 'bg-[#F1F3F5] text-[#6B7280]';
+  };
+
+  const handlePolygonClick = (regionId: string) => {
+    setSelectedDistrictId(regionId);
+    const profile = REGIONAL_CROP_PROFILES[regionId];
+    if (profile) {
+      showToast(
+        `${profile.name} Crop Loss Profile Active`,
+        `Selected ${profile.name} (${profile.overallLossRiskPct}% overall risk). Highlighted ${profile.crops[0].name} loss data.`,
+        'primary'
+      );
+    }
+  };
+
+  const getPolygonStyle = (regionId: string, lossPct: number) => {
+    const isSelected = selectedDistrictId === regionId;
+
+    let fill = '#FEE2E2';
+    if (lossPct >= 70) fill = '#991B1B';
+    else if (lossPct >= 60) fill = '#C62828';
+    else if (lossPct >= 50) fill = '#EF5350';
+    else if (lossPct >= 40) fill = '#FCA5A5';
+
+    return {
+      fill,
+      fillOpacity: isSelected ? 0.95 : 0.75,
+      stroke: isSelected ? '#0F4C81' : '#FFFFFF',
+      strokeWidth: isSelected ? 2.5 : 1.2
+    };
   };
 
   return (
-    <div className="flex flex-col w-full gap-6 pb-8">
+    <div className="flex flex-col w-full gap-5 pb-10">
       {/* Title Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-1">
         <div>
-          <div className="flex items-center gap-1.5 text-on-surface-variant font-label-md text-xs tracking-wider uppercase mb-1">
-            <span>Meteorological Intelligence</span>
-            <span className="material-symbols-outlined text-xs text-outline">chevron_right</span>
-            <span className="text-tertiary font-semibold">INSAT-3DR Multispectral</span>
-          </div>
-          <h1 className="font-headline-xl text-2xl lg:text-3xl text-on-surface font-bold tracking-tight">
-            Drought Risk Monitor & NDVI Indices
+          <h1 className="text-xl font-bold text-[#111827] tracking-tight">
+            Drought Risk & Rainfall Indices
           </h1>
-          <p className="font-body-md text-sm text-on-surface-variant mt-0.5">
-            Monitor drought risk indicators, rainfall deficit, and dry spells across Marathwada agrarian zones.
+          <p className="text-xs text-[#6B7280] mt-0.5">
+            Vegetation Condition Index (VCI) anomaly analysis and regional crop loss vulnerability
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
-          <div className="flex items-center bg-surface-container-low p-1 rounded-xl border border-outline-variant/30">
+        <div className="flex items-center gap-2.5">
+          <div className="flex items-center bg-[#F1F3F5] p-0.5 rounded-md border border-[#E3E6EB]">
             {(['30d', '60d', '90d'] as const).map(h => (
               <button
                 key={h}
                 type="button"
                 onClick={() => setSelectedHorizon(h)}
-                className={`px-3 py-1.5 rounded-lg font-headline-sm text-xs font-semibold transition-all ${
+                className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
                   selectedHorizon === h
-                    ? 'bg-primary-container text-on-primary-container shadow-sm'
-                    : 'text-on-surface-variant hover:text-on-surface'
+                    ? 'bg-white text-[#111827] shadow-[0_1px_2px_rgba(16,24,40,0.06)]'
+                    : 'text-[#4B5563] hover:text-[#111827]'
                 }`}
               >
                 Last {h.toUpperCase()}
@@ -65,334 +227,321 @@ export const DroughtRiskView: React.FC = () => {
             type="button"
             onClick={() => {
               setCurrentModule('relief-budget-optimizer');
-              showToast('Optimizer Launched', 'Passing active drought deficit values to MILP solver.', 'primary');
+              showToast('Optimizer Launched', `Passing ${activeCropProfile.name} deficit values to solver.`, 'primary');
             }}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-on-primary font-headline-sm text-xs font-bold shadow-md hover:bg-primary-fixed-dim transition-all"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#0F4C81] text-white text-xs font-semibold hover:bg-[#0A3963] shadow-[0_1px_2px_rgba(16,24,40,0.08)] transition-colors"
           >
             <span>Run Budget Optimizer</span>
-            <span className="material-symbols-outlined text-sm">arrow_forward</span>
+            <ArrowRight className="w-3.5 h-3.5 stroke-[1.5]" />
           </button>
         </div>
       </div>
 
       {/* Top 4 Key Indicator Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="p-4 rounded-2xl bg-surface-container-low border border-outline-variant/30 backdrop-blur-xl shadow-md flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-error-container/20 border border-error/30 flex items-center justify-center text-error">
-              <span className="material-symbols-outlined text-xl">cloud_off</span>
-            </div>
-            <div>
-              <span className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-wider font-semibold">
-                Rainfall Deficit
-              </span>
-              <div className="font-headline-xl text-xl text-error font-bold mt-0.5">
-                {selectedDist.precipDeficit}%
-              </div>
-            </div>
+        <div className="bg-white rounded-lg border border-[#E3E6EB] p-4 shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-[#6B7280]">
+            Rainfall Deficit ({activeCropProfile.name})
+          </span>
+          <div className="text-[28px] font-bold text-[#C62828] tabular-nums mt-1 leading-none">
+            {selectedDist.precipDeficit}%
           </div>
-          <span className="font-body-sm text-[11px] text-on-surface-variant">vs 50-yr avg</span>
-        </div>
-
-        <div className="p-4 rounded-2xl bg-surface-container-low border border-outline-variant/30 backdrop-blur-xl shadow-md flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-tertiary-container/20 border border-tertiary/30 flex items-center justify-center text-tertiary">
-              <span className="material-symbols-outlined text-xl">sunny</span>
-            </div>
-            <div>
-              <span className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-wider font-semibold">
-                Dry Spell Duration
-              </span>
-              <div className="font-headline-xl text-xl text-tertiary font-bold mt-0.5">
-                {selectedDist.drySpellDays} days
-              </div>
-            </div>
-          </div>
-          <span className="font-body-sm text-[11px] text-tertiary font-semibold">Consecutive</span>
-        </div>
-
-        <div className="p-4 rounded-2xl bg-surface-container-low border border-outline-variant/30 backdrop-blur-xl shadow-md flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-error-container/20 border border-error/30 flex items-center justify-center text-error">
-              <span className="material-symbols-outlined text-xl">water_damage</span>
-            </div>
-            <div>
-              <span className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-wider font-semibold">
-                Soil Moisture
-              </span>
-              <div className="font-headline-xl text-xl text-error font-bold mt-0.5">
-                {selectedDist.soilMoisture}%
-              </div>
-            </div>
-          </div>
-          <span className="px-2 py-0.5 rounded-full bg-error-container/40 text-error text-[10px] font-bold uppercase">
-            Critical
+          <span className="text-[11px] text-[#6B7280] mt-2 block">
+            vs 50-year state baseline
           </span>
         </div>
 
-        <div className="p-4 rounded-2xl bg-surface-container-low border border-outline-variant/30 backdrop-blur-xl shadow-md flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-primary-container/20 border border-primary/30 flex items-center justify-center text-primary">
-              <span className="material-symbols-outlined text-xl">psychology</span>
-            </div>
-            <div>
-              <span className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-wider font-semibold">
-                AI Confidence
-              </span>
-              <div className="font-headline-xl text-xl text-primary font-bold mt-0.5">
-                {selectedDist.aiConfidence}%
-              </div>
-            </div>
+        <div className="bg-white rounded-lg border border-[#E3E6EB] p-4 shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-[#6B7280]">
+            Crop Loss Risk Index
+          </span>
+          <div className="text-[28px] font-bold text-[#B26A00] tabular-nums mt-1 leading-none">
+            {activeCropProfile.overallLossRiskPct}% Loss
           </div>
-          <span className="font-body-sm text-[11px] text-primary font-semibold">CartoSat Model</span>
+          <span className="text-[11px] text-[#6B7280] mt-2 block">
+            Projected yield shortfall
+          </span>
+        </div>
+
+        <div className="bg-white rounded-lg border border-[#E3E6EB] p-4 shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-[#6B7280]">
+            Soil Moisture Saturation
+          </span>
+          <div className="text-[28px] font-bold text-[#111827] tabular-nums mt-1 leading-none">
+            {selectedDist.soilMoisture}%
+          </div>
+          <span className="text-[11px] text-[#C62828] font-medium mt-2 block">
+            Critical root-zone depletion
+          </span>
+        </div>
+
+        <div className="bg-white rounded-lg border border-[#E3E6EB] p-4 shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-[#6B7280]">
+            Monitored Agrarian Acreage
+          </span>
+          <div className="text-[28px] font-bold text-[#111827] tabular-nums mt-1 leading-none">
+            {activeCropProfile.totalAcreageHa}
+          </div>
+          <span className="text-[11px] text-[#6B7280] mt-2 block">
+            Economic exposure: ₹{activeCropProfile.economicExposureCr} Cr
+          </span>
         </div>
       </div>
 
-      {/* Main Grid: Interactive Map + VCI / NDVI Anomaly Plot */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Column: Cartographic Regional Selector (5 cols) */}
-        <div className="lg:col-span-5 flex flex-col gap-4">
-          <div className="p-5 rounded-2xl bg-surface-container-low border border-outline-variant/30 backdrop-blur-xl shadow-md flex flex-col gap-3">
-            <div className="flex items-center justify-between">
-              <span className="font-headline-sm text-sm text-on-surface font-bold">
-                Marathwada Vulnerability Map
-              </span>
-              <span className="font-label-md text-xs text-primary font-semibold">
-                Active Focus: {selectedDist.name}
+      {/* Main Grid: Interactive SVG Polygon Map + Crop Loss Telemetry Inspector */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        {/* Left Column: Interactive SVG Regional Polygon Map (7 cols) */}
+        <div className="lg:col-span-7 bg-white rounded-lg border border-[#E3E6EB] p-4 shadow-[0_1px_2px_rgba(16,24,40,0.04)] flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between pb-3 border-b border-[#E3E6EB]">
+              <div>
+                <h3 className="text-sm font-semibold text-[#111827]">
+                  Interactive Regional Crop Loss Cartography
+                </h3>
+                <p className="text-xs text-[#6B7280]">
+                  Click on any district polygon to load specific crop failure telemetry
+                </p>
+              </div>
+              <span className="text-xs font-semibold text-[#0F4C81] bg-[#EEF4FA] px-2 py-0.5 rounded border border-[#BCD4EC]">
+                Selected: {activeCropProfile.name}
               </span>
             </div>
 
-            <div className="relative w-full h-[320px] rounded-xl bg-surface-container-lowest overflow-hidden border border-outline-variant/30">
-              <div
-                className="absolute inset-0 opacity-40 bg-cover bg-center filter contrast-125"
-                style={{ backgroundImage: `url('${TOPOGRAPHIC_MAP_BG}')` }}
-              />
-              <div className="absolute inset-0 bg-[radial-gradient(#4edea3_1px,transparent_1px)] [background-size:24px_24px] opacity-10 pointer-events-none" />
+            {/* SVG Cartographic Canvas */}
+            <div className="relative w-full h-[360px] bg-[#F9FAFB] rounded-md border border-[#E3E6EB] mt-3 overflow-hidden">
+              <div className="absolute inset-0 bg-[radial-gradient(#D1D5DB_1px,transparent_1px)] [background-size:20px_20px] opacity-40 pointer-events-none" />
 
-              <svg className="absolute inset-0 w-full h-full" viewBox="0 0 800 400" preserveAspectRatio="none">
-                <path
-                  d="M 280 190 L 410 160 L 470 230 L 390 320 L 290 280 Z"
-                  className="fill-error/40 stroke-error/90 animate-pulse"
-                  strokeWidth="2.5"
-                />
+              <svg className="w-full h-full" viewBox="0 0 800 450" preserveAspectRatio="xMidYMid meet">
+                {Object.values(REGIONAL_CROP_PROFILES).map(profile => {
+                  const isSelected = selectedDistrictId === profile.id;
+                  const style = getPolygonStyle(profile.id, profile.overallLossRiskPct);
+
+                  return (
+                    <g key={profile.id} onClick={() => handlePolygonClick(profile.id)} className="cursor-pointer">
+                      <path
+                        d={profile.polygonPath}
+                        fill={style.fill}
+                        fillOpacity={style.fillOpacity}
+                        stroke={style.stroke}
+                        strokeWidth={style.strokeWidth}
+                        className="transition-all duration-150 hover:fill-opacity-95"
+                      />
+                      <circle
+                        cx={profile.centroid.x}
+                        cy={profile.centroid.y}
+                        r={isSelected ? 4 : 3}
+                        fill={isSelected ? '#0F4C81' : '#FFFFFF'}
+                        stroke="#111827"
+                        strokeWidth="1.2"
+                      />
+                      <text
+                        x={profile.centroid.x}
+                        y={profile.centroid.y - 7}
+                        textAnchor="middle"
+                        fill={profile.overallLossRiskPct >= 60 ? '#FFFFFF' : '#111827'}
+                        fontSize="11px"
+                        fontWeight="600"
+                        fontFamily="Inter, sans-serif"
+                        className="pointer-events-none"
+                      >
+                        {profile.name}
+                      </text>
+                      <text
+                        x={profile.centroid.x}
+                        y={profile.centroid.y + 14}
+                        textAnchor="middle"
+                        fill={profile.overallLossRiskPct >= 60 ? '#FEE2E2' : '#4B5563'}
+                        fontSize="9.5px"
+                        fontWeight="500"
+                        fontFamily="Inter, sans-serif"
+                        className="pointer-events-none"
+                      >
+                        {profile.overallLossRiskPct}% Loss Risk
+                      </text>
+                    </g>
+                  );
+                })}
               </svg>
 
-              {districts.map(d => (
-                <button
-                  key={d.id}
-                  type="button"
-                  onClick={() => setSelectedDistrictId(d.id)}
-                  className={`absolute p-2 rounded-full transform -translate-x-1/2 -translate-y-1/2 transition-transform cursor-pointer group ${
-                    selectedDistrictId === d.id ? 'scale-125 z-20' : 'hover:scale-110 z-10'
-                  }`}
-                  style={{
-                    left: `${(d.coordinates.x / 800) * 100}%`,
-                    top: `${(d.coordinates.y / 400) * 100}%`
-                  }}
-                  title={d.name}
-                >
-                  <div
-                    className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white shadow-lg border-2 border-white/80 ${
-                      d.riskScore > 0.8 ? 'bg-error' : d.riskScore > 0.6 ? 'bg-tertiary' : 'bg-primary-container'
-                    }`}
-                  >
-                    !
-                  </div>
-                  <span className="absolute top-6 left-1/2 -translate-x-1/2 whitespace-nowrap px-2 py-0.5 rounded bg-surface-container-high/90 text-[10px] font-bold text-on-surface border border-outline-variant/30">
-                    {d.name}
-                  </span>
-                </button>
-              ))}
+              {/* Map Legend */}
+              <div className="absolute bottom-3 right-3 bg-white/95 border border-[#E3E6EB] rounded px-2.5 py-1.5 text-[11px] text-[#4B5563] shadow-sm flex items-center gap-3">
+                <span className="font-semibold text-[#111827]">Loss Risk:</span>
+                <div className="flex items-center gap-1">
+                  <span className="w-3 h-3 rounded-sm bg-[#991B1B]" />
+                  <span>&gt;70% Critical</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <span className="w-3 h-3 rounded-sm bg-[#C62828]" />
+                  <span>60–70% Severe</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <span className="w-3 h-3 rounded-sm bg-[#EF5350]" />
+                  <span>50–60% Moderate</span>
+                </div>
+              </div>
             </div>
+          </div>
 
-            {/* Quick District Picker Pills */}
-            <div className="flex flex-wrap gap-2 pt-1">
-              {districts.map(d => (
-                <button
-                  key={d.id}
-                  type="button"
-                  onClick={() => setSelectedDistrictId(d.id)}
-                  className={`px-3 py-1.5 rounded-xl font-label-md text-xs font-semibold transition-all border ${
-                    selectedDistrictId === d.id
-                      ? 'bg-primary text-on-primary border-primary shadow-sm'
-                      : 'bg-surface-container text-on-surface-variant hover:text-on-surface border-outline-variant/20'
-                  }`}
-                >
-                  {d.name} ({d.riskScore})
-                </button>
-              ))}
-            </div>
+          <div className="pt-2 text-[11px] text-[#9CA3AF]">
+            Cartography: ISRO CartoSat-3 Digital Elevation Model & Sentinel-2 Multispectral NDVI
           </div>
         </div>
 
-        {/* Right Column: VCI 3-Month Anomaly Heatmap & Precipitation Graph (7 cols) */}
-        <div className="lg:col-span-7 flex flex-col gap-4">
-          <div className="p-5 rounded-2xl bg-surface-container-low border border-outline-variant/30 backdrop-blur-xl shadow-md flex flex-col gap-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-outline-variant/20">
-              <div>
-                <span className="font-headline-sm text-sm text-on-surface font-bold">
-                  VCI 3-Months Anomaly Heatmap ({selectedDist.name} Sector)
+        {/* Right Column: Crop Loss Telemetry Inspector (5 cols) */}
+        <div className="lg:col-span-5 bg-white rounded-lg border border-[#E3E6EB] p-4 shadow-[0_1px_2px_rgba(16,24,40,0.04)] flex flex-col justify-between">
+          <div>
+            <div className="pb-3 border-b border-[#E3E6EB]">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-semibold text-[#111827]">
+                  {activeCropProfile.name} District Assessment
+                </h3>
+                <span
+                  className={`text-[10px] px-2 py-0.5 rounded font-semibold ${
+                    activeCropProfile.overallLossRiskPct >= 65
+                      ? 'bg-[#FDECEA] text-[#C62828]'
+                      : 'bg-[#FFF8E1] text-[#B26A00]'
+                  }`}
+                >
+                  {activeCropProfile.overallLossRiskPct}% Loss Risk
                 </span>
-                <p className="font-body-sm text-xs text-on-surface-variant">
-                  Historical Vegetation Condition Index (VCI) matrix from 2020 to 2026.
-                </p>
               </div>
-              <div className="flex items-center gap-3 text-xs font-label-md">
-                <span className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded bg-error" />
-                  Extreme Drought
+              <p className="text-xs text-[#6B7280] mt-0.5">{activeCropProfile.talukas}</p>
+            </div>
+
+            {/* Key Agrarian Metrics */}
+            <div className="grid grid-cols-2 gap-2 my-3 text-xs">
+              <div className="p-2 rounded bg-[#F9FAFB] border border-[#E3E6EB]">
+                <span className="text-[11px] text-[#6B7280]">Yield Shortfall</span>
+                <span className="text-xs font-semibold text-[#C62828] block mt-0.5">
+                  {activeCropProfile.projectedYieldShortfallMT}
                 </span>
-                <span className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded bg-tertiary" />
-                  Moderate
+              </div>
+              <div className="p-2 rounded bg-[#F9FAFB] border border-[#E3E6EB]">
+                <span className="text-[11px] text-[#6B7280]">Economic Exposure</span>
+                <span className="text-xs font-semibold text-[#111827] block mt-0.5">
+                  ₹{activeCropProfile.economicExposureCr} Cr
                 </span>
-                <span className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded bg-primary-container" />
-                  Optimal
+              </div>
+              <div className="p-2 rounded bg-[#F9FAFB] border border-[#E3E6EB]">
+                <span className="text-[11px] text-[#6B7280]">Root-Zone Deficit</span>
+                <span className="text-[11px] font-medium text-[#4B5563] block mt-0.5">
+                  {activeCropProfile.soilRootDeficit}
+                </span>
+              </div>
+              <div className="p-2 rounded bg-[#F9FAFB] border border-[#E3E6EB]">
+                <span className="text-[11px] text-[#6B7280]">NDVI Anomaly</span>
+                <span className="text-[11px] font-medium text-[#4B5563] block mt-0.5">
+                  {activeCropProfile.ndviAnomalyDelta}
                 </span>
               </div>
             </div>
 
-            {/* Interactive Heatmap Matrix */}
-            <div className="overflow-x-auto pb-2">
-              <div className="min-w-[500px]">
-                {/* Header Months */}
-                <div className="grid grid-cols-13 gap-1 mb-1 text-center font-label-md text-[10px] text-on-surface-variant font-semibold">
-                  <span>Year</span>
-                  {months.map(m => (
-                    <span key={m}>{m}</span>
-                  ))}
-                </div>
-
-                {/* Years Rows */}
-                <div className="flex flex-col gap-1">
-                  {years.map(yr => (
-                    <div key={yr} className="grid grid-cols-13 gap-1 items-center">
-                      <span className="font-mono text-xs text-on-surface font-bold text-center">
-                        {yr}
-                      </span>
-                      {months.map((m, idx) => (
-                        <div
-                          key={m}
-                          className={`h-6 rounded-md transition-all hover:scale-110 cursor-pointer ${getCellColor(
-                            yr,
-                            idx
-                          )}`}
-                          title={`${selectedDist.name} - ${m} ${yr}`}
-                        />
-                      ))}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Precipitation vs VCI Curve Graphic */}
-            <div className="pt-3 border-t border-outline-variant/20">
-              <div className="flex justify-between items-center mb-2">
-                <span className="font-headline-sm text-xs text-on-surface font-bold">
-                  2026 Monthly Precipitation Deficit vs Multi-Year Median (mm)
-                </span>
-                <span className="text-[11px] text-secondary font-mono">INSAT-3DR Multispectral</span>
-              </div>
-
-              {/* Synthetic Curve / Bars */}
-              <div className="h-28 w-full flex items-end justify-between gap-2 px-2 bg-surface-container-lowest/60 p-2 rounded-xl border border-outline-variant/20">
-                {[
-                  { m: 'Jan', val: 12, norm: 18 },
-                  { m: 'Feb', val: 8, norm: 15 },
-                  { m: 'Mar', val: 4, norm: 12 },
-                  { m: 'Apr', val: 2, norm: 20 },
-                  { m: 'May', val: 18, norm: 35 },
-                  { m: 'Jun', val: 48, norm: 95, deficit: true },
-                  { m: 'Jul', val: 62, norm: 130, deficit: true },
-                  { m: 'Aug', val: 42, norm: 110, deficit: true },
-                  { m: 'Sep', val: 38, norm: 90, deficit: true },
-                  { m: 'Oct', val: 14, norm: 55, deficit: true }
-                ].map(bar => (
-                  <div key={bar.m} className="flex-1 flex flex-col items-center gap-1 h-full justify-end">
-                    <div className="w-full flex items-end justify-center gap-0.5 h-20">
-                      {/* Normal expectation */}
-                      <div
-                        className="w-1/2 bg-surface-container-highest rounded-t"
-                        style={{ height: `${(bar.norm / 130) * 100}%` }}
-                        title={`Expected: ${bar.norm}mm`}
-                      />
-                      {/* Actual recorded */}
-                      <div
-                        className={`w-1/2 rounded-t ${
-                          bar.deficit ? 'bg-error shadow-[0_0_8px_rgba(255,180,171,0.5)]' : 'bg-primary'
+            {/* Crop Breakdown Table */}
+            <div className="mt-3">
+              <h4 className="text-xs font-semibold text-[#111827] mb-2 uppercase tracking-wide">
+                Crop-Specific Loss Breakdown
+              </h4>
+              <div className="space-y-2">
+                {activeCropProfile.crops.map(c => (
+                  <div key={c.name} className="p-2.5 rounded bg-[#FAFBFC] border border-[#E3E6EB] text-xs">
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="font-semibold text-[#111827]">{c.name}</span>
+                      <span
+                        className={`font-semibold tabular-nums ${
+                          c.severity === 'Critical'
+                            ? 'text-[#C62828]'
+                            : c.severity === 'Severe'
+                            ? 'text-[#B26A00]'
+                            : 'text-[#2E7D32]'
                         }`}
-                        style={{ height: `${(bar.val / 130) * 100}%` }}
-                        title={`Recorded: ${bar.val}mm`}
+                      >
+                        {c.lossRisk}% risk · {c.acreage}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-[#6B7280]">{c.stage}</p>
+                    <div className="w-full bg-[#E3E6EB] rounded-full h-1 mt-1.5 overflow-hidden">
+                      <div
+                        className={`h-full rounded-full ${
+                          c.severity === 'Critical' ? 'bg-[#C62828]' : 'bg-[#B26A00]'
+                        }`}
+                        style={{ width: `${c.lossRisk}%` }}
                       />
                     </div>
-                    <span className="font-body-sm text-[10px] text-on-surface-variant">{bar.m}</span>
                   </div>
                 ))}
               </div>
             </div>
           </div>
+
+          {/* Recommended Intervention */}
+          <div className="mt-4 p-3 bg-[#EEF4FA] border border-[#BCD4EC] rounded-md text-xs">
+            <span className="text-[10px] uppercase font-bold text-[#0F4C81] tracking-wider block">
+              Preemptive Action Order
+            </span>
+            <p className="text-xs text-[#111827] mt-0.5 leading-snug">
+              {activeCropProfile.preemptiveIntervention}
+            </p>
+          </div>
         </div>
       </div>
 
-      {/* District Risk Summary Table */}
-      <div className="p-5 rounded-2xl bg-surface-container-low border border-outline-variant/30 backdrop-blur-xl shadow-md">
-        <div className="flex items-center justify-between pb-3 border-b border-outline-variant/20 mb-3">
-          <span className="font-headline-sm text-sm text-on-surface font-bold">
-            District-wise Drought Vulnerability Matrix
-          </span>
-          <span className="font-body-sm text-xs text-on-surface-variant">
-            Ranked by composite El Niño risk index
-          </span>
+      {/* Historical VCI Anomaly Matrix (2020-2026) */}
+      <div className="bg-white rounded-lg border border-[#E3E6EB] p-4 shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-[#E3E6EB] gap-2">
+          <div>
+            <h3 className="text-sm font-semibold text-[#111827]">
+              Vegetation Condition Index (VCI) Multi-Year Heatmap
+            </h3>
+            <p className="text-xs text-[#6B7280]">
+              Monthly vegetation stress matrix across Maharashtra Marathwada belt (2020–2026)
+            </p>
+          </div>
+          <div className="flex items-center gap-3 text-[11px] text-[#6B7280]">
+            <div className="flex items-center gap-1">
+              <span className="w-2.5 h-2.5 rounded-sm bg-[#C62828]" />
+              <span>Severe Drought (&lt;35% VCI)</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <span className="w-2.5 h-2.5 rounded-sm bg-[#B26A00]" />
+              <span>Moderate Stress</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <span className="w-2.5 h-2.5 rounded-sm bg-[#F1F3F5] border border-[#E3E6EB]" />
+              <span>Normal</span>
+            </div>
+          </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left font-body-sm text-xs">
+        <div className="overflow-x-auto mt-3">
+          <table className="w-full text-center text-xs border-collapse">
             <thead>
-              <tr className="text-on-surface-variant font-label-md text-[11px] uppercase tracking-wider border-b border-outline-variant/20">
-                <th className="pb-3">District</th>
-                <th className="pb-3">Talukas</th>
-                <th className="pb-3 text-right">Rainfall Deficit</th>
-                <th className="pb-3 text-right">Dry Spell (Days)</th>
-                <th className="pb-3 text-right">Soil Moisture</th>
-                <th className="pb-3 text-right">Risk Score</th>
-                <th className="pb-3 text-right">Action</th>
+              <tr className="border-b border-[#E3E6EB] text-[11px] text-[#6B7280] font-semibold">
+                <th className="py-2 text-left pl-2">Year</th>
+                {months.map(m => (
+                  <th key={m} className="py-2 px-1">
+                    {m}
+                  </th>
+                ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-outline-variant/10">
-              {districts.map(d => (
-                <tr key={d.id} className="hover:bg-surface-container-high/60 transition-colors">
-                  <td className="py-3 font-semibold text-on-surface">{d.name}</td>
-                  <td className="py-3 text-on-surface-variant">{d.taluka}</td>
-                  <td className="py-3 text-right font-mono font-bold text-error">{d.precipDeficit}%</td>
-                  <td className="py-3 text-right font-mono">{d.drySpellDays} days</td>
-                  <td className="py-3 text-right font-mono text-tertiary">{d.soilMoisture}%</td>
-                  <td className="py-3 text-right">
-                    <span
-                      className={`px-2 py-0.5 rounded-full font-label-md text-[10px] font-bold ${
-                        d.riskScore > 0.8
-                          ? 'bg-error-container/30 text-error'
-                          : d.riskScore > 0.6
-                          ? 'bg-tertiary-container/30 text-tertiary'
-                          : 'bg-secondary-container/30 text-secondary'
-                      }`}
-                    >
-                      {d.riskLevel} ({d.riskScore})
-                    </span>
+            <tbody className="divide-y divide-[#E3E6EB]">
+              {years.map(yr => (
+                <tr key={yr} className="hover:bg-[#F9FAFB]">
+                  <td className="py-2 text-left pl-2 font-semibold text-[#111827] text-xs">
+                    {yr}
                   </td>
-                  <td className="py-3 text-right">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setSelectedDistrictId(d.id);
-                        showToast('District Focused', `Loaded sensor telemetry for ${d.name}.`, 'secondary');
-                      }}
-                      className="px-2.5 py-1 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-on-surface font-label-md text-[11px] transition-colors cursor-pointer border border-outline-variant/30"
-                    >
-                      Focus
-                    </button>
-                  </td>
+                  {months.map((_, mIdx) => (
+                    <td key={mIdx} className="py-2 px-1">
+                      <div
+                        className={`w-full py-1 rounded text-[10px] font-mono tabular-nums ${getCellColor(
+                          yr,
+                          mIdx
+                        )}`}
+                      >
+                        {yr === 2026 && mIdx >= 10 ? '—' : `${Math.floor(25 + ((yr + mIdx * 7) % 60))}`}
+                      </div>
+                    </td>
+                  ))}
                 </tr>
               ))}
             </tbody>

@@ -1,52 +1,64 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
 import { OperationalModule } from '../types';
-import { APP_LOGO } from '../data/mockData';
+import {
+  LayoutDashboard,
+  Radar,
+  Calculator,
+  ClipboardCheck,
+  Truck,
+  FileBarChart,
+  Settings,
+  X,
+  Building2,
+  Database
+} from 'lucide-react';
 
 interface SidebarProps {
   isOpenOnMobile?: boolean;
   onCloseMobile?: () => void;
+  isCollapsed?: boolean;
+  onToggleCollapse?: () => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ isOpenOnMobile, onCloseMobile }) => {
+export const Sidebar: React.FC<SidebarProps> = ({
+  isOpenOnMobile,
+  onCloseMobile,
+  isCollapsed = false,
+  onToggleCollapse
+}) => {
   const { currentModule, setCurrentModule, setIsHealthModalOpen } = useApp();
 
-  const navItems: { path: OperationalModule; label: string; icon: string; iconColor: string }[] = [
+  const navItems: { path: OperationalModule; label: string; icon: React.ElementType }[] = [
     {
       path: 'overview',
-      label: 'Dashboard',
-      icon: 'space_dashboard',
-      iconColor: 'text-primary'
+      label: 'Overview',
+      icon: LayoutDashboard
     },
     {
       path: 'drought-risk-monitor',
-      label: 'Drought Risk Monitor',
-      icon: 'radar',
-      iconColor: 'text-tertiary'
+      label: 'Drought Risk & NDVI',
+      icon: Radar
     },
     {
       path: 'relief-budget-optimizer',
-      label: 'Relief Budget Optimizer',
-      icon: 'account_balance_wallet',
-      iconColor: 'text-secondary'
+      label: 'Budget Allocation',
+      icon: Calculator
     },
     {
       path: 'claim-evidence-review',
-      label: 'Claim Evidence Review',
-      icon: 'fact_check',
-      iconColor: 'text-primary-fixed'
+      label: 'Crop Distress Claims',
+      icon: ClipboardCheck
     },
     {
       path: 'resource-routing-logistics',
-      label: 'Resource Routing',
-      icon: 'local_shipping',
-      iconColor: 'text-secondary-container'
+      label: 'Tanker Logistics',
+      icon: Truck
     },
     {
       path: 'reports-and-analytics',
-      label: 'Reports & Analytics',
-      icon: 'insights',
-      iconColor: 'text-tertiary-fixed-dim'
+      label: 'Reports & Export',
+      icon: FileBarChart
     }
   ];
 
@@ -60,110 +72,118 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpenOnMobile, onCloseMobile 
       {/* Mobile Backdrop */}
       {isOpenOnMobile && (
         <div
-          className="fixed inset-0 bg-black/60 z-40 lg:hidden backdrop-blur-sm"
+          className="fixed inset-0 bg-[#111827]/40 z-40 lg:hidden"
           onClick={onCloseMobile}
+          aria-hidden="true"
         />
       )}
 
       <aside
-        className={`fixed left-0 top-0 h-full w-64 bg-surface-container-low/95 backdrop-blur-2xl z-50 flex flex-col justify-between shadow-[0_1px_12px_rgba(0,0,0,0.4)] border-r border-outline-variant/30 transition-transform duration-300 ease-in-out ${
+        className={`fixed left-0 top-0 h-full ${
+          isCollapsed ? 'w-16' : 'w-64'
+        } bg-white z-50 flex flex-col justify-between border-r border-[#E3E6EB] transition-all duration-200 ease-in-out ${
           isOpenOnMobile ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
       >
-        <div className="flex flex-col">
-          {/* Logo Header */}
-          <div className="h-16 flex items-center justify-between px-5 bg-surface-container-lowest/80 border-b border-outline-variant/20">
-            <div className="flex items-center gap-3 min-w-0">
-              <img
-                src={APP_LOGO}
-                alt="El Niño Preemption Engine Logo"
-                className="h-8 w-auto object-contain shrink-0"
-              />
-              <div className="flex flex-col min-w-0">
-                <span className="font-headline-sm text-base tracking-tight text-primary font-bold truncate leading-none">
-                  Preemption
-                </span>
-                <span className="font-label-md text-[11px] text-on-surface-variant tracking-wider uppercase truncate mt-0.5">
-                  Command Core
-                </span>
+        <div className="flex flex-col flex-1 min-h-0">
+          {/* Official Emblem & Branding */}
+          <div className="h-14 flex items-center justify-between px-4 border-b border-[#E3E6EB]">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-8 h-8 rounded-md bg-[#0F4C81] text-white flex items-center justify-center shrink-0">
+                <Building2 className="w-4 h-4 stroke-[1.5]" />
               </div>
+              {!isCollapsed && (
+                <div className="flex flex-col min-w-0">
+                  <span className="text-xs font-bold text-[#111827] tracking-tight truncate leading-tight">
+                    State Relief Cell
+                  </span>
+                  <span className="text-[11px] text-[#6B7280] truncate leading-tight">
+                    Govt. of Maharashtra
+                  </span>
+                </div>
+              )}
             </div>
             {onCloseMobile && (
               <button
+                type="button"
                 onClick={onCloseMobile}
-                className="lg:hidden p-1 rounded-lg text-on-surface-variant hover:text-on-surface"
+                className="lg:hidden p-1 text-[#6B7280] hover:text-[#111827]"
+                aria-label="Close menu"
               >
-                <span className="material-symbols-outlined text-xl">close</span>
+                <X className="w-5 h-5 stroke-[1.5]" />
               </button>
             )}
           </div>
 
-          {/* Operational Modules Navigation */}
-          <div className="px-3 py-4">
-            <div className="px-3 py-1 mb-2 font-label-md text-xs text-on-surface-variant uppercase tracking-wider font-semibold">
-              Operational Modules
+          {/* Section Label */}
+          {!isCollapsed && (
+            <div className="px-4 pt-4 pb-1">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-[#9CA3AF]">
+                Relief Modules
+              </span>
             </div>
-            <nav className="flex flex-col gap-1">
-              {navItems.map(item => {
-                const isActive = currentModule === item.path;
-                return (
-                  <button
-                    key={item.path}
-                    onClick={() => handleNavClick(item.path)}
-                    className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-all ${
-                      isActive
-                        ? 'bg-primary-container text-on-primary-container font-headline-sm font-semibold shadow-md'
-                        : 'text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface font-label-lg'
-                    }`}
-                  >
+          )}
+
+          {/* Nav Items */}
+          <nav className="flex-1 px-2 py-1 space-y-0.5 overflow-y-auto">
+            {navItems.map(item => {
+              const Icon = item.icon;
+              const isActive = currentModule === item.path;
+
+              return (
+                <button
+                  key={item.path}
+                  type="button"
+                  onClick={() => handleNavClick(item.path)}
+                  title={isCollapsed ? item.label : undefined}
+                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-md text-xs font-medium transition-colors text-left relative ${
+                    isActive
+                      ? 'bg-[#EEF4FA] text-[#0F4C81]'
+                      : 'text-[#4B5563] hover:text-[#111827] hover:bg-[#F6F7F9]'
+                  }`}
+                >
+                  {/* 3px left accent bar for active item */}
+                  {isActive && (
                     <span
-                      className={`material-symbols-outlined text-xl ${
-                        isActive ? 'text-on-primary-container' : item.iconColor
-                      }`}
-                    >
-                      {item.icon}
-                    </span>
-                    <span className="truncate text-sm">{item.label}</span>
-                  </button>
-                );
-              })}
-            </nav>
-          </div>
+                      className="absolute left-0 top-1 bottom-1 w-[3px] bg-[#0F4C81] rounded-r"
+                      aria-hidden="true"
+                    />
+                  )}
+
+                  <Icon
+                    className={`w-[18px] h-[18px] shrink-0 stroke-[1.5] ${
+                      isActive ? 'text-[#0F4C81]' : 'text-[#6B7280]'
+                    }`}
+                  />
+                  {!isCollapsed && <span className="truncate">{item.label}</span>}
+                </button>
+              );
+            })}
+          </nav>
         </div>
 
-        {/* Satellite Node Status Box & Settings */}
-        <div className="p-3">
-          <div
+        {/* Footer Area: Data Feed Status & System Settings */}
+        <div className="p-3 border-t border-[#E3E6EB] bg-[#FAFBFC]">
+          <button
+            type="button"
             onClick={() => setIsHealthModalOpen(true)}
-            className="rounded-xl bg-surface-container-lowest/90 border border-outline-variant/30 p-3 flex flex-col gap-1.5 cursor-pointer hover:border-primary/50 transition-all shadow-inner group"
+            className="w-full flex items-center gap-2.5 p-2 rounded-md hover:bg-[#F1F3F5] transition-colors text-left text-[#4B5563]"
           >
-            <div className="flex items-center justify-between">
-              <span className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-wider">
-                Satellite Node
-              </span>
-              <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
-            </div>
-            <span className="font-headline-sm text-sm text-on-surface font-bold group-hover:text-primary transition-colors">
-              INSAT-3DR GIS
-            </span>
-            <div className="flex items-center justify-between text-on-surface-variant font-body-sm text-xs">
-              <div className="flex items-center gap-1">
-                <span className="material-symbols-outlined text-xs text-primary">sync</span>
-                <span>Latency 42ms</span>
+            <Database className="w-4 h-4 text-[#6B7280] stroke-[1.5] shrink-0" />
+            {!isCollapsed && (
+              <div className="flex flex-col min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#2E7D32]" />
+                  <span className="text-[11px] font-semibold text-[#111827] truncate">
+                    Data Sync Online
+                  </span>
+                </div>
+                <span className="text-[10px] text-[#6B7280] truncate">
+                  INSAT-3DR & IMD Feeds
+                </span>
               </div>
-              <span className="text-[10px] text-primary/80 group-hover:underline">Diagnostics</span>
-            </div>
-          </div>
-
-          <div className="mt-2 pt-2 border-t border-outline-variant/30">
-            <button
-              onClick={() => setIsHealthModalOpen(true)}
-              className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-label-lg text-sm text-left"
-            >
-              <span className="material-symbols-outlined text-xl">settings</span>
-              <span>System Settings</span>
-            </button>
-          </div>
+            )}
+          </button>
         </div>
       </aside>
     </>

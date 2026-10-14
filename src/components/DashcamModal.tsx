@@ -1,5 +1,6 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
+import { Video, X, Navigation } from 'lucide-react';
 
 export const DashcamModal: React.FC = () => {
   const { selectedConvoyForDashcam, setSelectedConvoyForDashcam } = useApp();
@@ -7,87 +8,74 @@ export const DashcamModal: React.FC = () => {
   if (!selectedConvoyForDashcam) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
-      <div className="bg-surface-container-high border border-outline-variant/40 rounded-3xl overflow-hidden max-w-2xl w-full shadow-2xl flex flex-col animate-in zoom-in-95">
-        {/* Top Header */}
-        <div className="p-4 bg-surface-container-lowest flex items-center justify-between border-b border-outline-variant/30">
+    <div className="fixed inset-0 bg-[#111827]/50 z-50 flex items-center justify-center p-4">
+      <div className="bg-white border border-[#E3E6EB] rounded-lg overflow-hidden max-w-2xl w-full shadow-xl flex flex-col animate-in zoom-in-95">
+        {/* Header */}
+        <div className="p-3.5 bg-white flex items-center justify-between border-b border-[#E3E6EB]">
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-error animate-ping" />
-            <span className="font-headline-sm text-sm text-on-surface font-bold">
-              LIVE DASHCAM: {selectedConvoyForDashcam.id} ({selectedConvoyForDashcam.vehicleNo})
+            <Video className="w-4 h-4 text-[#0F4C81] stroke-[1.5]" />
+            <span className="text-xs font-bold text-[#111827]">
+              Vehicle Camera Feed: {selectedConvoyForDashcam.id} ({selectedConvoyForDashcam.vehicleNo})
             </span>
           </div>
           <button
+            type="button"
             onClick={() => setSelectedConvoyForDashcam(null)}
-            className="text-on-surface-variant hover:text-on-surface p-1"
+            className="text-[#9CA3AF] hover:text-[#111827]"
           >
-            <span className="material-symbols-outlined text-lg">close</span>
+            <X className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Dashcam Viewport */}
-        <div className="relative w-full h-80 bg-neutral-900 overflow-hidden flex items-center justify-center">
-          {/* Highway Simulation Graphic */}
+        {/* Viewport */}
+        <div className="relative w-full h-72 bg-[#111827] overflow-hidden flex items-center justify-center">
           <div
-            className="absolute inset-0 bg-cover bg-center filter brightness-75 contrast-125"
+            className="absolute inset-0 bg-cover bg-center filter brightness-90 contrast-110 opacity-70"
             style={{
               backgroundImage: `url('https://lh3.googleusercontent.com/aida-public/AB6AXuBf5YBUfZWfrN2hGI-PnvkKBUqwNm_1wAgujSdRTl0cf7v81XTnz3ydsHYIPBpCvsAi55fAHs3cyavXS5R3N1mGiftry2SWNtGnk_hFbW2Dhm9hETarcqORDCp5QlUln9Nhm2TL8V14RZi-b25xhn-IhOhijMajbNJY_dMP7Nk34FLuQO2M9ku5e-fb9bNQdjAoSSkjGz5MMAAD1mK7Rf2z6NeBGuVN4v_fnvPHNAgjRTkoY-YjfaAI')`
             }}
           />
 
-          {/* Perspective Grid Lines */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/60 pointer-events-none" />
-
-          {/* Crosshair / HUD Target */}
-          <div className="relative z-10 w-32 h-32 border border-primary/40 rounded-full flex items-center justify-center pointer-events-none">
-            <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-            <div className="absolute w-full h-px bg-primary/20" />
-            <div className="absolute h-full w-px bg-primary/20" />
+          {/* Clean HUD Overlay */}
+          <div className="absolute top-3 left-3 z-10 font-mono text-[11px] text-white bg-black/60 px-2 py-1 rounded">
+            <div>CAM-01 · Forward High-Definition Telemetry</div>
+            <div>Marathwada Highway Sector · 18.9892° N, 75.7601° E</div>
           </div>
 
-          {/* Top Left HUD Telemetry */}
-          <div className="absolute top-4 left-4 z-20 font-mono text-xs text-primary bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-lg border border-primary/30">
-            <div>CAM-01 • FORWARD FACING</div>
-            <div>LAT: 18.9892° N • LON: 75.7601° E</div>
-            <div>ALTITUDE: 532m • SLOPE: +1.2%</div>
+          <div className="absolute top-3 right-3 z-10 font-mono text-[11px] text-[#EF5350] bg-black/60 px-2 py-1 rounded flex items-center gap-1.5 font-bold">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#EF5350]" />
+            LIVE 1080p
           </div>
 
-          {/* Top Right Recording Badge */}
-          <div className="absolute top-4 right-4 z-20 flex items-center gap-1.5 font-mono text-xs text-error bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-lg border border-error/30 font-bold">
-            <span className="w-2 h-2 rounded-full bg-error animate-pulse" />
-            REC 1080p 60fps
-          </div>
-
-          {/* Bottom Speed & Route Readout */}
-          <div className="absolute bottom-4 left-4 right-4 z-20 flex items-center justify-between text-xs text-on-surface bg-black/70 backdrop-blur-md p-3 rounded-xl border border-outline-variant/30 font-mono">
+          <div className="absolute bottom-3 left-3 right-3 z-10 flex items-center justify-between text-xs text-white bg-black/70 p-2.5 rounded font-mono">
             <div>
-              <span className="text-on-surface-variant text-[10px] block">CURRENT VELOCITY</span>
-              <span className="text-primary font-bold text-base">
+              <span className="text-[10px] text-gray-400 block">VELOCITY</span>
+              <span className="font-bold text-sm text-white">
                 {selectedConvoyForDashcam.speedKmH} km/h
               </span>
             </div>
             <div className="text-center">
-              <span className="text-on-surface-variant text-[10px] block">CORRIDOR STATUS</span>
-              <span className="text-secondary font-bold">GREEN CORRIDOR ACTIVE</span>
+              <span className="text-[10px] text-gray-400 block">CORRIDOR</span>
+              <span className="text-[#4edea3] font-bold">DISASTER CLEARANCE PASS</span>
             </div>
             <div className="text-right">
-              <span className="text-on-surface-variant text-[10px] block">DESTINATION ETA</span>
-              <span className="text-on-surface font-bold text-base">
+              <span className="text-[10px] text-gray-400 block">DESTINATION ETA</span>
+              <span className="font-bold text-sm text-white">
                 {selectedConvoyForDashcam.eta}
               </span>
             </div>
           </div>
         </div>
 
-        {/* Bottom Actions */}
-        <div className="p-4 bg-surface-container flex items-center justify-between">
-          <span className="text-xs text-on-surface-variant">
+        {/* Footer */}
+        <div className="p-3 bg-[#F9FAFB] border-t border-[#E3E6EB] flex items-center justify-between text-xs">
+          <span className="text-[#6B7280]">
             Driver: {selectedConvoyForDashcam.driverName} ({selectedConvoyForDashcam.driverPhone})
           </span>
           <button
             type="button"
             onClick={() => setSelectedConvoyForDashcam(null)}
-            className="px-4 py-2 rounded-xl bg-surface-container-high hover:bg-surface-container-highest text-on-surface text-xs font-semibold"
+            className="px-3 py-1 rounded bg-white border border-[#E3E6EB] text-xs font-medium text-[#4B5563] hover:text-[#111827]"
           >
             Close Feed
           </button>

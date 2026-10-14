@@ -94,14 +94,14 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   // Start on login screen as specifically confirmed by the user
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [officerName, setOfficerName] = useState<string>('Yatharth Officer');
-  const [officerRole] = useState<string>('MH State Admin');
+  const [officerName, setOfficerName] = useState<string>('Yatharth Ladkat');
+  const [officerRole] = useState<string>('State Relief Officer, Grade I');
 
   const [currentModule, setCurrentModule] = useState<OperationalModule>('overview');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   // Budget Simulation State
-  const [budget, setBudget] = useState<number>(100);
+  const [budget, setBudget] = useState<number>(142);
   const [stressScenario, setStressScenario] = useState<StressScenario>('severe');
   const [priorityWeighting, setPriorityWeighting] = useState<number>(65);
   const [optimizationObjective, setOptimizationObjective] = useState<OptimizationObjective>('farmers');
@@ -127,7 +127,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setToast({ title, message, tone });
     setTimeout(() => {
       setToast(null);
-    }, 6000);
+    }, 5000);
   };
 
   const clearToast = () => setToast(null);
@@ -136,15 +136,15 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     if (name) setOfficerName(name);
     else if (email && email.includes('@')) {
       const prefix = email.split('@')[0];
-      setOfficerName(prefix.charAt(0).toUpperCase() + prefix.slice(1) + ' Officer');
+      setOfficerName(prefix.charAt(0).toUpperCase() + prefix.slice(1) + ' (Officer)');
     }
     setIsAuthenticated(true);
-    showToast('Secure Session Established', 'Authenticated via MH State Relief Network (INSAT-3DR Node)', 'primary');
+    showToast('Session Established', 'Logged into Maharashtra State Relief Cell Portal', 'primary');
   };
 
   const logout = () => {
     setIsAuthenticated(false);
-    showToast('Session Ended', 'Logged out of Preemption Command Core', 'warning');
+    showToast('Session Ended', 'Logged out of State Relief Portal', 'warning');
   };
 
   // Algorithmically compute district allocations based on MILP constraints & sliders

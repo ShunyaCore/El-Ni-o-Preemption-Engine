@@ -12,6 +12,7 @@ import { ReportsView } from './components/ReportsView';
 import { DriverCallModal } from './components/DriverCallModal';
 import { DashcamModal } from './components/DashcamModal';
 import { SettingsModal } from './components/SettingsModal';
+import { CheckCircle2, AlertCircle, Info, X } from 'lucide-react';
 
 const AppContent: React.FC = () => {
   const { isAuthenticated, currentModule, toast, clearToast } = useApp();
@@ -23,7 +24,7 @@ const AppContent: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-surface font-body-md text-on-surface antialiased flex flex-col">
+    <div className="min-h-screen bg-[#F6F7F9] font-sans text-[#111827] antialiased flex flex-col">
       {/* Sidebar Navigation */}
       <Sidebar
         isOpenOnMobile={mobileMenuOpen}
@@ -36,7 +37,7 @@ const AppContent: React.FC = () => {
         <Header onToggleMobileMenu={() => setMobileMenuOpen(true)} />
 
         {/* Viewport Content */}
-        <main className="w-full pt-20 px-4 sm:px-6 lg:px-8 py-6 flex-1 max-w-[1600px] mx-auto">
+        <main className="w-full pt-16 px-4 sm:px-6 lg:px-8 py-5 flex-1 max-w-[1600px] mx-auto">
           {currentModule === 'overview' && <DashboardView />}
           {currentModule === 'drought-risk-monitor' && <DroughtRiskView />}
           {currentModule === 'relief-budget-optimizer' && <BudgetOptimizerView />}
@@ -47,39 +48,40 @@ const AppContent: React.FC = () => {
         </main>
       </div>
 
-      {/* Global Interactive Toast Notification */}
+      {/* Global Interactive Toast Notification (Clean Enterprise Styling) */}
       {toast && (
-        <div className="fixed bottom-6 right-6 z-50 max-w-md w-full animate-in slide-in-from-bottom-5">
+        <div className="fixed bottom-5 right-5 z-50 max-w-sm w-full animate-in slide-in-from-bottom-3 duration-200">
           <div
-            className={`p-4 rounded-2xl shadow-2xl border flex items-start gap-3 backdrop-blur-2xl ${
-              toast.tone === 'primary'
-                ? 'bg-primary-container/90 border-primary/40 text-on-primary-container'
-                : toast.tone === 'secondary'
-                ? 'bg-secondary-container/90 border-secondary/40 text-on-secondary-container'
-                : toast.tone === 'error'
-                ? 'bg-error-container/90 border-error/40 text-on-error-container'
-                : 'bg-surface-container-high/95 border-outline-variant/40 text-on-surface'
+            className={`p-3 rounded-lg shadow-lg border flex items-start gap-2.5 bg-white ${
+              toast.tone === 'error'
+                ? 'border-[#F5C6CB] text-[#C62828]'
+                : toast.tone === 'warning'
+                ? 'border-[#FFE082] text-[#B26A00]'
+                : 'border-[#BCD4EC] text-[#0F4C81]'
             }`}
           >
-            <span className="material-symbols-outlined text-2xl shrink-0 mt-0.5">
-              {toast.tone === 'primary'
-                ? 'check_circle'
-                : toast.tone === 'error'
-                ? 'error'
-                : 'info'}
-            </span>
+            {toast.tone === 'error' ? (
+              <AlertCircle className="w-4 h-4 text-[#C62828] shrink-0 mt-0.5 stroke-[1.5]" />
+            ) : toast.tone === 'warning' ? (
+              <AlertCircle className="w-4 h-4 text-[#B26A00] shrink-0 mt-0.5 stroke-[1.5]" />
+            ) : (
+              <CheckCircle2 className="w-4 h-4 text-[#2E7D32] shrink-0 mt-0.5 stroke-[1.5]" />
+            )}
+
             <div className="flex-1 min-w-0">
-              <h4 className="font-headline-sm text-sm font-bold">{toast.title}</h4>
-              <p className="font-body-sm text-xs opacity-90 mt-0.5 leading-relaxed">
+              <h4 className="text-xs font-semibold text-[#111827]">{toast.title}</h4>
+              <p className="text-[11px] text-[#4B5563] mt-0.5 leading-snug">
                 {toast.message}
               </p>
             </div>
+
             <button
               type="button"
               onClick={clearToast}
-              className="text-current hover:opacity-75 p-1"
+              className="text-[#9CA3AF] hover:text-[#111827] p-0.5"
+              aria-label="Close notification"
             >
-              <span className="material-symbols-outlined text-base">close</span>
+              <X className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>

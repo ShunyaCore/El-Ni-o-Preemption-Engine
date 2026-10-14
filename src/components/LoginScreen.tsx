@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { APP_LOGO } from '../data/mockData';
+import { Building2, ShieldCheck, Lock, Mail, Eye, EyeOff, ArrowRight } from 'lucide-react';
 
 export const LoginScreen: React.FC = () => {
   const { login } = useApp();
@@ -13,200 +13,151 @@ export const LoginScreen: React.FC = () => {
     e.preventDefault();
     setIsLoading(true);
     setTimeout(() => {
-      login(email, 'Yatharth Officer');
+      login(email, 'Yatharth Ladkat');
       setIsLoading(false);
-    }, 600);
+    }, 400);
   };
 
   const handleGovBypass = () => {
     setIsLoading(true);
     setTimeout(() => {
-      login('officer.yatharth@maharashtra.gov.in', 'Yatharth Officer');
+      login('officer.yatharth@maharashtra.gov.in', 'Yatharth Ladkat');
       setIsLoading(false);
-    }, 400);
+    }, 300);
   };
 
   return (
-    <div className="min-h-screen w-full bg-[#060e20] flex items-center justify-center p-4 sm:p-6 lg:p-10 font-body-md text-on-surface">
-      {/* Container Box */}
-      <div className="w-full max-w-5xl bg-surface-container-low/90 border border-outline-variant/30 rounded-3xl shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-12 backdrop-blur-2xl">
-        {/* Left Hero Graphic Section (5 cols) */}
-        <div className="lg:col-span-5 relative p-8 sm:p-12 flex flex-col justify-between overflow-hidden bg-gradient-to-br from-surface-container via-surface-container-low to-surface-container-lowest">
-          {/* Subtle Ambient Light Glows */}
-          <div className="absolute -top-24 -left-24 w-72 h-72 bg-primary/15 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute -bottom-24 -right-24 w-72 h-72 bg-secondary/15 rounded-full blur-3xl pointer-events-none" />
-
-          {/* Background Soil/Sprout Stylized Image Overlay */}
-          <div
-            className="absolute inset-0 opacity-25 mix-blend-luminosity bg-cover bg-center pointer-events-none"
-            style={{
-              backgroundImage: `url('https://lh3.googleusercontent.com/aida-public/AB6AXuAspBK9yb_-qjPP9gsGfsj6dinZxU_NQWqOniIfeKo9d0LlRxnj4tUvDobd_dM-GvG3k8S-aRenBh-jEAHJyZ5ZkU2cgJqqyW5X3ifFLtL3orfPMVSPYvWKDzSgh0XJE6xFm2OWrw2keayLbhYXf5gqg1LlGKOFVdqLaHepHVhh2nmN6YNr-FCq0pztZ7PWtyUuhjAPzibSQwLaMlHLdsqgWXO9-tKjzzduRUu1mlNvFcTkHU-AJBOP')`
-            }}
-          />
-
-          {/* Top Brand Identity */}
-          <div className="relative z-10 flex flex-col gap-3">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-primary-container/20 border border-primary/30 flex items-center justify-center p-2 backdrop-blur-md shadow-md">
-                <img src={APP_LOGO} alt="Preemption Engine" className="w-full h-full object-contain" />
-              </div>
-              <div className="flex flex-col">
-                <span className="font-headline-sm text-lg text-primary font-bold tracking-tight">
-                  El Niño
-                </span>
-                <span className="font-headline-sm text-base text-on-surface font-semibold -mt-1">
-                  Preemption Engine
-                </span>
-              </div>
-            </div>
-
-            <div className="mt-8">
-              <h2 className="font-headline-xl text-2xl lg:text-3xl text-on-surface font-bold tracking-tight leading-snug">
-                Smarter decisions. <br />
-                <span className="text-primary">Resilient communities.</span>
-              </h2>
-              <p className="font-body-md text-sm text-on-surface-variant mt-4 leading-relaxed">
-                AI-assisted drought-response planning for government officers. Turn weather-risk signals into transparent, budget-aware relief priorities and delivery plans.
-              </p>
-            </div>
+    <div className="min-h-screen w-full bg-[#F6F7F9] flex flex-col justify-between font-sans text-[#111827]">
+      {/* Top Government Banner */}
+      <header className="w-full bg-white border-b border-[#E3E6EB] px-6 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-md bg-[#0F4C81] text-white flex items-center justify-center shrink-0">
+            <Building2 className="w-5 h-5 stroke-[1.5]" />
           </div>
-
-          {/* Bottom Trust Badge */}
-          <div className="relative z-10 pt-8 mt-8 border-t border-outline-variant/30 flex items-center justify-between text-xs text-on-surface-variant">
-            <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-primary text-base">verified_user</span>
-              <span>Maharashtra Disaster Management Cell</span>
-            </div>
-            <span className="font-mono text-[10px] text-primary/80">INSAT-3DR Synced</span>
+          <div>
+            <h1 className="text-xs font-bold text-[#111827] uppercase tracking-wide">
+              Government of Maharashtra
+            </h1>
+            <p className="text-[11px] text-[#6B7280]">
+              Revenue & Forest Department · Relief & Rehabilitation Cell
+            </p>
           </div>
         </div>
 
-        {/* Right Form Section (7 cols) */}
-        <div className="lg:col-span-7 p-8 sm:p-12 lg:p-16 flex flex-col justify-center bg-surface-container-low/40">
-          <div className="max-w-md w-full mx-auto flex flex-col gap-6">
+        <div className="hidden sm:flex items-center gap-2 text-[11px] text-[#6B7280]">
+          <ShieldCheck className="w-4 h-4 text-[#2E7D32] stroke-[1.5]" />
+          <span>Secure State Disaster Management Network</span>
+        </div>
+      </header>
+
+      {/* Main Login Box */}
+      <main className="flex-1 flex items-center justify-center p-4 sm:p-6">
+        <div className="w-full max-w-md bg-white border border-[#E3E6EB] rounded-lg shadow-[0_1px_2px_rgba(16,24,40,0.04)] p-6 sm:p-8">
+          {/* Header */}
+          <div className="pb-5 border-b border-[#E3E6EB] mb-5">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-[#0F4C81]">
+              Officer Single Sign-On
+            </span>
+            <h2 className="text-lg font-bold text-[#111827] mt-1">
+              Drought Preemption Portal
+            </h2>
+            <p className="text-xs text-[#6B7280] mt-0.5">
+              Authorized access for District Collectors, Relief Administrators & Logistics Officers
+            </p>
+          </div>
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <div className="flex items-center gap-2 font-label-md text-xs text-primary uppercase tracking-wider font-semibold mb-1">
-                <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                <span>State Portal Access</span>
+              <label className="block text-xs font-medium text-[#4B5563] mb-1">
+                Official Email Address
+              </label>
+              <div className="relative">
+                <Mail className="w-4 h-4 text-[#9CA3AF] absolute left-3 top-1/2 -translate-y-1/2 stroke-[1.5]" />
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  placeholder="name@maharashtra.gov.in"
+                  className="w-full bg-[#F6F7F9] text-xs text-[#111827] pl-9 pr-3 py-2 rounded-md border border-[#E3E6EB] focus:bg-white focus:border-[#0F4C81] focus:ring-1 focus:ring-[#0F4C81] transition-all"
+                />
               </div>
-              <h1 className="font-headline-xl text-2xl sm:text-3xl text-on-surface font-bold tracking-tight">
-                Welcome back
-              </h1>
-              <p className="font-body-sm text-sm text-on-surface-variant mt-1">
-                Sign in to continue to El Niño Preemption Engine
-              </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-              {/* Email / Username */}
-              <div className="flex flex-col gap-1.5">
-                <label className="font-label-md text-xs text-on-surface-variant uppercase tracking-wider font-semibold">
-                  Email / Username
+            <div>
+              <div className="flex justify-between items-center mb-1">
+                <label className="block text-xs font-medium text-[#4B5563]">
+                  Password
                 </label>
-                <div className="relative">
-                  <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-lg">
-                    person
-                  </span>
-                  <input
-                    type="text"
-                    required
-                    value={email}
-                    onChange={e => setEmail(e.target.value)}
-                    placeholder="officer@maharashtra.gov.in"
-                    className="w-full bg-surface-container-lowest text-on-surface placeholder:text-on-surface-variant/50 pl-10 pr-4 py-2.5 rounded-xl border border-outline-variant/40 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary font-body-md text-sm transition-all"
-                  />
-                </div>
+                <span className="text-[11px] text-[#6B7280]">
+                  State NIC Auth
+                </span>
               </div>
-
-              {/* Password */}
-              <div className="flex flex-col gap-1.5">
-                <div className="flex items-center justify-between">
-                  <label className="font-label-md text-xs text-on-surface-variant uppercase tracking-wider font-semibold">
-                    Password
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => alert('For testing, use the pre-filled credentials or click "Sign in with Government ID" below.')}
-                    className="font-label-md text-xs text-primary hover:underline"
-                  >
-                    Forgot password?
-                  </button>
-                </div>
-                <div className="relative">
-                  <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-lg">
-                    lock
-                  </span>
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    required
-                    value={password}
-                    onChange={e => setPassword(e.target.value)}
-                    placeholder="Enter password"
-                    className="w-full bg-surface-container-lowest text-on-surface placeholder:text-on-surface-variant/50 pl-10 pr-10 py-2.5 rounded-xl border border-outline-variant/40 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary font-body-md text-sm transition-all"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface"
-                  >
-                    <span className="material-symbols-outlined text-lg">
-                      {showPassword ? 'visibility_off' : 'visibility'}
-                    </span>
-                  </button>
-                </div>
+              <div className="relative">
+                <Lock className="w-4 h-4 text-[#9CA3AF] absolute left-3 top-1/2 -translate-y-1/2 stroke-[1.5]" />
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  placeholder="••••••••••••"
+                  className="w-full bg-[#F6F7F9] text-xs text-[#111827] pl-9 pr-9 py-2 rounded-md border border-[#E3E6EB] focus:bg-white focus:border-[#0F4C81] focus:ring-1 focus:ring-[#0F4C81] transition-all"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9CA3AF] hover:text-[#4B5563]"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
+            </div>
 
-              {/* Sign In CTA */}
+            <div className="pt-2">
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full mt-2 py-3 px-4 rounded-xl bg-primary hover:bg-primary-fixed-dim text-on-primary font-headline-sm text-sm font-bold shadow-[0_0_20px_rgba(78,222,163,0.3)] transition-all flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full py-2 px-4 rounded-md bg-[#0F4C81] text-white text-xs font-semibold hover:bg-[#0A3963] shadow-[0_1px_2px_rgba(16,24,40,0.08)] transition-colors flex items-center justify-center gap-2 cursor-pointer"
               >
                 {isLoading ? (
-                  <>
-                    <span className="w-4 h-4 border-2 border-on-primary border-t-transparent rounded-full animate-spin" />
-                    <span>Verifying Credentials...</span>
-                  </>
+                  <span>Authenticating...</span>
                 ) : (
                   <>
-                    <span>Sign In</span>
-                    <span className="material-symbols-outlined text-lg">arrow_forward</span>
+                    <span>Sign In with Gov ID</span>
+                    <ArrowRight className="w-3.5 h-3.5 stroke-[1.5]" />
                   </>
                 )}
               </button>
-            </form>
-
-            {/* Divider */}
-            <div className="relative flex items-center justify-center">
-              <div className="w-full border-t border-outline-variant/30" />
-              <span className="absolute px-3 bg-surface-container-low text-xs text-on-surface-variant">
-                or
-              </span>
             </div>
+          </form>
 
-            {/* Government ID 1-Click Fast Bypass */}
+          {/* Quick Demo Bypass */}
+          <div className="mt-4 pt-4 border-t border-[#E3E6EB]">
             <button
               type="button"
               onClick={handleGovBypass}
               disabled={isLoading}
-              className="w-full py-3 px-4 rounded-xl bg-surface-container-high hover:bg-surface-container-highest text-on-surface font-headline-sm text-sm font-semibold border border-outline-variant/40 transition-all flex items-center justify-center gap-2.5 shadow-sm hover:border-primary/50 group"
+              className="w-full py-2 px-3 rounded-md bg-[#F1F3F5] hover:bg-[#E3E6EB] text-[#4B5563] text-xs font-medium transition-colors text-center"
             >
-              <span className="material-symbols-outlined text-secondary group-hover:scale-110 transition-transform">
-                account_balance
-              </span>
-              <span>Sign in with Government ID (Demo Bypass)</span>
+              Demo Access: State Relief Officer (Yatharth Ladkat)
             </button>
+          </div>
 
-            {/* Bottom Security Note */}
-            <div className="text-center pt-2">
-              <span className="inline-flex items-center gap-1.5 font-label-md text-xs text-on-surface-variant">
-                <span className="material-symbols-outlined text-sm text-primary">gite</span>
-                <span>Secure • Government Access Only</span>
-              </span>
-            </div>
+          <div className="mt-4 text-center">
+            <p className="text-[11px] text-[#9CA3AF]">
+              For emergency login assistance, contact State Relief Control Room: 022-22027990
+            </p>
           </div>
         </div>
-      </div>
+      </main>
+
+      {/* Footer */}
+      <footer className="w-full bg-white border-t border-[#E3E6EB] px-6 py-3 text-center text-xs text-[#6B7280]">
+        <p>
+          © 2026 Disaster Management Cell, Government of Maharashtra · Designed for official state relief administration
+        </p>
+      </footer>
     </div>
   );
 };

@@ -1,48 +1,78 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
+import { FileText, Download, FileSpreadsheet, Calendar, ArrowRight, Printer, Shield } from 'lucide-react';
 
 export const ReportsView: React.FC = () => {
   const { districts, budget, showToast } = useApp();
   const [activeTab, setActiveTab] = useState<'reports' | 'trends' | 'export'>('reports');
-  const [selectedReport, setSelectedReport] = useState<string | null>(null);
 
-  const handleExportBrief = () => {
+  const handleExportBrief = (reportTitle: string) => {
     showToast(
-      'Official Brief Downloaded',
-      'Generated SDMA Executive Relief Brief (PDF) with digital watermark.',
+      'Document Generated',
+      `Official PDF summary created: ${reportTitle}. Ready for download.`,
       'primary'
     );
   };
 
+  const reports = [
+    {
+      id: 'REP-01',
+      title: 'State Relief Executive Dossier',
+      subtitle: 'Cabinet & Divisional Commissioner Briefing',
+      updated: '24 Oct 2026, 08:00 IST',
+      category: 'Governance',
+      metrics: '12 Districts · ₹142 Cr Requisition'
+    },
+    {
+      id: 'REP-02',
+      title: 'District Precipitation Deficit Matrix',
+      subtitle: 'IMD Ground Stations vs 50-Year Median',
+      updated: '24 Oct 2026, 06:00 IST',
+      category: 'Meteorology',
+      metrics: '36 AWS Nodes · -48.5% Regional Mean'
+    },
+    {
+      id: 'REP-03',
+      title: 'Emergency Tanker Dispatch Ledger',
+      subtitle: 'Potable Water Distribution & Route Logs',
+      updated: '23 Oct 2026, 22:30 IST',
+      category: 'Logistics',
+      metrics: '42 Active Tankers · 840,000 Litres Delivered'
+    },
+    {
+      id: 'REP-04',
+      title: 'Direct Benefit Transfer (DBT) Clearance',
+      subtitle: 'Aadhaar-Linked Crop Failure Relief Disbursals',
+      updated: '23 Oct 2026, 17:00 IST',
+      category: 'Finance',
+      metrics: '48,392 Accounts Verified · 94.2% Passed'
+    }
+  ];
+
   return (
-    <div className="flex flex-col w-full gap-6 pb-8">
-      {/* Title Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="flex flex-col w-full gap-5 pb-10">
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-1">
         <div>
-          <div className="flex items-center gap-1.5 text-on-surface-variant font-label-md text-xs tracking-wider uppercase mb-1">
-            <span>Executive Governance</span>
-            <span className="material-symbols-outlined text-xs text-outline">chevron_right</span>
-            <span className="text-tertiary-fixed-dim font-semibold">State Disaster Management Authority</span>
-          </div>
-          <h1 className="font-headline-xl text-2xl lg:text-3xl text-on-surface font-bold tracking-tight">
-            Reports & Strategic Insights
+          <h1 className="text-xl font-bold text-[#111827] tracking-tight">
+            Reports & Analytical Records
           </h1>
-          <p className="font-body-md text-sm text-on-surface-variant mt-0.5">
-            Audit trails, seasonal trend models, and printable executive relief dossiers.
+          <p className="text-xs text-[#6B7280] mt-0.5">
+            Official government relief dossiers, hydrological audit records, and DBT ledger exports
           </p>
         </div>
 
-        {/* Tab switchers */}
-        <div className="flex items-center bg-surface-container-low p-1 rounded-xl border border-outline-variant/30">
+        {/* Tab Controls */}
+        <div className="flex items-center bg-[#F1F3F5] p-0.5 rounded-md border border-[#E3E6EB]">
           {(['reports', 'trends', 'export'] as const).map(tab => (
             <button
               key={tab}
               type="button"
               onClick={() => setActiveTab(tab)}
-              className={`px-4 py-1.5 rounded-lg font-headline-sm text-xs font-semibold capitalize transition-all ${
+              className={`px-3 py-1 rounded text-xs font-medium capitalize transition-colors ${
                 activeTab === tab
-                  ? 'bg-primary-container text-on-primary-container shadow-sm'
-                  : 'text-on-surface-variant hover:text-on-surface'
+                  ? 'bg-white text-[#111827] shadow-[0_1px_2px_rgba(16,24,40,0.06)]'
+                  : 'text-[#4B5563] hover:text-[#111827]'
               }`}
             >
               {tab}
@@ -52,297 +82,139 @@ export const ReportsView: React.FC = () => {
       </div>
 
       {activeTab === 'reports' && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Left: 4 Primary Reports (8 cols) */}
-          <div className="lg:col-span-8 flex flex-col gap-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Report 1 */}
-              <div
-                onClick={() => setSelectedReport('District Risk & Precipitation Report')}
-                className="p-5 rounded-2xl bg-surface-container-low hover:bg-surface-container border border-outline-variant/30 backdrop-blur-xl shadow-md transition-all cursor-pointer flex flex-col justify-between group"
-              >
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="w-10 h-10 rounded-xl bg-error-container/20 border border-error/30 flex items-center justify-center text-error">
-                      <span className="material-symbols-outlined text-xl">radar</span>
-                    </span>
-                    <span className="text-xs text-primary group-hover:translate-x-1 transition-transform flex items-center gap-1 font-semibold">
-                      View <span className="material-symbols-outlined text-sm">arrow_forward</span>
-                    </span>
-                  </div>
-                  <h3 className="font-headline-sm text-base text-on-surface font-bold">
-                    District Risk Report
-                  </h3>
-                  <p className="font-body-sm text-xs text-on-surface-variant mt-1">
-                    Risk levels, rainfall deficit indices, soil moisture anomalies across all 36 Maharashtra districts.
-                  </p>
-                </div>
-                <div className="mt-4 pt-3 border-t border-outline-variant/20 flex justify-between text-xs text-on-surface-variant">
-                  <span>Updated Today</span>
-                  <span className="font-mono text-primary">INSAT-3DR Synced</span>
-                </div>
-              </div>
-
-              {/* Report 2 */}
-              <div
-                onClick={() => setSelectedReport('Relief Allocation & MILP Budget Dossier')}
-                className="p-5 rounded-2xl bg-surface-container-low hover:bg-surface-container border border-outline-variant/30 backdrop-blur-xl shadow-md transition-all cursor-pointer flex flex-col justify-between group"
-              >
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="w-10 h-10 rounded-xl bg-primary-container/20 border border-primary/30 flex items-center justify-center text-primary">
-                      <span className="material-symbols-outlined text-xl">account_balance_wallet</span>
-                    </span>
-                    <span className="text-xs text-primary group-hover:translate-x-1 transition-transform flex items-center gap-1 font-semibold">
-                      View <span className="material-symbols-outlined text-sm">arrow_forward</span>
-                    </span>
-                  </div>
-                  <h3 className="font-headline-sm text-base text-on-surface font-bold">
-                    Relief Allocation Report
-                  </h3>
-                  <p className="font-body-sm text-xs text-on-surface-variant mt-1">
-                    Budget usage, district-wise MILP distribution, and comparison against historical blanket equal allocations.
-                  </p>
-                </div>
-                <div className="mt-4 pt-3 border-t border-outline-variant/20 flex justify-between text-xs text-on-surface-variant">
-                  <span>Tranche: ₹{budget} Cr</span>
-                  <span className="font-mono text-primary font-bold">+38% Yield</span>
-                </div>
-              </div>
-
-              {/* Report 3 */}
-              <div
-                onClick={() => setSelectedReport('Claim Analysis & Duplicate Detection')}
-                className="p-5 rounded-2xl bg-surface-container-low hover:bg-surface-container border border-outline-variant/30 backdrop-blur-xl shadow-md transition-all cursor-pointer flex flex-col justify-between group"
-              >
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="w-10 h-10 rounded-xl bg-secondary-container/20 border border-secondary/30 flex items-center justify-center text-secondary">
-                      <span className="material-symbols-outlined text-xl">fact_check</span>
-                    </span>
-                    <span className="text-xs text-primary group-hover:translate-x-1 transition-transform flex items-center gap-1 font-semibold">
-                      View <span className="material-symbols-outlined text-sm">arrow_forward</span>
-                    </span>
-                  </div>
-                  <h3 className="font-headline-sm text-base text-on-surface font-bold">
-                    Claim Analysis Report
-                  </h3>
-                  <p className="font-body-sm text-xs text-on-surface-variant mt-1">
-                    Sentinel-2 NDVI verification flags, duplicate plots, and machine confidence distribution.
-                  </p>
-                </div>
-                <div className="mt-4 pt-3 border-t border-outline-variant/20 flex justify-between text-xs text-on-surface-variant">
-                  <span>48,392 Claims</span>
-                  <span className="font-mono text-secondary">94.2% Genuine</span>
-                </div>
-              </div>
-
-              {/* Report 4 */}
-              <div
-                onClick={() => setSelectedReport('Logistics Performance & Fleet Dispatch')}
-                className="p-5 rounded-2xl bg-surface-container-low hover:bg-surface-container border border-outline-variant/30 backdrop-blur-xl shadow-md transition-all cursor-pointer flex flex-col justify-between group"
-              >
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="w-10 h-10 rounded-xl bg-tertiary-container/20 border border-tertiary/30 flex items-center justify-center text-tertiary">
-                      <span className="material-symbols-outlined text-xl">local_shipping</span>
-                    </span>
-                    <span className="text-xs text-primary group-hover:translate-x-1 transition-transform flex items-center gap-1 font-semibold">
-                      View <span className="material-symbols-outlined text-sm">arrow_forward</span>
-                    </span>
-                  </div>
-                  <h3 className="font-headline-sm text-base text-on-surface font-bold">
-                    Logistics Performance Report
-                  </h3>
-                  <p className="font-body-sm text-xs text-on-surface-variant mt-1">
-                    Transit routes, delivery status, FASTag toll exemptions, and vehicle depot fuel velocity.
-                  </p>
-                </div>
-                <div className="mt-4 pt-3 border-t border-outline-variant/20 flex justify-between text-xs text-on-surface-variant">
-                  <span>142 Drops</span>
-                  <span className="font-mono text-tertiary">96.4% Efficiency</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Quick Export Action Bar */}
-            <div className="p-5 rounded-2xl bg-surface-container-low border border-outline-variant/30 backdrop-blur-xl shadow-md flex items-center justify-between gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {reports.map(rep => (
+            <div
+              key={rep.id}
+              className="bg-white rounded-lg border border-[#E3E6EB] p-4 shadow-[0_1px_2px_rgba(16,24,40,0.04)] flex flex-col justify-between"
+            >
               <div>
-                <h4 className="font-headline-sm text-sm text-on-surface font-bold">
-                  Generate Complete SDMA Audit Dossier
-                </h4>
-                <p className="font-body-sm text-xs text-on-surface-variant mt-0.5">
-                  Includes full mathematical formulations, GIS shapefiles, and treasury clearance receipts.
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={handleExportBrief}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary hover:bg-primary-fixed-dim text-on-primary font-headline-sm text-xs font-bold transition-all shadow-md cursor-pointer shrink-0"
-              >
-                <span className="material-symbols-outlined text-base">download</span>
-                <span>Export Official Brief (PDF)</span>
-              </button>
-            </div>
-          </div>
+                <div className="flex justify-between items-start mb-2">
+                  <span className="text-[10px] font-mono text-[#0F4C81] bg-[#EEF4FA] px-1.5 py-0.5 rounded border border-[#BCD4EC]">
+                    {rep.id} · {rep.category}
+                  </span>
+                  <span className="text-[11px] text-[#6B7280]">{rep.updated}</span>
+                </div>
+                <h3 className="text-sm font-bold text-[#111827]">{rep.title}</h3>
+                <p className="text-xs text-[#6B7280] mt-0.5">{rep.subtitle}</p>
 
-          {/* Right: Key Insights Panel (4 cols) */}
-          <div className="lg:col-span-4 flex flex-col gap-4">
-            <div className="p-5 rounded-2xl bg-surface-container-low border border-outline-variant/30 backdrop-blur-xl shadow-md flex flex-col gap-4">
-              <div className="flex items-center gap-2 pb-2 border-b border-outline-variant/20">
-                <span className="material-symbols-outlined text-primary text-xl">lightbulb</span>
-                <h3 className="font-headline-sm text-base text-on-surface font-bold">
-                  Key Strategic Insights
-                </h3>
+                <div className="mt-3 p-2 rounded bg-[#F9FAFB] border border-[#E3E6EB] text-xs">
+                  <span className="text-[11px] text-[#6B7280] block">Scope / Summary</span>
+                  <span className="font-semibold text-[#111827] mt-0.5 block">{rep.metrics}</span>
+                </div>
               </div>
 
-              <div className="space-y-3 font-body-sm text-xs">
-                <div className="p-3.5 rounded-xl bg-surface-container-highest/60 border border-outline-variant/20 flex items-start gap-2.5">
-                  <span className="material-symbols-outlined text-error text-base shrink-0 mt-0.5">
-                    warning
-                  </span>
-                  <div>
-                    <span className="font-bold text-on-surface block">Critical Deficit in Latur & Beed</span>
-                    <span className="text-on-surface-variant mt-0.5 block leading-relaxed">
-                      Latur currently has the highest compound risk score (0.88) with 58% cumulative rainfall deficit.
-                    </span>
-                  </div>
-                </div>
-
-                <div className="p-3.5 rounded-xl bg-surface-container-highest/60 border border-outline-variant/20 flex items-start gap-2.5">
-                  <span className="material-symbols-outlined text-primary text-base shrink-0 mt-0.5">
-                    alt_route
-                  </span>
-                  <div>
-                    <span className="font-bold text-on-surface block">Reallocation Benefit</span>
-                    <span className="text-on-surface-variant mt-0.5 block leading-relaxed">
-                      Reallocating ₹12 Cr from surplus zones to Beed & Osmanabad covers 2.4x more vulnerable farmers.
-                    </span>
-                  </div>
-                </div>
-
-                <div className="p-3.5 rounded-xl bg-surface-container-highest/60 border border-outline-variant/20 flex items-start gap-2.5">
-                  <span className="material-symbols-outlined text-tertiary text-base shrink-0 mt-0.5">
-                    schedule
-                  </span>
-                  <div>
-                    <span className="font-bold text-on-surface block">Supply Chain Alert</span>
-                    <span className="text-on-surface-variant mt-0.5 block leading-relaxed">
-                      Cattle fodder bank capacity at Solapur South Store is projected to reach threshold in 7 days without resupply.
-                    </span>
-                  </div>
-                </div>
+              <div className="mt-4 pt-3 border-t border-[#E3E6EB] flex justify-between items-center">
+                <span className="text-[11px] text-[#6B7280]">Format: PDF & CSV</span>
+                <button
+                  type="button"
+                  onClick={() => handleExportBrief(rep.title)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-[#0F4C81] text-white text-xs font-semibold hover:bg-[#0A3963] transition-colors"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Download Dossier</span>
+                </button>
               </div>
             </div>
-          </div>
+          ))}
         </div>
       )}
 
       {activeTab === 'trends' && (
-        <div className="p-6 rounded-2xl bg-surface-container-low border border-outline-variant/30 backdrop-blur-xl shadow-md flex flex-col gap-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="font-headline-sm text-base text-on-surface font-bold">
-                Multi-District Seasonal Trend Comparisons (2020 - 2026)
-              </h2>
-              <p className="font-body-sm text-xs text-on-surface-variant">
-                Year-over-year agricultural loss averted under predictive preemption versus reactive relief.
-              </p>
-            </div>
-            <span className="text-xs text-primary font-mono font-bold">Model: ARIMA + Sentinel-2</span>
+        <div className="bg-white rounded-lg border border-[#E3E6EB] p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04)] space-y-4">
+          <div>
+            <h3 className="text-sm font-semibold text-[#111827]">
+              Multi-Year Drought Stress Trajectory (2020–2026)
+            </h3>
+            <p className="text-xs text-[#6B7280] mt-0.5">
+              Historical yield loss averted under predictive preemption algorithms vs reactive relief
+            </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {districts.slice(0, 3).map(d => (
-              <div key={d.id} className="p-4 rounded-xl bg-surface-container border border-outline-variant/20">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="font-bold text-sm text-on-surface">{d.name}</span>
-                  <span className="text-xs text-error font-bold font-mono">{d.riskScore} Risk</span>
-                </div>
-                <div className="space-y-1.5 text-xs text-on-surface-variant">
-                  <div className="flex justify-between">
-                    <span>Precip. Deficit:</span>
-                    <span className="font-bold text-error">{d.precipDeficit}%</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Active Claims:</span>
-                    <span className="font-bold text-on-surface">{d.activeClaims.toLocaleString()}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Averted Crop Loss:</span>
-                    <span className="font-bold text-primary font-mono">₹ {(d.reqBudgetCr * 2.8).toFixed(1)} Cr</span>
-                  </div>
-                </div>
-              </div>
-            ))}
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr className="border-b border-[#E3E6EB] text-[11px] font-semibold text-[#6B7280] bg-[#FAFBFC]">
+                  <th className="py-2.5 px-3">Season Year</th>
+                  <th className="py-2.5 px-3">Rainfall Deficit</th>
+                  <th className="py-2.5 px-3">Relief Budget (₹ Cr)</th>
+                  <th className="py-2.5 px-3">Farmers Covered</th>
+                  <th className="py-2.5 px-3">Loss Averted Multiplier</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#E3E6EB]">
+                <tr className="hover:bg-[#F9FAFB]">
+                  <td className="py-2.5 px-3 font-semibold text-[#111827]">2026 (El Niño Active)</td>
+                  <td className="py-2.5 px-3 font-semibold text-[#C62828]">-48.5%</td>
+                  <td className="py-2.5 px-3">₹142.0 Cr</td>
+                  <td className="py-2.5 px-3">48,392 (Projected: 1.4L)</td>
+                  <td className="py-2.5 px-3 font-bold text-[#0F4C81]">2.4x (Preemptive)</td>
+                </tr>
+                <tr className="hover:bg-[#F9FAFB]">
+                  <td className="py-2.5 px-3 text-[#111827]">2025 (Normal Monsoon)</td>
+                  <td className="py-2.5 px-3 text-[#2E7D32]">+4.2%</td>
+                  <td className="py-2.5 px-3">₹45.0 Cr</td>
+                  <td className="py-2.5 px-3">22,100</td>
+                  <td className="py-2.5 px-3 text-[#6B7280]">1.0x (Baseline)</td>
+                </tr>
+                <tr className="hover:bg-[#F9FAFB]">
+                  <td className="py-2.5 px-3 text-[#111827]">2024 (Dry Monsoon)</td>
+                  <td className="py-2.5 px-3 text-[#B26A00]">-32.1%</td>
+                  <td className="py-2.5 px-3">₹98.0 Cr</td>
+                  <td className="py-2.5 px-3">34,500</td>
+                  <td className="py-2.5 px-3 text-[#6B7280]">1.2x (Reactive)</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       )}
 
       {activeTab === 'export' && (
-        <div className="p-8 rounded-2xl bg-surface-container-low border border-outline-variant/30 backdrop-blur-xl shadow-md flex flex-col items-center justify-center text-center max-w-2xl mx-auto gap-4">
-          <div className="w-16 h-16 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
-            <span className="material-symbols-outlined text-3xl">picture_as_pdf</span>
-          </div>
-          <h2 className="font-headline-xl text-xl text-on-surface font-bold">
-            Download Official Executive Relief Brief
-          </h2>
-          <p className="font-body-md text-xs sm:text-sm text-on-surface-variant max-w-md">
-            Export the official 2026 Preemption Tranche brief formatted for State Cabinet, Finance Ministry, and Collectorate desks.
+        <div className="bg-white rounded-lg border border-[#E3E6EB] p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04)] space-y-4">
+          <h3 className="text-sm font-semibold text-[#111827]">
+            State Relief Cell Data Export Center
+          </h3>
+          <p className="text-xs text-[#6B7280]">
+            Export raw geospatial, financial, and logistical datasets in standard government open data formats
           </p>
-          <button
-            type="button"
-            onClick={handleExportBrief}
-            className="px-6 py-3 rounded-xl bg-primary hover:bg-primary-fixed-dim text-on-primary font-headline-sm text-sm font-bold shadow-lg transition-all cursor-pointer"
-          >
-            Download Signed PDF Brief
-          </button>
-        </div>
-      )}
 
-      {/* Report Inspection Modal */}
-      {selectedReport && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-center justify-center p-4">
-          <div className="bg-surface-container-high border border-outline-variant/40 rounded-2xl p-6 max-w-lg w-full shadow-2xl flex flex-col gap-4 animate-in zoom-in-95">
-            <div className="flex items-center justify-between pb-2 border-b border-outline-variant/30">
-              <h3 className="font-headline-sm text-base text-on-surface font-bold">
-                {selectedReport}
-              </h3>
-              <button
-                onClick={() => setSelectedReport(null)}
-                className="text-on-surface-variant hover:text-on-surface p-1"
-              >
-                <span className="material-symbols-outlined text-lg">close</span>
-              </button>
-            </div>
-            <p className="text-xs text-on-surface-variant">
-              Full report records loaded from Maharashtra State Disaster Management Authority server database. All numbers reflect current session variables.
-            </p>
-            <div className="p-4 rounded-xl bg-surface-container-lowest font-mono text-xs space-y-1">
-              <div>Total State Allocation Pool: ₹ {budget} Crore</div>
-              <div>Districts Covered: 5 High-Priority Zones</div>
-              <div>Model Algorithm: Mixed-Integer Linear Programming v4.12</div>
-              <div>Ground Stations Synced: 1,480 / 1,500 AWS Stations</div>
-            </div>
-            <div className="flex justify-end gap-2 pt-2 border-t border-outline-variant/30">
-              <button
-                type="button"
-                onClick={() => setSelectedReport(null)}
-                className="px-4 py-2 rounded-xl bg-surface-container text-xs font-semibold"
-              >
-                Close
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setSelectedReport(null);
-                  handleExportBrief();
-                }}
-                className="px-4 py-2 rounded-xl bg-primary text-on-primary text-xs font-bold"
-              >
-                Download PDF
-              </button>
-            </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+            <button
+              type="button"
+              onClick={() => showToast('GeoJSON Exported', 'Downloaded Marathwada taluka GIS polygons (GeoJSON)', 'primary')}
+              className="p-3 rounded border border-[#E3E6EB] hover:bg-[#F9FAFB] text-left flex flex-col justify-between"
+            >
+              <div>
+                <span className="font-semibold text-xs text-[#111827] block">GIS Boundaries (GeoJSON)</span>
+                <span className="text-[11px] text-[#6B7280] mt-0.5 block">Taluka polygons with NDVI indices</span>
+              </div>
+              <span className="text-[11px] font-semibold text-[#0F4C81] mt-3">Download .geojson →</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => showToast('CSV Exported', 'Downloaded all 36 monitored districts dataset (CSV)', 'primary')}
+              className="p-3 rounded border border-[#E3E6EB] hover:bg-[#F9FAFB] text-left flex flex-col justify-between"
+            >
+              <div>
+                <span className="font-semibold text-xs text-[#111827] block">District Telemetry (CSV)</span>
+                <span className="text-[11px] text-[#6B7280] mt-0.5 block">Rainfall, soil moisture & claims</span>
+              </div>
+              <span className="text-[11px] font-semibold text-[#0F4C81] mt-3">Download .csv →</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => showToast('PDF Exported', 'Downloaded Treasury authorization ledger (PDF)', 'primary')}
+              className="p-3 rounded border border-[#E3E6EB] hover:bg-[#F9FAFB] text-left flex flex-col justify-between"
+            >
+              <div>
+                <span className="font-semibold text-xs text-[#111827] block">Finance Ledger (PDF)</span>
+                <span className="text-[11px] text-[#6B7280] mt-0.5 block">Signed state relief allocations</span>
+              </div>
+              <span className="text-[11px] font-semibold text-[#0F4C81] mt-3">Download .pdf →</span>
+            </button>
           </div>
         </div>
       )}

@@ -1,80 +1,96 @@
-# 🌾 El Niño Preemption Engine — Command Core
+# 🏛️ Maharashtra State Relief Cell — Drought Decision Support Portal
 
-> **Smarter decisions. Resilient communities.**  
-> An AI-assisted drought-response planning and operations platform for state relief administrators, district collectors, and emergency logistics commanders.
+> **Revenue & Forest Department · Disaster Management Division · Government of Maharashtra**  
+> An enterprise-grade drought-response decision support and fleet operations platform for state relief administrators, district collectors, and emergency logistics commanders.
 
 ---
 
 ## 📌 Executive Summary
 
-During severe El Niño climatic events, agrarian regions such as Maharashtra’s Marathwada belt face devastating rainfall deficits and critical soil moisture depletion. Traditional bureaucratic relief often suffers from delayed disbursals, blunt equal-quota allocations, and logistical bottlenecks.
+During severe El Niño climatic events, agrarian regions across Maharashtra’s Marathwada belt face devastating rainfall deficits and critical soil moisture depletion. Traditional bureaucratic relief often suffers from delayed disbursals, blunt equal-quota allocations, and logistical bottlenecks.
 
-The **El Niño Preemption Engine (Preemption Command Core)** bridges earth observation satellites, hydrological telemetry, and mathematical optimization into a single real-time tactical command platform. By leveraging **Constrained Mixed-Integer Linear Programming (MILP)** and **Sentinel-2 NDVI spectral analysis**, the platform predicts agrarian distress up to 30–60 days in advance, averts up to **2.4x more crop losses**, verifies distress claims, and dispatches emergency relief convoys across green corridors.
+The **Maharashtra State Relief Cell Portal** integrates earth observation satellites, hydrological telemetry, and mathematical optimization into a single real-time decision support system. By combining **Constrained Mixed-Integer Linear Programming (MILP)** and **Sentinel-2 multispectral NDVI analysis**, the system enables administrators to predict agrarian distress 30–60 days in advance, avert crop losses, verify distress claims, and dispatch emergency relief convoys across green corridors.
+
+---
+
+## 🎨 Enterprise Design Language
+
+The interface is engineered to government and enterprise software standards, avoiding consumer-AI aesthetics:
+
+* **Theme**: Light theme with `#F6F7F9` background, pure white cards (`#FFFFFF`) with 1px border (`#E3E6EB`), and subtle elevation shadows (`0 1px 2px rgba(16,24,40,0.04)`).
+* **Primary Accent**: Deep Navy Blue (`#0F4C81`), used strictly for active navigation, primary action buttons, links, and selected chart data.
+* **Semantic Status Indicators**:
+  * Critical: Red (`#C62828`)
+  * Warning: Amber (`#B26A00`)
+  * Healthy: Green (`#2E7D32`)
+* **Typography**: Clean `Inter` font family with tabular numerals for financial and statistical precision.
+* **Layout Discipline**: 8px spatial grid, 16–24px card padding, 8px maximum border radius, and aligned heights across all metric rows.
+* **Iconography**: 1.5px clean line icons from Lucide.
 
 ---
 
 ## 🚀 Key Operational Modules
 
-### 1. 🛡️ Executive Command Matrix (`Dashboard`)
-* **Live Instrumentation**: Real-time tracking of high-risk districts (12/36 in Zone V), state relief contingency pool (₹142 Cr / ₹500 Cr active cap), verified beneficiaries (48,392 geo-tagged plots), and active fleet convoys.
-* **Interactive GIS Cartography**: Tactical radar overlay of Maharashtra with clickable district hotspots (`Beed`, `Latur`, `Solapur`, `Osmanabad`, `Nanded`) displaying precipitation deficits, soil moisture levels, and one-click rapid unit dispatch.
-* **Priority Directives**: Real-time urgency queue with actionable triggers (e.g. Majalgaon Reservoir dead storage breach, Contingency Tranche B authorizations, and highway culvert detour alerts).
-* **Ground Telemetry Strip**: Network status monitoring 1,480 / 1,500 Automated Weather Stations (AWS) and soil moisture probes operating at 98.7% uptime.
+### 1. 🛡️ State Drought Overview (`Dashboard`)
+* **Live Instrumentation Row**:
+  * **Districts at high risk**: 12 of 36 districts with sparkline indicator.
+  * **Relief budget utilised**: ₹142 Cr of ₹500 Cr cap with flat progress bar at 28.4% and uncommitted reserve tracking.
+  * **Verified beneficiaries**: 48,392 geo-tagged plots with 94.2% verification rate.
+  * **Convoys in transit**: 5 active relief fleets on schedule.
+* **Regional Drought Severity Map**:
+  * Clean vector basemap with sequential single-hue choropleth (light to dark red) representing rainfall deficit.
+  * Interactive taluka inspection popover displaying deficit %, soil moisture, open claims, and primary crop.
+  * Layer toggling: Rainfall deficit, Soil moisture, and Tanker corridors.
+  * Scale bar (50 km) and Survey of India reference grid metadata.
+* **📈 D3.js Real-Time Severity & 30-Day Trend Chart**:
+  * Multi-series spline curve with smooth monotonic interpolation.
+  * Interactive scrubber tooltip tracking district trajectories from historical to projected horizons.
+  * Reactive dampening responsive to MILP budget allocations and climate stress scenario toggles.
+  * Toggles for Risk Score (0–1.0), Rainfall Deficit %, and Crop Distress Index.
+* **Priority Actions Queue**:
+  * Clean, compact list with severity dots (critical/warning), titles, plain descriptions, timestamps, and direct action triggers.
+* **Districts Requiring Attention Table**:
+  * Sortable, zebra-free data table with hover states and 13px font.
+  * Covers real Marathwada districts: Beed, Latur, Dharashiv (Osmanabad), Parbhani, Nanded, Jalna, Hingoli, Chhatrapati Sambhajinagar, and Solapur.
+  * Export to CSV and print-ready summary dossier.
 
-### 2. 🛰️ Drought Risk Monitor & Multispectral Indices
-* **Vegetation Condition Index (VCI) Anomaly Heatmap**: Historical multi-year matrix (2020–2026) mapping seasonal drought severity across 12 monthly cycles.
-* **Precipitation Deficit Curves**: Real-time monthly rainfall measurements charted against 50-year state medians.
-* **Multi-Horizon Modeling**: Dynamic forecast switcher (15-Day, 30-Day Projected, and 60-Day Climate Model).
-* **District Vulnerability Matrix**: Comprehensive rankings detailing precipitation deficits, dry spell duration (days), and AI confidence scores.
+### 2. 🛰️ Drought Risk & Rainfall Indices
+* **Interactive SVG Regional Polygon Layer**:
+  * Vector polygons for Beed, Latur, Dharashiv, Nanded, Solapur, and Jalna.
+  * Granular crop loss breakdown (Soybean, Bt Cotton, Bajra, Tur, Sugarcane, Pomegranate).
+  * Root-zone moisture saturation deficits and recommended preemptive interventions.
+* **Vegetation Condition Index (VCI) Multi-Year Heatmap**:
+  * 2020–2026 historical monthly anomaly matrix.
 
-### 3. ⚖️ Relief Budget Scenario Simulator & MILP Allocator
-* **Mixed-Integer Linear Programming (MILP v4.12)**: Reactive mathematical solver providing deterministic, transparent micro-grant allocations.
-* **Interactive Parameters**:
-  * **Available State Allocation Slider**: Dynamic budget scaling from ₹20 Crore (Floor) to ₹250 Crore (Cap).
-  * **Drought Stress Horizon**: Select between *Mild Drought Stress* (10-15% deficit), *Severe Drought Risk* (30-45% deficit), and *Extreme Stress Contingency* (>50% acute failure).
-  * **Algorithmic Priority Weighting**: Fine-tune solver focus from Historical Vulnerability (0%) to Predicted Risk (100%).
-  * **Optimization Objectives**: Toggle between *Max Farmers Covered*, *Min Supply Latency*, and *Equal Taluka Floor*.
-* **Constraint Guarantees**: Mathematically enforces a minimum ₹15 Cr relief floor per taluka and preserves a 5.0% state emergency reserve.
-* **Head-to-Head Comparison**: Demonstrates a **+38% yield increase** and **-24% lower cost per beneficiary** over historical equal-split baselines.
-* **Finance Ministry Digital Sign-off**: Cryptographic authorization workflow for Treasury API clearance.
+### 3. ⚖️ Relief Budget Allocation & Scenario Simulator
+* **Mixed-Integer Linear Programming (MILP v4.12)**:
+  * Interactive parameters: State budget scaling (₹20 Cr to ₹250 Cr), Algorithmic priority weighting, and Drought stress horizon.
+  * Objective switchers: Max Farmers Covered, Min Delivery Latency, Equal Taluka Floor.
+  * Mathematical constraints: ₹15 Cr minimum per taluka floor and 5.0% state emergency reserve.
+  * Head-to-Head Comparison: Optimized allocation vs. baseline equal split.
+  * Digital Treasury Sign-off: Cryptographic authorization dialog for Finance Department disbursement.
 
-### 4. 🔍 AI Claim Evidence Review & Sentinel-2 Verification
-* **Spectral Anomaly Cross-Referencing**: Automatically matches self-reported farmer claims against Sentinel-2 multispectral NDVI indices.
-* **Fraud & Duplicate Prevention**: Flags spatial plot overlaps, excessive claim inflation (>25% discrepancy), and missing land revenue documentation.
-* **Inspection Modal**: Interactive spectral loss comparison with plot boundary telemetry and direct actions (*Approve*, *Send to Field Review*, *Flag Duplicate*).
-* **Batch Authorization**: Fast-track clearance for high-confidence genuine claims with Direct Benefit Transfer (DBT) token generation.
+### 4. 🔍 Crop Distress Claims Verification
+* **Sentinel-2 NDVI Cross-Referencing**:
+  * Compares self-reported losses against satellite spectral indices.
+  * Fraud detection: Identifies high variance (>25%), duplicate parcels, and missing 7/12 land revenue documentation.
+  * Inspection modal with direct authorization for Direct Benefit Transfer (DBT).
 
-### 5. 🚛 Resource Routing & Fleet Logistics
-* **Active Convoy Management**: Filterable fleet queue tracking water tankers (12kL–20kL), compressed cattle fodder blocks, and emergency nutrition pouches.
-* **Live GIS Route Canvas**: Vector path overlays with gradient slopes, checkpoint waypoints, and animated tracking.
-* **Driver Terminal & Highway Telematics**:
-  * **Driver Voice Console**: Encrypted dispatch call overlay with duration timer and frequency ping.
-  * **Live Dashcam Simulator**: Real-time vehicle HUD showing velocity, road gradient, and forward highway cameras.
-* **Immediate Dispatch Generator**: Configures origin hubs (Aurangabad Central, Pune East, Solapur South), destination centers, payloads, and routing algorithms with CartoSat-3 elevation slope optimization and disaster FASTag toll exemptions.
+### 5. 🚛 Tanker Logistics & Fleet Operations
+* **Active Relief Fleet Management**:
+  * Real-time tracking of potable water tankers, cattle fodder blocks, and nutrition kits.
+  * GPS speed, remaining distance, ETA, and checkpoint waypoints.
+* **Driver Communications & Dashcam Telematics**:
+  * Encrypted dispatch terminal call simulation.
+  * Live vehicle forward-facing highway HUD with velocity and gradient readouts.
+* **Emergency Dispatch Generator**:
+  * Configures origin supply depots, target talukas, cargo capacities, and FASTag disaster toll exemptions.
 
-### 6. 📊 Reports, Strategic Insights & Diagnostics
-* **Executive Relief Brief**: One-click generation of official SDMA Relief Dossiers formatted for Cabinet and Collectorate desks.
-* **Multi-District Trend Comparison**: Year-over-year loss averted metrics under predictive preemption.
-* **Grid Diagnostics & Settings**: INSAT-3DR Geostationary Link calibration (42ms latency), polling frequency controls, and FASTag exemption parameters.
-
----
-
-## 🧮 Mathematical Model & MILP Formulation
-
-The budget allocation solves the following constrained optimization problem:
-
-$$\max \sum_{i \in \text{Districts}} \left( w_i \cdot \text{Risk}_i \cdot \text{Farmers}_i \cdot x_i \right)$$
-
-**Subject to:**
-1. **Total Budget Constraint**: $\sum_{i} x_i \le B_{\text{available}} \times (1 - \text{ReserveMargin})$
-2. **Minimum Floor Constraint**: $x_i \ge \text{Floor}_{\min} \quad (\ge ₹15\text{ Cr})$
-3. **Capacity Upper Bound**: $x_i \le \text{Demand}_i$
-4. **Reserve Conservation**: $\text{Reserve} \ge 0.05 \times B_{\text{available}}$
-
-Where:
-* $x_i$ is the capital allocated to district $i$.
-* $\text{Risk}_i$ is the composite risk score derived from precipitation deficit, soil moisture, and dry spell days.
-* $w_i$ represents the user-calibrated algorithmic priority weighting.
+### 6. 📊 Reports & Analytical Records
+* **Official Executive Briefs**:
+  * State Relief Executive Dossier, IMD Ground Station Deficit Matrix, Emergency Tanker Dispatch Ledger, and DBT Clearance Dossiers.
+* **Multi-Year Trend Analysis & Data Export Center**:
+  * GeoJSON, CSV, and PDF downloads.
 
 ---
 
@@ -82,84 +98,48 @@ Where:
 
 | Layer | Technologies |
 | :--- | :--- |
-| **Frontend Framework** | React 19 (Functional Components, Custom Hooks) |
-| **Language** | TypeScript (Strict type safety across entities, routes, and metrics) |
+| **Frontend Framework** | React 19 (Functional Components, Custom Context Hooks) |
+| **Design System** | Clean Enterprise Light Theme (Inter font, 8px grid, CSS tokens) |
+| **Data Visualization** | D3.js v7 (Predictive spline curves, responsive scrubber, monotonic interpolation) |
+| **Cartography & Maps** | Lightweight SVG Vector Engine & GIS GeoJSON Basemaps |
+| **Icons** | Lucide React (1.5px clean line icons) |
+| **Styling** | Tailwind CSS v4 with custom CSS variable design tokens |
+| **Language** | TypeScript (Strict type checking across districts, claims, and telemetry) |
 | **Build & Tooling** | Vite 8, ESBuild, PostCSS, Autoprefixer |
-| **Styling & Theme** | Tailwind CSS v4 (`@theme` tokens with bespoke obsidian palette `#0b1326`, preemption green `#4edea3`, sky blue `#93ccff`, and coral alert `#ffb4ab`) |
-| **Typography** | `Space Grotesk` (Display & Numeric Telemetry), `Manrope` (Body & Data Grids) |
-| **Iconography** | Google Material Symbols Outlined |
-| **Backend & Runtime** | Express.js proxy server with Node.js (`tsx`) |
-| **Satellite Data Feeds** | Simulated INSAT-3DR Multispectral Imagery, ISRO CartoSat-3 DEM, Sentinel-2 NDVI |
+| **Data Feeds** | Simulated INSAT-3DR Multispectral Imagery, ISRO CartoSat-3 DEM, Sentinel-2 NDVI |
 
 ---
 
-## 👥 Project Leadership & Team
+## 👥 Leadership & Project Administration
 
-### **Maharashtra State Relief Cell & Disaster Management Command**
+### **Maharashtra State Relief Cell & Disaster Management Division**
 
-* **Project Director & Lead Administrator**:  
-  **Yatharth Officer** (`yatharthladkat@gmail.com`)  
-  *MH State Admin & Relief Operations Commander*
+* **State Relief Operations Commander**:  
+  **Yatharth Ladkat** (`yatharthladkat@gmail.com`)  
+  *State Relief Officer, Grade I · Revenue & Forest Department, Government of Maharashtra*
 
-* **Operational Jurisdictions Covered**:  
-  * Aurangabad Central Supply Hub  
-  * Beed (Patoda & Ashti Critical Sectors)  
-  * Latur (Ausa & Nilanga Agro Relief Zone)  
-  * Osmanabad / Dharashiv (Tuljapur & Bhoom Camps)  
-  * Solapur South Tactical Reservoir  
-  * Nanded (Mukhed & Biloli Agrarian Belt)
+* **Administrative Jurisdictions Covered**:  
+  * Chhatrapati Sambhajinagar Division (Beed, Latur, Dharashiv, Parbhani, Nanded, Jalna, Hingoli, Aurangabad)  
+  * Pune Division (Solapur Agrarian Sector)
 
 ---
 
 ## 🛠️ Local Development & Setup
 
-### Prerequisites
-* **Node.js**: `v20.x` or higher
-* **npm**: `v10.x` or higher
+```bash
+# 1. Install dependencies
+npm install
 
-### Installation
+# 2. Start local development server
+npm run dev
 
-1. **Clone the repository**:
-   ```bash
-   git clone <repository-url>
-   cd el-nino-preemption-engine
-   ```
+# 3. Typecheck and linting
+npm run lint
 
-2. **Install dependencies**:
-   ```bash
-   npm install
-   ```
-
-3. **Configure environment variables**:
-   ```bash
-   cp .env.example .env
-   ```
-
-4. **Launch development server**:
-   ```bash
-   npm run dev
-   ```
-   The application will be accessible at `http://localhost:3000`.
-
-5. **Type check & Linting**:
-   ```bash
-   npm run lint
-   ```
-
-6. **Production Build**:
-   ```bash
-   npm run build
-   ```
+# 4. Production build
+npm run build
+```
 
 ---
 
-## 🔒 Security & Disaster Protocol Compliance
-
-* **Authentication**: Government Officer single sign-on with secure bypass mode for emergency rapid access.
-* **Role-Based Clearance**: Level-5 Disaster Response Clearance required for state fund tranche commitments.
-* **FASTag Emergency Integration**: Digital pre-authorization passes automatically transmitted to toll plazas during disaster deployments.
-* **Zero PII Exposure**: Farmer personal records protected under cryptographic tokenization protocols.
-
----
-
-*Developed under the Maharashtra State Disaster Preemption & Agricultural Resilience Initiative.*
+*Official Portal of the Maharashtra State Relief Cell, Revenue & Forest Department.*

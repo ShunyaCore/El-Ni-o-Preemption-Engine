@@ -14,19 +14,22 @@ export type OptimizationObjective = 'farmers' | 'latency' | 'floor';
 export interface DistrictMetric {
   id: string;
   name: string;
-  taluka: string;
+  division: string;
+  talukas: string;
+  talukaCount: number;
   riskScore: number; // 0.0 - 1.0
-  riskLevel: 'Very High' | 'High' | 'Moderate' | 'Low';
-  precipDeficit: number; // percentage, e.g. -62.4
-  soilMoisture: number; // percentage, e.g. 9.1
+  riskLevel: 'Critical' | 'Warning' | 'Moderate' | 'Low';
+  precipDeficit: number; // e.g. -62.4
+  soilMoisture: number; // e.g. 9.1
   drySpellDays: number;
+  openClaims: number;
   activeClaims: number;
   farmersCount: number;
-  aiConfidence: number;
+  lastAction: string;
   reqBudgetCr: number;
   baseSharePct: number;
   trend: 'up' | 'down' | 'steady';
-  coordinates: { x: number; y: number }; // SVG canvas coordinates
+  coordinates: { x: number; y: number };
 }
 
 export interface ConvoyRoute {
@@ -45,7 +48,7 @@ export interface ConvoyRoute {
   driverName: string;
   driverPhone: string;
   waypoints: { name: string; time: string; passed: boolean }[];
-  pathCoordinates: string; // SVG path d attribute
+  pathCoordinates: string;
 }
 
 export interface FarmerClaim {
@@ -64,11 +67,11 @@ export interface FarmerClaim {
 
 export interface PriorityDirective {
   id: string;
-  category: 'Critical' | 'Warning' | 'Info';
-  tag: string;
-  timestamp: string;
+  severity: 'critical' | 'warning' | 'info';
+  category?: 'Critical' | 'Warning' | 'Info';
   title: string;
   description: string;
+  timestamp: string;
   metricLabel: string;
   actionText: string;
   targetModule?: OperationalModule;
@@ -81,6 +84,6 @@ export interface DepotInventory {
   availableCapacity: string;
   capacityPct: number;
   inTransit: number;
-  statusTone: 'primary' | 'secondary' | 'tertiary';
+  statusTone: 'healthy' | 'warning' | 'critical';
   statusText: string;
 }

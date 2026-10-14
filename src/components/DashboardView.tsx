@@ -1,848 +1,886 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useApp } from '../context/AppContext';
-import { TOPOGRAPHIC_MAP_BG } from '../data/mockData';
+import { DroughtSeverityChart } from './DroughtSeverityChart';
+import { DistrictMetric } from '../types';
+import {
+  Download,
+  FileSpreadsheet,
+  RefreshCw,
+  Truck,
+  ArrowUpRight,
+  ChevronDown,
+  Layers,
+  MapPin,
+  ExternalLink,
+  Search,
+  Filter
+} from 'lucide-react';
 
 export const DashboardView: React.FC = () => {
   const {
-    officerName,
     setCurrentModule,
     districts,
     convoys,
-    claims,
     directives,
-    dismissDirective,
-    authorizeBatchClaims,
     showToast,
-    setIsHealthModalOpen,
-    setSelectedConvoyForCall
+    dismissDirective
   } = useApp();
 
-  const [activeProjection, setActiveProjection] = useState<'15D' | '30D' | '60D'>('30D');
-  const [selectedHotspot, setSelectedHotspot] = useState<'beed' | 'latur' | 'solapur'>('beed');
+  // Date range selector state
+  const [dateRange, setDateRange] = useState<'7D' | '30D' | '90D'>('30D');
 
-  const activeDistrict = districts.find(d => d.id === selectedHotspot) || districts[0];
+  // Map layer toggle
+  const [mapLayer, setMapLayer] = useState<'deficit' | 'moisture' | 'tankers'>('deficit');
 
-  const handleDispatchRapidUnits = () => {
+  // Selected taluka popover on map
+  const [selectedTalukaId, setSelectedTalukaId] = useState<string>('beed');
+
+  // Data table state
+  const [tableSearch, setTableSearch] = useState('');
+  const [sortField, setSortField] = useState<keyof DistrictMetric>('riskScore');
+  const [sortAsc, setSortAsc] = useState(false);
+
+  // Active district for map popover
+  const activeDistrict = districts.find(d => d.id === selectedTalukaId) || districts[0];
+
+  // Map Taluka Polygon definitions (single-hue choropleth)
+  const mapPolygons = [
+    {
+      id: 'beed',
+      name: 'Beed',
+      taluka: 'Patoda & Ashti',
+      path: 'M 250 150 L 360 135 L 390 195 L 350 250 L 270 245 L 230 190 Z',
+      centroid: { x: 300, y: 190 },
+      deficit: -54.2,
+      moisture: 14.8,
+      claims: 14820,
+      crop: 'Soybean & Cotton'
+    },
+    {
+      id: 'latur',
+      name: 'Latur',
+      taluka: 'Ausa & Nilanga',
+      path: 'M 390 195 L 470 185 L 510 255 L 450 310 L 370 285 L 350 250 Z',
+      centroid: { x: 430, y: 250 },
+      deficit: -49.6,
+      moisture: 16.2,
+      claims: 12450,
+      crop: 'Soybean & Pigeon Pea'
+    },
+    {
+      id: 'osmanabad',
+      name: 'Dharashiv',
+      taluka: 'Tuljapur & Bhoom',
+      path: 'M 270 245 L 350 250 L 370 285 L 350 345 L 290 355 L 240 305 Z',
+      centroid: { x: 310, y: 300 },
+      deficit: -46.8,
+      moisture: 18.1,
+      claims: 9120,
+      crop: 'Soybean & Sugarcane'
+    },
+    {
+      id: 'parbhani',
+      name: 'Parbhani',
+      taluka: 'Jintur & Gangakhed',
+      path: 'M 360 135 L 460 115 L 490 175 L 390 195 Z',
+      centroid: { x: 420, y: 155 },
+      deficit: -42.1,
+      moisture: 21.4,
+      claims: 7840,
+      crop: 'Cotton & Soybean'
+    },
+    {
+      id: 'nanded',
+      name: 'Nanded',
+      taluka: 'Mukhed & Biloli',
+      path: 'M 470 185 L 570 170 L 610 240 L 510 255 Z',
+      centroid: { x: 535, y: 210 },
+      deficit: -38.5,
+      moisture: 23.0,
+      claims: 6420,
+      crop: 'Cotton & Turmeric'
+    },
+    {
+      id: 'jalna',
+      name: 'Jalna',
+      taluka: 'Ambad & Partur',
+      path: 'M 270 95 L 370 80 L 360 135 L 250 150 Z',
+      centroid: { x: 310, y: 115 },
+      deficit: -36.2,
+      moisture: 24.5,
+      claims: 5610,
+      crop: 'Mosambi & Cotton'
+    },
+    {
+      id: 'solapur',
+      name: 'Solapur',
+      taluka: 'Karmala & Sangola',
+      path: 'M 180 260 L 240 305 L 290 355 L 240 405 L 150 375 L 145 310 Z',
+      centroid: { x: 205, y: 335 },
+      deficit: -34.5,
+      moisture: 25.1,
+      claims: 5582,
+      crop: 'Pomegranate & Jowar'
+    }
+  ];
+
+  // Sequential single-hue choropleth fill (light to dark red)
+  const getChoroplethFill = (deficit: number) => {
+    const abs = Math.abs(deficit);
+    if (abs >= 52) return '#991B1B'; // dark red / maroon (critical)
+    if (abs >= 45) return '#C62828'; // red (severe)
+    if (abs >= 38) return '#EF5350'; // medium red
+    if (abs >= 30) return '#FCA5A5'; // light red
+    return '#FEE2E2'; // very light red
+  };
+
+  // Filtered and sorted table data
+  const filteredDistricts = useMemo(() => {
+    return districts
+      .filter(d => {
+        if (!tableSearch) return true;
+        const q = tableSearch.toLowerCase();
+        return (
+          d.name.toLowerCase().includes(q) ||
+          d.talukas.toLowerCase().includes(q) ||
+          d.division.toLowerCase().includes(q)
+        );
+      })
+      .sort((a, b) => {
+        let valA = a[sortField];
+        let valB = b[sortField];
+        if (typeof valA === 'string') {
+          return sortAsc
+            ? (valA as string).localeCompare(valB as string)
+            : (valB as string).localeCompare(valA as string);
+        }
+        return sortAsc ? (valA as number) - (valB as number) : (valB as number) - (valA as number);
+      });
+  }, [districts, tableSearch, sortField, sortAsc]);
+
+  const handleSort = (field: keyof DistrictMetric) => {
+    if (sortField === field) {
+      setSortAsc(!sortAsc);
+    } else {
+      setSortField(field);
+      setSortAsc(false);
+    }
+  };
+
+  const handleDeployTeam = () => {
     setCurrentModule('resource-routing-logistics');
     showToast(
-      'Rapid Units Assigned',
-      `Dispatching 2x potable water tankers directly to ${activeDistrict.name} (${activeDistrict.taluka}).`,
+      'Deployment Assigned',
+      `Tanker convoy assigned to ${activeDistrict.name} (${activeDistrict.talukas.split(',')[0]}).`,
       'primary'
     );
   };
 
-  const handleRecalculateAi = () => {
+  const handleUpdateSatellite = () => {
     showToast(
-      'MILP Algorithm Re-run',
-      'CartoSat-3 elevation slope and current evapotranspiration rates converged in 28ms.',
+      'Satellite Indices Refreshed',
+      'Sentinel-2 / INSAT-3DR NDVI layers synchronized at 09:12 IST.',
       'secondary'
     );
   };
 
-  const handleExportBrief = () => {
-    setCurrentModule('reports-and-analytics');
-    showToast('Executive Relief Brief', 'Navigating to Reports & Analytics for print export.', 'secondary');
-  };
-
-  const handleDeclareCalamity = () => {
-    showToast(
-      'State Calamity Protocol',
-      'NDRF contingency tranche notification dispatched to Ministry of Home Affairs.',
-      'error'
-    );
+  const handleExportCSV = () => {
+    const headers = 'District,Division,Taluka Count,Risk Level,Rainfall Deficit %,Soil Moisture %,Open Claims,Last Action\n';
+    const rows = districts
+      .map(
+        d =>
+          `"${d.name}","${d.division}",${d.talukaCount},"${d.riskLevel}",${d.precipDeficit}%,${d.soilMoisture}%,${d.openClaims},"${d.lastAction}"`
+      )
+      .join('\n');
+    const blob = new Blob([headers + rows], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Maharashtra_Drought_Overview_24Oct2026.csv`;
+    a.click();
+    showToast('Export Completed', 'Downloaded district dataset (CSV)', 'primary');
   };
 
   return (
-    <div className="flex flex-col w-full gap-6 pb-8">
-      {/* Top Greeting & Live Advisory Ribbon */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-        <div className="flex flex-col">
-          <div className="flex items-center gap-2 text-on-surface-variant font-label-md text-xs tracking-wider uppercase">
-            <span className="w-1.5 h-1.5 rounded-full bg-primary animate-ping" />
-            <span>Operational Command Matrix</span>
-            <span className="text-outline">/</span>
-            <span>Maharashtra State Relief Cell</span>
-          </div>
-          <div className="flex flex-wrap items-baseline gap-3 mt-1">
-            <h1 className="font-headline-xl text-2xl lg:text-3xl text-on-surface font-semibold tracking-tight">
-              Good morning, <span className="text-primary font-bold">{officerName}</span>
-            </h1>
-            <div className="flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant font-label-md text-xs border border-outline-variant/30">
-              <span className="material-symbols-outlined text-xs text-primary">calendar_today</span>
-              <span>Today, 24 Oct 2026</span>
-            </div>
-          </div>
+    <div className="flex flex-col gap-5 pb-10">
+      {/* Page Header (No 'Good morning' hero text) */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pt-1">
+        <div>
+          <h1 className="text-xl font-bold text-[#111827] tracking-tight">
+            State Drought Overview
+          </h1>
+          <p className="text-xs text-[#6B7280] mt-0.5">
+            Maharashtra State Relief Cell · Last updated 24 Oct 2026, 09:12 IST
+          </p>
         </div>
 
-        {/* El Niño Live Severe Weather Warning Banner */}
-        <div className="flex items-center gap-4 px-4 py-3 rounded-2xl bg-error-container/20 border border-error/30 shadow-lg backdrop-blur-md max-w-xl">
-          <div className="p-2.5 rounded-xl bg-error-container/50 flex items-center justify-center shrink-0">
-            <span className="material-symbols-outlined text-error text-xl animate-pulse">crisis_alert</span>
+        {/* Action Controls: Flat Segmented Date Control + Primary & Secondary Buttons */}
+        <div className="flex flex-wrap items-center gap-2.5">
+          {/* Flat Date Range Segmented Control */}
+          <div className="flex items-center bg-[#F1F3F5] p-0.5 rounded-md border border-[#E3E6EB]">
+            {(['7D', '30D', '90D'] as const).map(range => (
+              <button
+                key={range}
+                type="button"
+                onClick={() => setDateRange(range)}
+                className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
+                  dateRange === range
+                    ? 'bg-white text-[#111827] shadow-[0_1px_2px_rgba(16,24,40,0.06)]'
+                    : 'text-[#4B5563] hover:text-[#111827]'
+                }`}
+              >
+                {range}
+              </button>
+            ))}
           </div>
-          <div className="flex flex-col pr-2 min-w-0">
-            <div className="flex items-center gap-2">
-              <span className="font-label-md text-xs text-error uppercase font-bold tracking-wider">
-                El Niño Advisory Priority Alpha
-              </span>
-              <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-error text-on-error uppercase">
-                Critical
-              </span>
-            </div>
-            <p className="font-body-sm text-xs text-on-error-container mt-0.5 truncate">
-              Severe dry spell projected for Marathwada belt: Beed, Latur & Osmanabad rain deficit at +54%.
-            </p>
-          </div>
+
+          {/* Secondary Action */}
           <button
-            onClick={() => setCurrentModule('drought-risk-monitor')}
-            className="shrink-0 px-3 py-1.5 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-on-surface text-xs font-label-md transition-all border border-outline-variant/40"
+            type="button"
+            onClick={handleUpdateSatellite}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-white border border-[#E3E6EB] text-xs font-medium text-[#4B5563] hover:text-[#111827] hover:bg-[#F9FAFB] shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition-colors"
           >
-            View Telemetry
+            <RefreshCw className="w-3.5 h-3.5 text-[#6B7280] stroke-[1.5]" />
+            <span>Update satellite data</span>
+          </button>
+
+          {/* Primary Action Button */}
+          <button
+            type="button"
+            onClick={handleDeployTeam}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#0F4C81] text-white text-xs font-semibold hover:bg-[#0A3963] shadow-[0_1px_2px_rgba(16,24,40,0.08)] transition-colors"
+          >
+            <Truck className="w-3.5 h-3.5 stroke-[1.5]" />
+            <span>Deploy relief team</span>
           </button>
         </div>
       </div>
 
-      {/* Primary Metric Instrumentation Row (4 Cards) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-        {/* Card 1: Drought Vulnerable Districts */}
-        <div
+      {/* Critical Alert Bar: Slim, full-width, light red background #FDECEA, 3px red left border #C62828 */}
+      <div className="w-full bg-[#FDECEA] border-l-[3px] border-[#C62828] border-y border-r border-[#F5C6CB] px-3.5 py-2.5 rounded-r-md flex items-center justify-between text-xs">
+        <div className="flex items-center gap-2 text-[#C62828] min-w-0">
+          <span className="w-2 h-2 rounded-full bg-[#C62828] shrink-0" />
+          <span className="font-medium truncate">
+            Critical moisture deficit detected across 12 talukas in Beed, Latur and Dharashiv. Emergency tanker mobilization active.
+          </span>
+        </div>
+        <button
+          type="button"
           onClick={() => setCurrentModule('drought-risk-monitor')}
-          className="rounded-2xl bg-surface-container-low/80 backdrop-blur-xl border border-outline-variant/30 p-5 flex flex-col justify-between shadow-md hover:shadow-xl hover:border-error/40 transition-all cursor-pointer group"
+          className="text-xs font-semibold text-[#C62828] hover:underline whitespace-nowrap ml-4 shrink-0"
         >
+          View details →
+        </button>
+      </div>
+
+      {/* KPI Row of 4 Cards: Consistent heights, 8px radius, white with 1px border #E3E6EB */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Card 1: Districts at high risk */}
+        <div className="bg-white rounded-lg border border-[#E3E6EB] p-4 shadow-[0_1px_2px_rgba(16,24,40,0.04)] flex flex-col justify-between h-[124px]">
           <div className="flex items-start justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-error-container/30 border border-error/20 flex items-center justify-center text-error">
-                <span className="material-symbols-outlined text-xl">warning</span>
-              </div>
-              <div className="flex flex-col">
-                <span className="font-label-md text-xs text-on-surface-variant uppercase tracking-wider font-semibold">
-                  Districts at High Risk
-                </span>
-                <span className="font-body-sm text-xs text-on-surface-variant">Zone V Threshold</span>
-              </div>
-            </div>
-            <span className="px-2 py-0.5 rounded-full font-label-md text-[11px] bg-error-container/40 text-error flex items-center gap-1 font-bold">
-              <span className="w-1.5 h-1.5 rounded-full bg-error animate-ping" /> Alert
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-[#6B7280]">
+              Districts at high risk
+            </span>
+            <span className="inline-flex items-center gap-1 text-[11px] text-[#C62828] font-medium">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#C62828]" />
+              +2 this week
             </span>
           </div>
 
-          <div className="mt-4 flex items-baseline justify-between">
-            <div className="flex items-baseline gap-1">
-              <span className="font-headline-xl text-3xl text-on-surface font-bold">12</span>
-              <span className="font-headline-sm text-lg text-on-surface-variant">/ 36</span>
-            </div>
-            <div className="flex items-center gap-1 font-label-md text-xs text-error bg-error-container/20 px-2 py-0.5 rounded-md">
-              <span className="material-symbols-outlined text-xs">trending_up</span>
-              <span>+4 since last week</span>
-            </div>
+          <div className="flex items-baseline gap-1.5 my-1">
+            <span className="text-[28px] font-bold text-[#111827] tabular-nums leading-none">
+              12
+            </span>
+            <span className="text-xs text-[#6B7280]">of 36 districts</span>
           </div>
 
-          <div className="mt-3 w-full bg-surface-container-highest rounded-full h-1.5 overflow-hidden">
-            <div className="bg-error h-full rounded-full transition-all duration-700" style={{ width: '33.3%' }} />
+          <div className="flex items-center justify-between text-[11px] text-[#6B7280]">
+            <span>Zone V severe stress</span>
+            {/* Sparkline mini-graph */}
+            <svg className="w-16 h-3 text-[#C62828]" viewBox="0 0 60 12" fill="none">
+              <path
+                d="M 2 10 L 15 8 L 30 9 L 45 4 L 58 2"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+              />
+            </svg>
           </div>
         </div>
 
-        {/* Card 2: Allocated Relief Budget */}
-        <div
-          onClick={() => setCurrentModule('relief-budget-optimizer')}
-          className="rounded-2xl bg-surface-container-low/80 backdrop-blur-xl border border-outline-variant/30 p-5 flex flex-col justify-between shadow-md hover:shadow-xl hover:border-primary/40 transition-all cursor-pointer group"
-        >
+        {/* Card 2: Relief budget utilised */}
+        <div className="bg-white rounded-lg border border-[#E3E6EB] p-4 shadow-[0_1px_2px_rgba(16,24,40,0.04)] flex flex-col justify-between h-[124px]">
           <div className="flex items-start justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-primary-container/20 border border-primary/20 flex items-center justify-center text-primary">
-                <span className="material-symbols-outlined text-xl">account_balance</span>
-              </div>
-              <div className="flex flex-col">
-                <span className="font-label-md text-xs text-on-surface-variant uppercase tracking-wider font-semibold">
-                  Allocated Relief Budget
-                </span>
-                <span className="font-body-sm text-xs text-on-surface-variant">State Contingency Pool</span>
-              </div>
-            </div>
-            <span className="px-2 py-0.5 rounded-full font-label-md text-[11px] bg-primary-container/20 text-primary flex items-center gap-1 font-bold">
-              Active Cap
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-[#6B7280]">
+              Relief budget utilised
+            </span>
+            <span className="text-[11px] text-[#4B5563] font-medium tabular-nums">
+              28.4%
             </span>
           </div>
 
-          <div className="mt-4 flex items-baseline justify-between">
-            <div className="flex items-baseline gap-1.5">
-              <span className="font-headline-xl text-2xl text-primary font-bold">₹ 142 Cr</span>
-              <span className="font-label-md text-xs text-on-surface-variant">/ ₹ 500 Cr</span>
-            </div>
-            <span className="font-label-numeric text-base text-primary font-semibold">28.4%</span>
+          <div className="flex items-baseline gap-1.5 my-1">
+            <span className="text-[28px] font-bold text-[#111827] tabular-nums leading-none">
+              ₹142 Cr
+            </span>
+            <span className="text-xs text-[#6B7280]">of ₹500 Cr cap</span>
           </div>
 
-          <div className="mt-3 w-full bg-surface-container-highest rounded-full h-1.5 overflow-hidden">
-            <div className="bg-primary h-full rounded-full transition-all duration-700" style={{ width: '28.4%' }} />
+          <div className="flex flex-col gap-1">
+            <div className="w-full bg-[#E3E6EB] rounded-full h-1 overflow-hidden">
+              <div
+                className="bg-[#0F4C81] h-full rounded-full"
+                style={{ width: '28.4%' }}
+              />
+            </div>
+            <span className="text-[11px] text-[#6B7280] truncate">
+              ₹358 Cr uncommitted reserve
+            </span>
           </div>
         </div>
 
-        {/* Card 3: Vulnerable Farmers Identified */}
-        <div
-          onClick={() => setCurrentModule('claim-evidence-review')}
-          className="rounded-2xl bg-surface-container-low/80 backdrop-blur-xl border border-outline-variant/30 p-5 flex flex-col justify-between shadow-md hover:shadow-xl hover:border-secondary/40 transition-all cursor-pointer group"
-        >
+        {/* Card 3: Verified beneficiaries */}
+        <div className="bg-white rounded-lg border border-[#E3E6EB] p-4 shadow-[0_1px_2px_rgba(16,24,40,0.04)] flex flex-col justify-between h-[124px]">
           <div className="flex items-start justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-secondary-container/20 border border-secondary/20 flex items-center justify-center text-secondary">
-                <span className="material-symbols-outlined text-xl">nature_people</span>
-              </div>
-              <div className="flex flex-col">
-                <span className="font-label-md text-xs text-on-surface-variant uppercase tracking-wider font-semibold">
-                  Verified Beneficiaries
-                </span>
-                <span className="font-body-sm text-xs text-on-surface-variant">Sat-Validated Plots</span>
-              </div>
-            </div>
-            <span className="px-2 py-0.5 rounded-full font-label-md text-[11px] bg-secondary-container/20 text-secondary flex items-center gap-1 font-bold">
-              Geo-Tagged
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-[#6B7280]">
+              Verified beneficiaries
+            </span>
+            <span className="inline-flex items-center gap-1 text-[11px] text-[#2E7D32] font-medium">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#2E7D32]" />
+              94.2% verified
             </span>
           </div>
 
-          <div className="mt-4 flex items-baseline justify-between">
-            <span className="font-headline-xl text-2xl text-on-surface font-bold">48,392</span>
-            <div className="flex items-center gap-1 font-label-md text-xs text-primary bg-primary-container/20 px-2 py-0.5 rounded-md">
-              <span className="material-symbols-outlined text-xs">verified</span>
-              <span>94.2% verified</span>
-            </div>
+          <div className="flex items-baseline gap-1.5 my-1">
+            <span className="text-[28px] font-bold text-[#111827] tabular-nums leading-none">
+              48,392
+            </span>
+            <span className="text-xs text-[#6B7280]">farmers</span>
           </div>
 
-          <div className="mt-3 w-full bg-surface-container-highest rounded-full h-1.5 overflow-hidden">
-            <div className="bg-secondary h-full rounded-full transition-all duration-700" style={{ width: '94.2%' }} />
+          <div className="flex items-center justify-between text-[11px] text-[#6B7280]">
+            <span>Geo-tagged plots</span>
+            <span className="text-[#2E7D32] font-medium">+1,240 today</span>
           </div>
         </div>
 
-        {/* Card 4: Active Relief Convoys */}
-        <div
-          onClick={() => setCurrentModule('resource-routing-logistics')}
-          className="rounded-2xl bg-surface-container-low/80 backdrop-blur-xl border border-outline-variant/30 p-5 flex flex-col justify-between shadow-md hover:shadow-xl hover:border-tertiary/40 transition-all cursor-pointer group"
-        >
+        {/* Card 4: Convoys in transit */}
+        <div className="bg-white rounded-lg border border-[#E3E6EB] p-4 shadow-[0_1px_2px_rgba(16,24,40,0.04)] flex flex-col justify-between h-[124px]">
           <div className="flex items-start justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-tertiary-container/20 border border-tertiary/20 flex items-center justify-center text-tertiary">
-                <span className="material-symbols-outlined text-xl">local_shipping</span>
-              </div>
-              <div className="flex flex-col">
-                <span className="font-label-md text-xs text-on-surface-variant uppercase tracking-wider font-semibold">
-                  Resources in Transit
-                </span>
-                <span className="font-body-sm text-xs text-on-surface-variant">5 Critical Arteries</span>
-              </div>
-            </div>
-            <span className="px-2 py-0.5 rounded-full font-label-md text-[11px] bg-tertiary-container/20 text-tertiary flex items-center gap-1 font-bold">
-              98% On-Time
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-[#6B7280]">
+              Convoys in transit
+            </span>
+            <span className="inline-flex items-center gap-1 text-[11px] text-[#2E7D32] font-medium">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#2E7D32]" />
+              On schedule
             </span>
           </div>
 
-          <div className="mt-4 flex items-baseline justify-between">
-            <div className="flex items-baseline gap-1">
-              <span className="font-headline-xl text-2xl text-on-surface font-bold">{convoys.length}</span>
-              <span className="font-label-md text-xs text-on-surface-variant">Fleet Convoys</span>
-            </div>
-            <div className="flex items-center gap-1 font-label-md text-xs text-tertiary bg-tertiary-container/20 px-2 py-0.5 rounded-md">
-              <span className="material-symbols-outlined text-xs">alt_route</span>
-              <span>Active Route 4</span>
-            </div>
+          <div className="flex items-baseline gap-1.5 my-1">
+            <span className="text-[28px] font-bold text-[#111827] tabular-nums leading-none">
+              {convoys.length}
+            </span>
+            <span className="text-xs text-[#6B7280]">relief fleets</span>
           </div>
 
-          <div className="mt-3 w-full bg-surface-container-highest rounded-full h-1.5 overflow-hidden">
-            <div className="bg-tertiary h-full rounded-full transition-all duration-700" style={{ width: '78%' }} />
+          <div className="flex items-center justify-between text-[11px] text-[#6B7280]">
+            <span>Water tankers & fodder</span>
+            <span>4 hr avg ETA</span>
           </div>
         </div>
       </div>
 
-      {/* Operational Command Grid (8 Cols Left / 4 Cols Right) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left / Center Column (8 cols) */}
-        <div className="lg:col-span-8 flex flex-col gap-6">
-          {/* Interactive Geospatial Drought Vulnerability Map Container */}
-          <div className="rounded-2xl bg-surface-container-low/90 backdrop-blur-xl border border-outline-variant/30 p-5 shadow-lg flex flex-col">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 gap-3 border-b border-outline-variant/20">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-surface-container-high flex items-center justify-center text-primary border border-outline-variant/30">
-                  <span className="material-symbols-outlined text-lg">map</span>
-                </div>
-                <div>
-                  <h2 className="font-headline-sm text-base text-on-surface font-bold leading-tight">
-                    Drought Risk Cartography & Soil Moisture Index
-                  </h2>
-                  <span className="font-body-sm text-xs text-on-surface-variant">
-                    Live INSAT-3DR Multispectral Imagery (30m Resolution Ground Model)
+      {/* Main Area: Map Card (65% width) next to Priority Actions Card (35% width) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        {/* Map Card (~65% width, 8 cols on desktop) */}
+        <div className="lg:col-span-8 bg-white rounded-lg border border-[#E3E6EB] p-4 shadow-[0_1px_2px_rgba(16,24,40,0.04)] flex flex-col justify-between">
+          <div>
+            {/* Map Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#E3E6EB]">
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-sm font-semibold text-[#111827]">
+                    Regional Drought Severity Map
+                  </h3>
+                  <span className="text-[11px] text-[#6B7280]">
+                    Marathwada Division
                   </span>
                 </div>
+                <p className="text-xs text-[#6B7280] mt-0.5">
+                  Click a taluka polygon to inspect key telemetry and dispatch units
+                </p>
               </div>
 
-              {/* Horizon Switcher & Expand Button */}
+              {/* Layer Toggle & Actions */}
               <div className="flex items-center gap-2 self-start sm:self-center">
-                <div className="flex items-center bg-surface-container-lowest p-1 rounded-xl border border-outline-variant/30">
-                  {(['15D', '30D', '60D'] as const).map(horizon => (
-                    <button
-                      key={horizon}
-                      type="button"
-                      onClick={() => setActiveProjection(horizon)}
-                      className={`px-3 py-1 rounded-lg font-label-md text-xs transition-all ${
-                        activeProjection === horizon
-                          ? 'bg-primary-container text-on-primary-container font-semibold shadow-sm'
-                          : 'text-on-surface-variant hover:text-on-surface'
-                      }`}
-                    >
-                      {horizon === '30D' ? '30D Projected' : horizon}
-                    </button>
-                  ))}
+                <div className="flex items-center bg-[#F1F3F5] p-0.5 rounded-md border border-[#E3E6EB]">
+                  <button
+                    type="button"
+                    onClick={() => setMapLayer('deficit')}
+                    className={`px-2 py-0.5 rounded text-xs font-medium transition-colors ${
+                      mapLayer === 'deficit'
+                        ? 'bg-white text-[#111827] shadow-[0_1px_2px_rgba(16,24,40,0.06)]'
+                        : 'text-[#4B5563] hover:text-[#111827]'
+                    }`}
+                  >
+                    Rainfall deficit
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setMapLayer('moisture')}
+                    className={`px-2 py-0.5 rounded text-xs font-medium transition-colors ${
+                      mapLayer === 'moisture'
+                        ? 'bg-white text-[#111827] shadow-[0_1px_2px_rgba(16,24,40,0.06)]'
+                        : 'text-[#4B5563] hover:text-[#111827]'
+                    }`}
+                  >
+                    Soil moisture
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setMapLayer('tankers')}
+                    className={`px-2 py-0.5 rounded text-xs font-medium transition-colors ${
+                      mapLayer === 'tankers'
+                        ? 'bg-white text-[#111827] shadow-[0_1px_2px_rgba(16,24,40,0.06)]'
+                        : 'text-[#4B5563] hover:text-[#111827]'
+                    }`}
+                  >
+                    Routes
+                  </button>
                 </div>
                 <button
                   type="button"
-                  onClick={() => setCurrentModule('drought-risk-monitor')}
-                  className="p-1.5 rounded-xl bg-surface-container-high hover:bg-surface-container-highest text-on-surface-variant hover:text-on-surface border border-outline-variant/30"
-                  title="Expand GIS Screen"
+                  onClick={handleExportCSV}
+                  className="p-1 rounded-md text-[#4B5563] hover:text-[#111827] hover:bg-[#F1F3F5]"
+                  title="Download GIS data"
                 >
-                  <span className="material-symbols-outlined text-base">fullscreen</span>
+                  <Download className="w-4 h-4 stroke-[1.5]" />
                 </button>
               </div>
             </div>
 
-            {/* Geospatial Canvas with SVG Overlay */}
-            <div className="relative w-full h-[400px] mt-4 rounded-xl bg-surface-container-lowest overflow-hidden border border-outline-variant/30">
-              {/* Satellite Background */}
-              <div
-                className="absolute inset-0 opacity-40 bg-cover bg-center filter contrast-125"
-                style={{ backgroundImage: `url('${TOPOGRAPHIC_MAP_BG}')` }}
-              />
+            {/* Map Canvas with Single-Hue Choropleth & Scale Bar */}
+            <div className="relative w-full h-[360px] bg-[#F9FAFB] rounded-md border border-[#E3E6EB] mt-3 overflow-hidden">
+              {/* Subtle grid background */}
+              <div className="absolute inset-0 bg-[radial-gradient(#D1D5DB_1px,transparent_1px)] [background-size:20px_20px] opacity-40 pointer-events-none" />
 
-              {/* Grid Lines Overlay */}
-              <div className="absolute inset-0 bg-[radial-gradient(#4edea3_1px,transparent_1px)] [background-size:24px_24px] opacity-10 pointer-events-none" />
+              {/* Clean SVG Vector Map */}
+              <svg className="w-full h-full" viewBox="0 0 750 440" preserveAspectRatio="xMidYMid meet">
+                {/* District Polygons */}
+                {mapPolygons.map(poly => {
+                  const isSelected = selectedTalukaId === poly.id;
+                  const fill = getChoroplethFill(poly.deficit);
 
-              {/* SVG Region Boundaries & Transit Vectors */}
-              <svg className="absolute inset-0 w-full h-full" viewBox="0 0 800 400" preserveAspectRatio="none">
-                {/* Western Ghats (Low Risk - Green) */}
-                <path
-                  d="M 120 180 Q 140 260 170 340 L 220 310 Q 200 220 180 150 Z"
-                  className="fill-primary/20 stroke-primary/50 hover:fill-primary/40 cursor-pointer transition-colors"
-                  strokeWidth="1.5"
-                >
-                  <title>Nashik & Pune West: Low Stress</title>
-                </path>
+                  return (
+                    <g key={poly.id} onClick={() => setSelectedTalukaId(poly.id)} className="cursor-pointer">
+                      <path
+                        d={poly.path}
+                        fill={fill}
+                        fillOpacity={isSelected ? 0.95 : 0.8}
+                        stroke={isSelected ? '#0F4C81' : '#FFFFFF'}
+                        strokeWidth={isSelected ? 2.5 : 1.2}
+                        className="transition-all duration-150 hover:fill-opacity-95"
+                      />
+                      {/* District Label */}
+                      <text
+                        x={poly.centroid.x}
+                        y={poly.centroid.y - 4}
+                        textAnchor="middle"
+                        fill={Math.abs(poly.deficit) >= 45 ? '#FFFFFF' : '#111827'}
+                        fontSize="11px"
+                        fontWeight="600"
+                        fontFamily="Inter, sans-serif"
+                        className="pointer-events-none"
+                      >
+                        {poly.name}
+                      </text>
+                      <text
+                        x={poly.centroid.x}
+                        y={poly.centroid.y + 10}
+                        textAnchor="middle"
+                        fill={Math.abs(poly.deficit) >= 45 ? '#FEE2E2' : '#4B5563'}
+                        fontSize="9.5px"
+                        fontWeight="500"
+                        fontFamily="Inter, sans-serif"
+                        className="pointer-events-none"
+                      >
+                        {poly.deficit}%
+                      </text>
+                    </g>
+                  );
+                })}
 
-                {/* Vidarbha Eastern Zone (Moderate - Amber) */}
-                <path
-                  d="M 520 80 Q 640 120 720 180 L 680 260 Q 560 210 490 160 Z"
-                  className="fill-tertiary/25 stroke-tertiary/60 hover:fill-tertiary/45 cursor-pointer transition-colors"
-                  strokeWidth="1.5"
-                >
-                  <title>Nagpur Basin: Moderate Deficit</title>
-                </path>
-
-                {/* Core Marathwada Stress Epicenter (Critical - Coral/Red) */}
-                <path
-                  d="M 280 190 L 410 160 L 470 230 L 390 320 L 290 280 Z"
-                  className="fill-error/30 stroke-error/80 hover:fill-error/50 cursor-pointer transition-colors animate-pulse"
-                  strokeWidth="2"
-                >
-                  <title>Marathwada Core: Severe Risk</title>
-                </path>
-
-                {/* Transit Vector Paths */}
-                <path
-                  d="M 200 240 Q 300 220 360 235 T 520 210"
-                  stroke="#93ccff"
-                  strokeWidth="2"
-                  strokeDasharray="6 4"
-                  fill="none"
-                  className="opacity-70"
-                />
-                <path
-                  d="M 360 235 L 340 310"
-                  stroke="#93ccff"
-                  strokeWidth="2"
-                  strokeDasharray="4 4"
-                  fill="none"
-                  className="opacity-70"
-                />
+                {/* Tanker Corridors (if layer enabled) */}
+                {mapLayer === 'tankers' && (
+                  <g className="pointer-events-none">
+                    <path
+                      d="M 300 190 Q 370 210 430 250"
+                      stroke="#0F4C81"
+                      strokeWidth="2"
+                      strokeDasharray="4,4"
+                      fill="none"
+                    />
+                    <path
+                      d="M 430 250 Q 380 270 310 300"
+                      stroke="#0F4C81"
+                      strokeWidth="2"
+                      strokeDasharray="4,4"
+                      fill="none"
+                    />
+                  </g>
+                )}
               </svg>
 
-              {/* Hotspot Markers */}
-              {/* Beed */}
-              <button
-                type="button"
-                onClick={() => setSelectedHotspot('beed')}
-                className="absolute top-[52%] left-[44%] -translate-x-1/2 -translate-y-1/2 flex items-center justify-center p-2 group cursor-pointer"
-                title="Beed District Hotspot"
-              >
-                <span className="w-7 h-7 rounded-full bg-error/30 animate-ping absolute" />
-                <span className="w-3.5 h-3.5 rounded-full bg-error shadow-[0_0_12px_#ffb4ab] border-2 border-white/60 group-hover:scale-125 transition-transform" />
-              </button>
-
-              {/* Latur */}
-              <button
-                type="button"
-                onClick={() => setSelectedHotspot('latur')}
-                className="absolute top-[68%] left-[54%] -translate-x-1/2 -translate-y-1/2 flex items-center justify-center p-2 group cursor-pointer"
-                title="Latur District Hotspot"
-              >
-                <span className="w-6 h-6 rounded-full bg-error/30 animate-ping absolute" />
-                <span className="w-3 h-3 rounded-full bg-error shadow-[0_0_10px_#ffb4ab] border-2 border-white/60 group-hover:scale-125 transition-transform" />
-              </button>
-
-              {/* Solapur */}
-              <button
-                type="button"
-                onClick={() => setSelectedHotspot('solapur')}
-                className="absolute top-[75%] left-[39%] -translate-x-1/2 -translate-y-1/2 flex items-center justify-center p-2 group cursor-pointer"
-                title="Solapur District Hotspot"
-              >
-                <span className="w-3 h-3 rounded-full bg-tertiary shadow-[0_0_8px_#ffb95f] border-2 border-white/60 group-hover:scale-125 transition-transform" />
-              </button>
-
-              {/* Floating Inspection Telemetry HUD Pill (Beed Detail) */}
-              <div className="absolute top-4 left-4 p-4 rounded-2xl bg-surface-container-high/95 backdrop-blur-2xl shadow-2xl border border-outline-variant/40 max-w-xs transition-transform hover:scale-102">
-                <div className="flex items-center justify-between gap-3 mb-2">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-error" />
-                    <span className="font-headline-sm text-sm text-on-surface font-bold">
-                      {activeDistrict.name} Taluka
-                    </span>
+              {/* Taluka Detail Popover (Small white card, 4 key-value rows, NO floating dark overlay) */}
+              <div className="absolute top-3 left-3 bg-white border border-[#E3E6EB] rounded-md shadow-md p-3 w-64 text-xs z-10">
+                <div className="flex items-center justify-between pb-1.5 border-b border-[#E3E6EB] mb-2">
+                  <div>
+                    <span className="font-bold text-[#111827]">{activeDistrict.name}</span>
+                    <span className="text-[11px] text-[#6B7280] block">{activeDistrict.talukas}</span>
                   </div>
-                  <span className="font-label-md text-[10px] px-2 py-0.5 rounded-full bg-error-container/30 text-error font-bold uppercase">
+                  <span
+                    className={`text-[10px] px-1.5 py-0.5 rounded font-semibold ${
+                      activeDistrict.riskLevel === 'Critical'
+                        ? 'bg-[#FDECEA] text-[#C62828]'
+                        : 'bg-[#FFF8E1] text-[#B26A00]'
+                    }`}
+                  >
                     {activeDistrict.riskLevel}
                   </span>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 pt-1 font-body-sm text-xs">
-                  <div className="flex flex-col bg-surface-container-lowest/60 p-2 rounded-lg">
-                    <span className="text-on-surface-variant text-[11px]">Precip. Deficit</span>
-                    <span className="font-label-numeric text-sm text-error font-bold">
+                <div className="space-y-1.5 text-[11px]">
+                  <div className="flex justify-between items-center">
+                    <span className="text-[#6B7280]">Rainfall deficit:</span>
+                    <span className="font-semibold text-[#C62828] tabular-nums">
                       {activeDistrict.precipDeficit}%
                     </span>
                   </div>
-                  <div className="flex flex-col bg-surface-container-lowest/60 p-2 rounded-lg">
-                    <span className="text-on-surface-variant text-[11px]">Soil Moisture</span>
-                    <span className="font-label-numeric text-sm text-tertiary font-bold">
-                      {activeDistrict.soilMoisture}% (Crit)
+                  <div className="flex justify-between items-center">
+                    <span className="text-[#6B7280]">Soil moisture:</span>
+                    <span className="font-semibold text-[#111827] tabular-nums">
+                      {activeDistrict.soilMoisture}%
                     </span>
                   </div>
-                  <div className="flex flex-col bg-surface-container-lowest/60 p-2 rounded-lg">
-                    <span className="text-on-surface-variant text-[11px]">Active Claims</span>
-                    <span className="font-label-numeric text-sm text-on-surface font-bold">
-                      {activeDistrict.activeClaims.toLocaleString()}
+                  <div className="flex justify-between items-center">
+                    <span className="text-[#6B7280]">Open claims:</span>
+                    <span className="font-semibold text-[#111827] tabular-nums">
+                      {activeDistrict.openClaims.toLocaleString()}
                     </span>
                   </div>
-                  <div className="flex flex-col bg-surface-container-lowest/60 p-2 rounded-lg">
-                    <span className="text-on-surface-variant text-[11px]">AI Confidence</span>
-                    <span className="font-label-numeric text-sm text-primary font-bold">
-                      {activeDistrict.aiConfidence}%
-                    </span>
+                  <div className="flex justify-between items-center">
+                    <span className="text-[#6B7280]">Primary crop:</span>
+                    <span className="font-medium text-[#111827]">Soybean / Cotton</span>
                   </div>
                 </div>
 
                 <button
                   type="button"
-                  onClick={handleDispatchRapidUnits}
-                  className="mt-3 w-full py-2 rounded-xl bg-error hover:bg-error/90 text-on-error font-label-md text-xs flex items-center justify-center gap-1.5 font-bold transition-all shadow-md cursor-pointer"
+                  onClick={handleDeployTeam}
+                  className="mt-2.5 w-full py-1 rounded bg-[#0F4C81] text-white font-medium text-[11px] hover:bg-[#0A3963] transition-colors"
                 >
-                  <span className="material-symbols-outlined text-sm">tune</span>
-                  <span>Dispatch Rapid Water Units</span>
+                  Deploy tankers to taluka
                 </button>
               </div>
 
               {/* Map Legend Box */}
-              <div className="absolute bottom-3 right-3 p-2.5 rounded-xl bg-surface-container-high/90 backdrop-blur-md border border-outline-variant/30 flex items-center gap-4 text-xs font-label-md">
-                <div className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-error" />
-                  <span className="text-on-surface">Very High (&gt;50%)</span>
+              <div className="absolute bottom-3 right-3 bg-white/95 border border-[#E3E6EB] rounded px-2.5 py-1.5 text-[11px] text-[#4B5563] shadow-sm flex items-center gap-3">
+                <span className="font-semibold text-[#111827]">Rain deficit:</span>
+                <div className="flex items-center gap-1">
+                  <span className="w-3 h-3 rounded-sm bg-[#991B1B]" />
+                  <span>&gt;50%</span>
                 </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-tertiary" />
-                  <span className="text-on-surface">Moderate (25-50%)</span>
+                <div className="flex items-center gap-1">
+                  <span className="w-3 h-3 rounded-sm bg-[#C62828]" />
+                  <span>45–50%</span>
                 </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-primary" />
-                  <span className="text-on-surface">Optimal</span>
+                <div className="flex items-center gap-1">
+                  <span className="w-3 h-3 rounded-sm bg-[#EF5350]" />
+                  <span>35–45%</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <span className="w-3 h-3 rounded-sm bg-[#FCA5A5]" />
+                  <span>&lt;35%</span>
                 </div>
               </div>
-            </div>
 
-            {/* Quick District Risk Assessment Strip */}
-            <div className="mt-4 grid grid-cols-2 sm:grid-cols-5 gap-2.5">
-              {districts.map(dist => (
-                <button
-                  key={dist.id}
-                  onClick={() => setSelectedHotspot(dist.id as any)}
-                  className={`p-2.5 rounded-xl text-left flex flex-col transition-all border ${
-                    selectedHotspot === dist.id
-                      ? 'bg-surface-container-high border-primary/50 shadow-md'
-                      : 'bg-surface-container-highest/60 border-outline-variant/20 hover:bg-surface-container-high'
-                  }`}
-                >
-                  <span className="font-label-md text-xs text-on-surface-variant">{dist.name}</span>
-                  <span
-                    className={`font-label-numeric text-sm font-bold ${
-                      dist.riskScore >= 0.85
-                        ? 'text-error'
-                        : dist.riskScore >= 0.65
-                        ? 'text-tertiary'
-                        : 'text-secondary'
-                    }`}
-                  >
-                    {dist.riskScore} Risk
-                  </span>
-                  <span className="font-body-sm text-[11px] text-on-surface-variant">
-                    Dry Spell {dist.drySpellDays}d
-                  </span>
-                </button>
-              ))}
+              {/* Scale Bar */}
+              <div className="absolute bottom-3 left-3 bg-white/90 border border-[#E3E6EB] rounded px-2 py-1 text-[10px] text-[#6B7280] shadow-sm flex items-center gap-1.5">
+                <div className="w-10 h-1 bg-[#111827]" />
+                <span>50 km</span>
+              </div>
             </div>
           </div>
 
-          {/* Split Analytical Row: MILP Budget Simulator & AI Claim Verification Queue */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Module A: Relief Allocation Quick Simulator */}
-            <div className="rounded-2xl bg-surface-container-low/90 backdrop-blur-xl border border-outline-variant/30 p-5 shadow-lg flex flex-col justify-between">
-              <div>
-                <div className="flex items-center justify-between pb-2">
-                  <div className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-secondary text-lg">insights</span>
-                    <h3 className="font-headline-sm text-sm text-on-surface font-bold">
-                      MILP Budget Optimizer
-                    </h3>
-                  </div>
-                  <span className="font-label-md text-[11px] text-primary bg-primary-container/20 border border-primary/30 px-2 py-0.5 rounded-full font-bold">
-                    2.4x Multiplier
-                  </span>
-                </div>
-                <p className="font-body-sm text-xs text-on-surface-variant">
-                  Algorithmically recommended micro-grants based on satellite crop stress indicators vs equal blanket splits.
-                </p>
-
-                {/* Live Comparison Rows */}
-                <div className="mt-4 flex flex-col gap-3">
-                  {districts.slice(0, 4).map(d => (
-                    <div key={d.id}>
-                      <div className="flex justify-between font-label-md text-xs mb-1">
-                        <span className="text-on-surface">{d.name} Drought Grant</span>
-                        <span className="text-primary font-bold">
-                          ₹ {d.reqBudgetCr.toFixed(1)} Cr{' '}
-                          <span className="text-on-surface-variant font-normal text-[11px]">
-                            ({d.baseSharePct}% share)
-                          </span>
-                        </span>
-                      </div>
-                      <div className="w-full bg-surface-container-highest h-2 rounded-full overflow-hidden">
-                        <div
-                          className="bg-primary h-full rounded-full transition-all duration-500"
-                          style={{ width: `${Math.min(100, d.baseSharePct * 3)}%` }}
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="mt-5 pt-3 border-t border-outline-variant/20 flex items-center justify-between">
-                <div className="flex flex-col">
-                  <span className="font-body-sm text-xs text-on-surface-variant">Recommended Deployment</span>
-                  <span className="font-headline-sm text-base text-on-surface font-bold">
-                    ₹ 132.0 Cr
-                  </span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setCurrentModule('relief-budget-optimizer')}
-                  className="px-4 py-2 rounded-xl bg-primary hover:bg-primary-fixed-dim text-on-primary font-label-md text-xs font-bold transition-all shadow-md cursor-pointer"
-                >
-                  Apply Simulation
-                </button>
-              </div>
-            </div>
-
-            {/* Module B: Claim Evidence Review Table */}
-            <div className="rounded-2xl bg-surface-container-low/90 backdrop-blur-xl border border-outline-variant/30 p-5 shadow-lg flex flex-col justify-between">
-              <div>
-                <div className="flex items-center justify-between pb-2">
-                  <div className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-primary text-lg">fact_check</span>
-                    <h3 className="font-headline-sm text-sm text-on-surface font-bold">
-                      AI Claim Evidence Stream
-                    </h3>
-                  </div>
-                  <span className="font-body-sm text-xs text-on-surface-variant">
-                    {claims.length} of 48.3k Claims
-                  </span>
-                </div>
-                <p className="font-body-sm text-xs text-on-surface-variant">
-                  High-confidence machine verification cross-referencing Sentinel-2 NDVI anomalies.
-                </p>
-
-                <div className="mt-4 overflow-x-auto">
-                  <table className="w-full text-left font-body-sm text-xs">
-                    <thead>
-                      <tr className="text-on-surface-variant font-label-md text-[11px] uppercase tracking-wider border-b border-outline-variant/20">
-                        <th className="pb-2">Claim ID</th>
-                        <th className="pb-2">District</th>
-                        <th className="pb-2 text-right">Loss Index</th>
-                        <th className="pb-2 text-right">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-outline-variant/10">
-                      {claims.slice(0, 4).map(claim => (
-                        <tr key={claim.id} className="hover:bg-surface-container-high/60 transition-colors">
-                          <td className="py-2.5 font-mono text-on-surface">{claim.id}</td>
-                          <td className="py-2.5 text-on-surface">
-                            {claim.district} ({claim.taluka})
-                          </td>
-                          <td
-                            className={`py-2.5 text-right font-semibold ${
-                              claim.claimedLoss > 60
-                                ? 'text-error'
-                                : claim.claimedLoss > 30
-                                ? 'text-tertiary'
-                                : 'text-on-surface-variant'
-                            }`}
-                          >
-                            {claim.claimedLoss}%
-                          </td>
-                          <td className="py-2.5 text-right">
-                            <span
-                              className={`px-2 py-0.5 rounded-full font-label-md text-[10px] font-bold ${
-                                claim.status === 'Genuine'
-                                  ? 'bg-primary-container/20 text-primary'
-                                  : claim.status === 'Needs Review'
-                                  ? 'bg-tertiary-container/20 text-tertiary'
-                                  : 'bg-error-container/30 text-error'
-                              }`}
-                            >
-                              {claim.status}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              <div className="mt-5 pt-3 border-t border-outline-variant/20 flex items-center justify-between">
-                <button
-                  type="button"
-                  onClick={() => setCurrentModule('claim-evidence-review')}
-                  className="px-3 py-1.5 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-on-surface font-label-md text-xs transition-all border border-outline-variant/30"
-                >
-                  Audit Telemetry Log
-                </button>
-                <button
-                  type="button"
-                  onClick={() => authorizeBatchClaims()}
-                  className="px-4 py-2 rounded-xl bg-primary hover:bg-primary-fixed-dim text-on-primary font-label-md text-xs font-bold transition-all shadow-md cursor-pointer"
-                >
-                  Authorize Batch (142)
-                </button>
-              </div>
-            </div>
+          {/* Provenance note */}
+          <div className="pt-2 text-[11px] text-[#9CA3AF] flex items-center justify-between">
+            <span>Source: IMD rainfall data, Sentinel-2 / INSAT-3DR, updated daily · Survey of India reference grid</span>
+            <button
+              type="button"
+              onClick={() => setCurrentModule('drought-risk-monitor')}
+              className="text-[#0F4C81] font-medium hover:underline text-[11px]"
+            >
+              Open multispectral viewer →
+            </button>
           </div>
         </div>
 
-        {/* Right Column (4 cols) */}
-        <div className="lg:col-span-4 flex flex-col gap-6">
-          {/* Critical Executive Priority Directives */}
-          <div className="rounded-2xl bg-surface-container-low/90 backdrop-blur-xl border border-outline-variant/30 p-5 shadow-lg flex flex-col gap-4">
-            <div className="flex items-center justify-between pb-1 border-b border-outline-variant/20">
+        {/* Priority Actions Card (~35% width, 4 cols on desktop) */}
+        <div className="lg:col-span-4 bg-white rounded-lg border border-[#E3E6EB] p-4 shadow-[0_1px_2px_rgba(16,24,40,0.04)] flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between pb-3 border-b border-[#E3E6EB]">
               <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-tertiary text-lg">bolt</span>
-                <h3 className="font-headline-sm text-sm text-on-surface font-bold">Priority Directives</h3>
+                <h3 className="text-sm font-semibold text-[#111827]">
+                  Priority Actions
+                </h3>
+                <span className="text-[11px] px-1.5 py-0.2 rounded bg-[#F1F3F5] text-[#4B5563] font-medium">
+                  {directives.length} pending
+                </span>
               </div>
-              <span className="w-2 h-2 rounded-full bg-error animate-ping" />
+              <span className="text-[11px] text-[#6B7280]">Relief Cell Queue</span>
             </div>
 
-            <div className="flex flex-col gap-3">
+            {/* Compact Action List (severity dot, title, description, timestamp, text-button) */}
+            <div className="divide-y divide-[#F1F3F5] mt-1">
               {directives.map(dir => (
-                <div
-                  key={dir.id}
-                  className="p-3.5 rounded-xl bg-surface-container-high/80 hover:bg-surface-container-highest border border-outline-variant/30 transition-all flex flex-col gap-2"
-                >
-                  <div className="flex items-center justify-between">
+                <div key={dir.id} className="py-2.5 first:pt-2">
+                  <div className="flex items-start gap-2">
+                    {/* Severity dot */}
                     <span
-                      className={`font-label-md text-[10px] px-2 py-0.5 rounded font-bold uppercase ${
-                        dir.category === 'Critical'
-                          ? 'bg-error-container/40 text-error'
-                          : dir.category === 'Warning'
-                          ? 'bg-tertiary-container/30 text-tertiary'
-                          : 'bg-secondary-container/30 text-secondary'
+                      className={`w-2 h-2 rounded-full shrink-0 mt-1.5 ${
+                        dir.severity === 'critical' ? 'bg-[#C62828]' : 'bg-[#B26A00]'
                       }`}
-                    >
-                      {dir.tag}
-                    </span>
-                    <span className="font-body-sm text-[11px] text-on-surface-variant">{dir.timestamp}</span>
-                  </div>
-
-                  <p className="font-body-md text-xs text-on-surface font-medium leading-snug">
-                    {dir.description}
-                  </p>
-
-                  <div className="flex items-center justify-between pt-1">
-                    <span className="font-body-sm text-xs text-primary font-semibold">
-                      {dir.metricLabel}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (dir.targetModule) setCurrentModule(dir.targetModule);
-                        dismissDirective(dir.id);
-                      }}
-                      className="px-3 py-1 rounded-lg bg-primary text-on-primary font-label-md text-xs font-bold hover:brightness-110 transition-all cursor-pointer"
-                    >
-                      {dir.actionText}
-                    </button>
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-2">
+                        <h4 className="text-xs font-semibold text-[#111827] leading-snug">
+                          {dir.title}
+                        </h4>
+                      </div>
+                      <p className="text-[11px] text-[#4B5563] mt-0.5 leading-relaxed">
+                        {dir.description}
+                      </p>
+                      <div className="flex items-center justify-between mt-1.5">
+                        <span className="text-[10px] text-[#9CA3AF] tabular-nums">
+                          {dir.timestamp}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (dir.targetModule) setCurrentModule(dir.targetModule);
+                            showToast('Action Processed', `Triggered: ${dir.title}`, 'primary');
+                          }}
+                          className="text-[11px] font-semibold text-[#0F4C81] hover:underline"
+                        >
+                          {dir.actionText} →
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Resource Routing & Fleet Realtime Telemetry Card */}
-          <div className="rounded-2xl bg-surface-container-low/90 backdrop-blur-xl border border-outline-variant/30 p-5 shadow-lg flex flex-col gap-4">
-            <div className="flex items-center justify-between pb-1 border-b border-outline-variant/20">
-              <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-secondary text-lg">alt_route</span>
-                <h3 className="font-headline-sm text-sm text-on-surface font-bold">Corridor Tracking</h3>
-              </div>
-              <span className="font-label-md text-xs text-primary font-bold">
-                {convoys.length} Convoys En Route
-              </span>
-            </div>
-
-            {/* Micro GIS Corridor Miniature Map */}
-            <div className="w-full h-36 rounded-xl bg-surface-container-lowest relative overflow-hidden border border-outline-variant/30 bg-cover bg-center">
-              <div
-                className="absolute inset-0 opacity-40 bg-cover bg-center"
-                style={{ backgroundImage: `url('${TOPOGRAPHIC_MAP_BG}')` }}
-              />
-              <div className="absolute inset-0 bg-surface/50 backdrop-blur-[1px] p-3 flex flex-col justify-between">
-                <div className="flex justify-between items-center">
-                  <span className="px-2 py-0.5 rounded-md bg-surface-container-high/90 text-on-surface font-label-md text-xs border border-outline-variant/30">
-                    Corridor Beta-1
-                  </span>
-                  <span className="text-primary font-mono text-xs font-bold">54 km/h GPS</span>
-                </div>
-                <div className="flex items-center justify-between bg-surface-container-lowest/80 p-2 rounded-lg border border-outline-variant/30">
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                    <span className="font-body-sm text-xs text-on-surface">
-                      Pune Depot → Solapur Mandi
-                    </span>
-                  </div>
-                  <span className="font-label-md text-xs text-primary font-bold">ETA 2h 10m</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Fleet Status Summary Rows */}
-            <div className="flex flex-col gap-1.5 font-body-sm text-xs">
-              <div className="flex items-center justify-between p-2.5 rounded-xl bg-surface-container-high border border-outline-variant/20">
-                <div className="flex items-center gap-2">
-                  <span className="material-symbols-outlined text-primary text-base">water_drop</span>
-                  <span className="text-on-surface">Water Tankers (24)</span>
-                </div>
-                <span className="font-bold text-primary">On Schedule</span>
-              </div>
-              <div className="flex items-center justify-between p-2.5 rounded-xl bg-surface-container-high border border-outline-variant/20">
-                <div className="flex items-center gap-2">
-                  <span className="material-symbols-outlined text-secondary text-base">inventory_2</span>
-                  <span className="text-on-surface">Cattle Feed Kits (3,200)</span>
-                </div>
-                <span className="font-bold text-secondary">Loading (Beed)</span>
-              </div>
-              <div className="flex items-center justify-between p-2.5 rounded-xl bg-surface-container-high border border-outline-variant/20">
-                <div className="flex items-center gap-2">
-                  <span className="material-symbols-outlined text-tertiary text-base">medical_services</span>
-                  <span className="text-on-surface">Veterinary Mobile Kits (8)</span>
-                </div>
-                <span className="font-bold text-tertiary">In Transit</span>
-              </div>
-            </div>
-
+          <div className="pt-3 border-t border-[#E3E6EB] flex items-center justify-between text-xs">
+            <span className="text-[11px] text-[#6B7280]">All actions logged to State Cell audit trail</span>
             <button
               type="button"
-              onClick={() => setCurrentModule('resource-routing-logistics')}
-              className="w-full py-2.5 rounded-xl bg-surface-container-high hover:bg-surface-container-highest text-on-surface font-label-md text-xs font-semibold transition-all border border-outline-variant/30 text-center cursor-pointer"
+              onClick={() => showToast('Protocol Verified', 'All active directives acknowledged by Duty Officer.', 'secondary')}
+              className="text-[11px] text-[#4B5563] hover:text-[#111827] font-medium"
             >
-              Launch Realtime Fleet GPS Console
+              Acknowledge all
             </button>
-          </div>
-
-          {/* Quick Immediate Execution Shortcut Pod */}
-          <div className="rounded-2xl bg-surface-container-low/90 backdrop-blur-xl border border-outline-variant/30 p-5 shadow-lg flex flex-col gap-3">
-            <span className="font-label-md text-xs text-on-surface-variant uppercase tracking-wider font-semibold">
-              Immediate Execution
-            </span>
-            <div className="grid grid-cols-2 gap-2.5">
-              <button
-                type="button"
-                onClick={handleRecalculateAi}
-                className="p-3 rounded-xl bg-surface-container-high hover:bg-surface-container-highest border border-outline-variant/30 transition-all flex flex-col items-center justify-center text-center gap-1 group cursor-pointer"
-              >
-                <span className="material-symbols-outlined text-primary group-hover:scale-110 transition-transform text-2xl">
-                  model_training
-                </span>
-                <span className="font-label-md text-xs text-on-surface font-semibold">Recalculate AI</span>
-              </button>
-              <button
-                type="button"
-                onClick={handleExportBrief}
-                className="p-3 rounded-xl bg-surface-container-high hover:bg-surface-container-highest border border-outline-variant/30 transition-all flex flex-col items-center justify-center text-center gap-1 group cursor-pointer"
-              >
-                <span className="material-symbols-outlined text-secondary group-hover:scale-110 transition-transform text-2xl">
-                  picture_as_pdf
-                </span>
-                <span className="font-label-md text-xs text-on-surface font-semibold">Export Brief</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setIsHealthModalOpen(true)}
-                className="p-3 rounded-xl bg-surface-container-high hover:bg-surface-container-highest border border-outline-variant/30 transition-all flex flex-col items-center justify-center text-center gap-1 group cursor-pointer"
-              >
-                <span className="material-symbols-outlined text-tertiary group-hover:scale-110 transition-transform text-2xl">
-                  sensors
-                </span>
-                <span className="font-label-md text-xs text-on-surface font-semibold">Sync Ground Sensors</span>
-              </button>
-              <button
-                type="button"
-                onClick={handleDeclareCalamity}
-                className="p-3 rounded-xl bg-surface-container-high hover:bg-surface-container-highest border border-outline-variant/30 transition-all flex flex-col items-center justify-center text-center gap-1 group cursor-pointer"
-              >
-                <span className="material-symbols-outlined text-error group-hover:scale-110 transition-transform text-2xl">
-                  emergency_home
-                </span>
-                <span className="font-label-md text-xs text-on-surface font-semibold">Declare State Calamity</span>
-              </button>
-            </div>
           </div>
         </div>
       </div>
 
-      {/* Bottom Quick Status Drawer: Ground Sensor Telemetry Bar */}
-      <div className="p-4 rounded-2xl bg-surface-container-low/90 backdrop-blur-md border border-outline-variant/30 shadow-md flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="flex flex-wrap items-center gap-4">
-          <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-primary animate-pulse" />
-            <span className="font-headline-sm text-sm text-on-surface font-bold">1,480 / 1,500</span>
-            <span className="font-body-sm text-xs text-on-surface-variant">
-              Automated Weather Stations Active
-            </span>
+      {/* D3.js Line Chart: Visualizing Drought Severity & Predictive Trajectory */}
+      <DroughtSeverityChart />
+
+      {/* Data Table: Districts Requiring Attention */}
+      <div className="bg-white rounded-lg border border-[#E3E6EB] p-4 shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
+        {/* Table Header Controls */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#E3E6EB]">
+          <div>
+            <h3 className="text-sm font-semibold text-[#111827]">
+              Districts Requiring Attention
+            </h3>
+            <p className="text-xs text-[#6B7280] mt-0.5">
+              Ranked by composite moisture deficit and relief vulnerability index
+            </p>
           </div>
-          <div className="hidden md:block h-4 w-px bg-outline-variant/40" />
-          <div className="hidden md:flex items-center gap-2 font-body-sm text-xs text-on-surface-variant">
-            <span>Soil Moisture Probes:</span>
-            <span className="text-primary font-bold">98.7% Online</span>
+
+          <div className="flex items-center gap-2">
+            {/* Search Input */}
+            <div className="relative">
+              <Search className="w-3.5 h-3.5 text-[#9CA3AF] absolute left-2.5 top-1/2 -translate-y-1/2 stroke-[1.5]" />
+              <input
+                type="text"
+                value={tableSearch}
+                onChange={e => setTableSearch(e.target.value)}
+                placeholder="Filter districts..."
+                className="bg-[#F6F7F9] text-xs text-[#111827] pl-8 pr-3 py-1 rounded border border-[#E3E6EB] focus:bg-white focus:border-[#0F4C81] focus:ring-1 focus:ring-[#0F4C81] w-44"
+              />
+            </div>
+
+            <button
+              type="button"
+              onClick={handleExportCSV}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded border border-[#E3E6EB] bg-white text-xs font-medium text-[#4B5563] hover:text-[#111827] hover:bg-[#F9FAFB] transition-colors"
+            >
+              <FileSpreadsheet className="w-3.5 h-3.5 text-[#6B7280] stroke-[1.5]" />
+              <span>Export CSV</span>
+            </button>
           </div>
         </div>
-        <div className="flex items-center gap-3">
-          <span className="font-label-md text-xs text-on-surface-variant">Telemetry sync freq: 300s</span>
-          <button
-            type="button"
-            onClick={() => setIsHealthModalOpen(true)}
-            className="px-3 py-1.5 rounded-xl bg-surface-container-high hover:bg-surface-container-highest text-on-surface font-label-md text-xs transition-all border border-outline-variant/30 cursor-pointer"
-          >
-            Telemetry Health Check
-          </button>
+
+        {/* Sortable Table (Zebra-free, clean 13px font, hover state) */}
+        <div className="overflow-x-auto mt-2">
+          <table className="w-full text-left text-[13px] border-collapse">
+            <thead>
+              <tr className="border-b border-[#E3E6EB] text-[11px] font-semibold text-[#6B7280] uppercase tracking-wider bg-[#FAFBFC]">
+                <th
+                  onClick={() => handleSort('name')}
+                  className="py-2.5 px-3 cursor-pointer hover:text-[#111827] select-none"
+                >
+                  District
+                </th>
+                <th
+                  onClick={() => handleSort('riskLevel')}
+                  className="py-2.5 px-3 cursor-pointer hover:text-[#111827] select-none"
+                >
+                  Risk level
+                </th>
+                <th
+                  onClick={() => handleSort('precipDeficit')}
+                  className="py-2.5 px-3 cursor-pointer hover:text-[#111827] select-none"
+                >
+                  Rainfall deficit %
+                </th>
+                <th
+                  onClick={() => handleSort('soilMoisture')}
+                  className="py-2.5 px-3 cursor-pointer hover:text-[#111827] select-none"
+                >
+                  Soil moisture %
+                </th>
+                <th
+                  onClick={() => handleSort('openClaims')}
+                  className="py-2.5 px-3 cursor-pointer hover:text-[#111827] select-none"
+                >
+                  Open claims
+                </th>
+                <th className="py-2.5 px-3">
+                  Last action
+                </th>
+                <th className="py-2.5 px-3 text-right">
+                  Action
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#E3E6EB]">
+              {filteredDistricts.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="py-8 text-center text-xs text-[#6B7280]">
+                    No districts matching filter.
+                  </td>
+                </tr>
+              ) : (
+                filteredDistricts.map(dist => (
+                  <tr
+                    key={dist.id}
+                    className="hover:bg-[#F9FAFB] transition-colors group"
+                  >
+                    {/* District & Talukas */}
+                    <td className="py-2.5 px-3 font-medium text-[#111827]">
+                      <div>
+                        <span className="font-semibold">{dist.name}</span>
+                        <span className="text-[11px] text-[#6B7280] block font-normal">
+                          {dist.talukas}
+                        </span>
+                      </div>
+                    </td>
+
+                    {/* Risk Level with Small Dot */}
+                    <td className="py-2.5 px-3">
+                      <div className="flex items-center gap-1.5">
+                        <span
+                          className={`w-2 h-2 rounded-full shrink-0 ${
+                            dist.riskLevel === 'Critical'
+                              ? 'bg-[#C62828]'
+                              : dist.riskLevel === 'Warning'
+                              ? 'bg-[#B26A00]'
+                              : 'bg-[#2E7D32]'
+                          }`}
+                        />
+                        <span
+                          className={`text-xs font-medium ${
+                            dist.riskLevel === 'Critical'
+                              ? 'text-[#C62828]'
+                              : dist.riskLevel === 'Warning'
+                              ? 'text-[#B26A00]'
+                              : 'text-[#2E7D32]'
+                          }`}
+                        >
+                          {dist.riskLevel}
+                        </span>
+                      </div>
+                    </td>
+
+                    {/* Rainfall Deficit with Subtle Mini Bar */}
+                    <td className="py-2.5 px-3">
+                      <div className="flex items-center gap-2">
+                        <span className="tabular-nums font-semibold text-[#C62828]">
+                          {dist.precipDeficit}%
+                        </span>
+                        <div className="w-12 bg-[#F1F3F5] rounded-full h-1 overflow-hidden">
+                          <div
+                            className="bg-[#C62828] h-full"
+                            style={{ width: `${Math.min(100, Math.abs(dist.precipDeficit))}%` }}
+                          />
+                        </div>
+                      </div>
+                    </td>
+
+                    {/* Soil Moisture */}
+                    <td className="py-2.5 px-3 tabular-nums text-[#111827]">
+                      {dist.soilMoisture}%
+                    </td>
+
+                    {/* Open Claims */}
+                    <td className="py-2.5 px-3 tabular-nums text-[#111827]">
+                      {dist.openClaims.toLocaleString()}
+                    </td>
+
+                    {/* Last Action */}
+                    <td className="py-2.5 px-3 text-xs text-[#4B5563]">
+                      {dist.lastAction}
+                    </td>
+
+                    {/* Action Link */}
+                    <td className="py-2.5 px-3 text-right">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedTalukaId(dist.id);
+                          setCurrentModule('drought-risk-monitor');
+                        }}
+                        className="text-xs font-semibold text-[#0F4C81] hover:underline"
+                      >
+                        View details
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Table Footer with Provenance */}
+        <div className="pt-3 border-t border-[#E3E6EB] mt-2 flex flex-col sm:flex-row sm:items-center justify-between text-[11px] text-[#6B7280] gap-2">
+          <span>Source: Maharashtra Department of Relief and Rehabilitation, updated 24 Oct 2026, 09:12 IST</span>
+          <span className="tabular-nums">Showing {filteredDistricts.length} of {districts.length} monitored administrative units</span>
         </div>
       </div>
     </div>
