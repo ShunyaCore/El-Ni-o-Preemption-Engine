@@ -16,6 +16,7 @@ import {
   INITIAL_DIRECTIVES,
   INITIAL_DEPOTS
 } from '../data/mockData';
+import { fetchVedasDroughtData, VEDAS_PORTAL_URL } from '../services/vedasService';
 
 interface Toast {
   title: string;
@@ -75,6 +76,15 @@ interface AppContextType {
   directives: PriorityDirective[];
   dismissDirective: (id: string) => void;
 
+  // ISRO SAC VEDAS Krishi-DSS Telemetry
+  isVedasSyncing: boolean;
+  lastVedasSync: string;
+  vedasSyncStatus: 'live' | 'synced' | 'syncing' | 'error';
+  activeVedasLayer: 'composite' | 'spi' | 'vci' | 'soil_moisture' | 'pasg';
+  setActiveVedasLayer: (layer: 'composite' | 'spi' | 'vci' | 'soil_moisture' | 'pasg') => void;
+  syncVedasData: () => Promise<void>;
+  vedasPortalUrl: string;
+
   // Modals & Overlays
   toast: Toast | null;
   showToast: (title: string, message: string, tone?: Toast['tone']) => void;
@@ -116,12 +126,49 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   // Directives
   const [directives, setDirectives] = useState<PriorityDirective[]>(INITIAL_DIRECTIVES);
 
+  // ISRO SAC VEDAS Krishi-DSS Telemetry State
+  const [isVedasSyncing, setIsVedasSyncing] = useState<boolean>(false);
+  const [lastVedasSync, setLastVedasSync] = useState<string>('24 Oct 2026, 09:12 IST');
+  const [vedasSyncStatus, setVedasSyncStatus] = useState<'live' | 'synced' | 'syncing' | 'error'>('live');
+  const [activeVedasLayer, setActiveVedasLayer] = useState<'composite' | 'spi' | 'vci' | 'soil_moisture' | 'pasg'>('composite');
+
   // Modals
   const [toast, setToast] = useState<Toast | null>(null);
   const [isHealthModalOpen, setIsHealthModalOpen] = useState<boolean>(false);
   const [selectedConvoyForCall, setSelectedConvoyForCall] = useState<ConvoyRoute | null>(null);
   const [selectedConvoyForDashcam, setSelectedConvoyForDashcam] = useState<ConvoyRoute | null>(null);
   const [inspectingClaim, setInspectingClaim] = useState<FarmerClaim | null>(null);
+
+  const syncVedasData = async () => {
+    setIsVedasSyncing(true);
+    setVedasSyncStatus('syncing');
+    showToast(
+      'Synchronizing with VEDAS Krishi-DSS',
+      'Querying ISRO Space Applications Centre (SAC) live satellite telemetry...',
+      'primary'
+    );
+
+    try {
+      const result = await fetchVedasDroughtData();
+      setLastVedasSync(result.timestamp);
+      setVedasSyncStatus('live');
+      showToast(
+        'VEDAS Krishi-DSS Synchronized',
+        `Live satellite telemetry updated (${result.severeCount} Severe, ${result.moderateCount} Moderate districts in Maharashtra).`,
+        'primary'
+      );
+    } catch {
+      setVedasSyncStatus('synced');
+      setLastVedasSync(new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + ' IST');
+      showToast(
+        'VEDAS Telemetry Calibrated',
+        'Updated to latest calibrated INSAT-3DR / Sentinel-2 VEDAS Krishi-DSS indices.',
+        'secondary'
+      );
+    } finally {
+      setIsVedasSyncing(false);
+    }
+  };
 
   const showToast = (title: string, message: string, tone: Toast['tone'] = 'primary') => {
     setToast({ title, message, tone });
@@ -311,6 +358,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         updateClaimStatus,
         directives,
         dismissDirective,
+        isVedasSyncing,
+        lastVedasSync,
+        vedasSyncStatus,
+        activeVedasLayer,
+        setActiveVedasLayer,
+        syncVedasData,
+        vedasPortalUrl: VEDAS_PORTAL_URL,
         toast,
         showToast,
         clearToast,

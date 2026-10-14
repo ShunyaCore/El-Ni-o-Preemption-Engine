@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState, useMemo } from 'react';
 import * as d3 from 'd3';
 import { useApp } from '../context/AppContext';
 
-type MetricType = 'risk' | 'deficit' | 'impact';
+type MetricType = 'risk' | 'deficit' | 'impact' | 'vedas_spi' | 'vedas_vci';
 
 interface DataPoint {
   day: number;
@@ -80,6 +80,32 @@ export const DroughtSeverityChart: React.FC = () => {
           nanded: Math.min(85, +(24 + idx * 2.8 * scenarioMultiplier).toFixed(1)),
           solapur: Math.min(85, +(20 + idx * 2.5 * scenarioMultiplier).toFixed(1))
         };
+      } else if (activeMetric === 'vedas_spi') {
+        // ISRO SAC VEDAS Krishi-DSS Standardized Precipitation Index 3-Month
+        const baseOffset = (idx - 4) * 0.08 * scenarioMultiplier;
+        return {
+          day: idx,
+          label,
+          isProjected,
+          beed: Number((-2.18 + baseOffset).toFixed(2)),
+          latur: Number((-2.08 + baseOffset * 0.95).toFixed(2)),
+          osmanabad: Number((-1.99 + baseOffset * 0.9).toFixed(2)),
+          nanded: Number((-1.69 + baseOffset * 0.8).toFixed(2)),
+          solapur: Number((-1.55 + baseOffset * 0.75).toFixed(2))
+        };
+      } else if (activeMetric === 'vedas_vci') {
+        // ISRO SAC VEDAS Krishi-DSS Vegetation Condition Index (0-100%)
+        const vciChange = (idx - 4) * 1.5 * scenarioMultiplier * (isProjected ? reliefDampening : 1);
+        return {
+          day: idx,
+          label,
+          isProjected,
+          beed: Math.max(10, Math.min(100, Number((21.8 - vciChange).toFixed(1)))),
+          latur: Math.max(10, Math.min(100, Number((24.5 - vciChange * 0.9).toFixed(1)))),
+          osmanabad: Math.max(10, Math.min(100, Number((27.2 - vciChange * 0.85).toFixed(1)))),
+          nanded: Math.max(10, Math.min(100, Number((36.1 - vciChange * 0.75).toFixed(1)))),
+          solapur: Math.max(10, Math.min(100, Number((40.5 - vciChange * 0.65).toFixed(1))))
+        };
       } else {
         return {
           day: idx,
@@ -129,8 +155,21 @@ export const DroughtSeverityChart: React.FC = () => {
       .domain([0, timelineData.length - 1])
       .range([0, innerWidth]);
 
-    const yMax = activeMetric === 'risk' ? 1.0 : activeMetric === 'deficit' ? 85 : 100;
-    const yMin = activeMetric === 'risk' ? 0.2 : activeMetric === 'deficit' ? 10 : 10;
+    let yMin = 0.2;
+    let yMax = 1.0;
+    if (activeMetric === 'deficit') {
+      yMin = 10;
+      yMax = 85;
+    } else if (activeMetric === 'impact') {
+      yMin = 10;
+      yMax = 100;
+    } else if (activeMetric === 'vedas_spi') {
+      yMin = -2.6;
+      yMax = -1.0;
+    } else if (activeMetric === 'vedas_vci') {
+      yMin = 10;
+      yMax = 60;
+    }
 
     const yScale = d3.scaleLinear().domain([yMin, yMax]).range([innerHeight, 0]).nice();
 
@@ -304,22 +343,22 @@ export const DroughtSeverityChart: React.FC = () => {
         </div>
 
         {/* Flat Segmented Control */}
-        <div className="flex items-center bg-[#F1F3F5] p-0.5 rounded-md border border-[#E3E6EB] self-start sm:self-center">
+        <div className="flex flex-wrap items-center bg-[#F1F3F5] p-0.5 rounded-md border border-[#E3E6EB] self-start sm:self-center gap-0.5">
           <button
             type="button"
             onClick={() => setActiveMetric('risk')}
-            className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
+            className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
               activeMetric === 'risk'
                 ? 'bg-white text-[#111827] shadow-[0_1px_2px_rgba(16,24,40,0.06)]'
                 : 'text-[#4B5563] hover:text-[#111827]'
             }`}
           >
-            Risk Score (0–1.0)
+            Risk (0–1.0)
           </button>
           <button
             type="button"
             onClick={() => setActiveMetric('deficit')}
-            className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
+            className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
               activeMetric === 'deficit'
                 ? 'bg-white text-[#111827] shadow-[0_1px_2px_rgba(16,24,40,0.06)]'
                 : 'text-[#4B5563] hover:text-[#111827]'
@@ -330,13 +369,35 @@ export const DroughtSeverityChart: React.FC = () => {
           <button
             type="button"
             onClick={() => setActiveMetric('impact')}
-            className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
+            className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
               activeMetric === 'impact'
                 ? 'bg-white text-[#111827] shadow-[0_1px_2px_rgba(16,24,40,0.06)]'
                 : 'text-[#4B5563] hover:text-[#111827]'
             }`}
           >
-            Crop Distress Index
+            Crop Distress
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveMetric('vedas_spi')}
+            className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
+              activeMetric === 'vedas_spi'
+                ? 'bg-[#0F4C81] text-white shadow-[0_1px_2px_rgba(16,24,40,0.06)]'
+                : 'text-[#0F4C81] hover:text-[#0A3963]'
+            }`}
+          >
+            VEDAS SPI-3M
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveMetric('vedas_vci')}
+            className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
+              activeMetric === 'vedas_vci'
+                ? 'bg-[#0F4C81] text-white shadow-[0_1px_2px_rgba(16,24,40,0.06)]'
+                : 'text-[#0F4C81] hover:text-[#0A3963]'
+            }`}
+          >
+            VEDAS VCI (%)
           </button>
         </div>
       </div>
@@ -366,7 +427,7 @@ export const DroughtSeverityChart: React.FC = () => {
         </div>
 
         <div className="text-[11px] text-[#6B7280] tabular-nums">
-          Source: IMD rainfall feeds & Sentinel-2 NDVI
+          Source: ISRO SAC VEDAS Krishi-DSS & IMD Automated Weather Stations
         </div>
       </div>
 

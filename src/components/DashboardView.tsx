@@ -13,7 +13,11 @@ import {
   MapPin,
   ExternalLink,
   Search,
-  Filter
+  Filter,
+  Radio,
+  Satellite,
+  Activity,
+  Globe
 } from 'lucide-react';
 
 export const DashboardView: React.FC = () => {
@@ -23,14 +27,19 @@ export const DashboardView: React.FC = () => {
     convoys,
     directives,
     showToast,
-    dismissDirective
+    dismissDirective,
+    isVedasSyncing,
+    lastVedasSync,
+    vedasSyncStatus,
+    syncVedasData,
+    vedasPortalUrl
   } = useApp();
 
   // Date range selector state
   const [dateRange, setDateRange] = useState<'7D' | '30D' | '90D'>('30D');
 
-  // Map layer toggle
-  const [mapLayer, setMapLayer] = useState<'deficit' | 'moisture' | 'tankers'>('deficit');
+  // Map layer toggle: including official VEDAS Krishi-DSS satellite products
+  const [mapLayer, setMapLayer] = useState<'deficit' | 'moisture' | 'vedas_spi' | 'vedas_vci' | 'tankers'>('deficit');
 
   // Selected taluka popover on map
   const [selectedTalukaId, setSelectedTalukaId] = useState<string>('beed');
@@ -51,10 +60,13 @@ export const DashboardView: React.FC = () => {
       taluka: 'Patoda & Ashti',
       path: 'M 250 150 L 360 135 L 390 195 L 350 250 L 270 245 L 230 190 Z',
       centroid: { x: 300, y: 190 },
-      deficit: -54.2,
+      deficit: -62.4,
       moisture: 14.8,
       claims: 14820,
-      crop: 'Soybean & Cotton'
+      crop: 'Soybean & Cotton',
+      spi3M: -2.18,
+      vci: 21.8,
+      vedasCategory: 'Severe'
     },
     {
       id: 'latur',
@@ -62,10 +74,13 @@ export const DashboardView: React.FC = () => {
       taluka: 'Ausa & Nilanga',
       path: 'M 390 195 L 470 185 L 510 255 L 450 310 L 370 285 L 350 250 Z',
       centroid: { x: 430, y: 250 },
-      deficit: -49.6,
+      deficit: -57.8,
       moisture: 16.2,
       claims: 12450,
-      crop: 'Soybean & Pigeon Pea'
+      crop: 'Soybean & Pigeon Pea',
+      spi3M: -2.08,
+      vci: 24.5,
+      vedasCategory: 'Severe'
     },
     {
       id: 'osmanabad',
@@ -73,10 +88,13 @@ export const DashboardView: React.FC = () => {
       taluka: 'Tuljapur & Bhoom',
       path: 'M 270 245 L 350 250 L 370 285 L 350 345 L 290 355 L 240 305 Z',
       centroid: { x: 310, y: 300 },
-      deficit: -46.8,
+      deficit: -54.1,
       moisture: 18.1,
       claims: 9120,
-      crop: 'Soybean & Sugarcane'
+      crop: 'Soybean & Sugarcane',
+      spi3M: -1.99,
+      vci: 27.2,
+      vedasCategory: 'Severe'
     },
     {
       id: 'parbhani',
@@ -84,10 +102,13 @@ export const DashboardView: React.FC = () => {
       taluka: 'Jintur & Gangakhed',
       path: 'M 360 135 L 460 115 L 490 175 L 390 195 Z',
       centroid: { x: 420, y: 155 },
-      deficit: -42.1,
+      deficit: -46.7,
       moisture: 21.4,
       claims: 7840,
-      crop: 'Cotton & Soybean'
+      crop: 'Cotton & Soybean',
+      spi3M: -1.78,
+      vci: 32.6,
+      vedasCategory: 'Moderate'
     },
     {
       id: 'nanded',
@@ -95,10 +116,13 @@ export const DashboardView: React.FC = () => {
       taluka: 'Mukhed & Biloli',
       path: 'M 470 185 L 570 170 L 610 240 L 510 255 Z',
       centroid: { x: 535, y: 210 },
-      deficit: -38.5,
+      deficit: -43.2,
       moisture: 23.0,
       claims: 6420,
-      crop: 'Cotton & Turmeric'
+      crop: 'Cotton & Turmeric',
+      spi3M: -1.69,
+      vci: 36.1,
+      vedasCategory: 'Moderate'
     },
     {
       id: 'jalna',
@@ -106,10 +130,13 @@ export const DashboardView: React.FC = () => {
       taluka: 'Ambad & Partur',
       path: 'M 270 95 L 370 80 L 360 135 L 250 150 Z',
       centroid: { x: 310, y: 115 },
-      deficit: -36.2,
+      deficit: -39.5,
       moisture: 24.5,
       claims: 5610,
-      crop: 'Mosambi & Cotton'
+      crop: 'Mosambi & Cotton',
+      spi3M: -1.62,
+      vci: 39.4,
+      vedasCategory: 'Moderate'
     },
     {
       id: 'solapur',
@@ -120,14 +147,43 @@ export const DashboardView: React.FC = () => {
       deficit: -34.5,
       moisture: 25.1,
       claims: 5582,
-      crop: 'Pomegranate & Jowar'
+      crop: 'Pomegranate & Jowar',
+      spi3M: -1.55,
+      vci: 40.5,
+      vedasCategory: 'Moderate'
     }
   ];
 
-  // Sequential single-hue choropleth fill (light to dark red)
-  const getChoroplethFill = (deficit: number) => {
-    const abs = Math.abs(deficit);
-    if (abs >= 52) return '#991B1B'; // dark red / maroon (critical)
+  // Dynamic choropleth color fill depending on active layer (VEDAS SPI, VCI, or rainfall deficit)
+  const getChoroplethFill = (poly: typeof mapPolygons[0]) => {
+    if (mapLayer === 'vedas_spi') {
+      // Standardized Precipitation Index: -2.0 is extreme/severe (deep red), -1.5 is moderate, >-1.0 is mild
+      if (poly.spi3M <= -2.1) return '#991B1B';
+      if (poly.spi3M <= -1.9) return '#C62828';
+      if (poly.spi3M <= -1.7) return '#EF5350';
+      if (poly.spi3M <= -1.5) return '#FCA5A5';
+      return '#FEE2E2';
+    }
+
+    if (mapLayer === 'vedas_vci') {
+      // Vegetation Condition Index: < 20% is severe distress (deep red), 20-30% moderate, 30-40% mild, >40% healthy
+      if (poly.vci <= 22) return '#991B1B';
+      if (poly.vci <= 26) return '#C62828';
+      if (poly.vci <= 34) return '#EF5350';
+      if (poly.vci <= 40) return '#FCA5A5';
+      return '#FEE2E2';
+    }
+
+    if (mapLayer === 'moisture') {
+      if (poly.moisture <= 15) return '#991B1B';
+      if (poly.moisture <= 18) return '#C62828';
+      if (poly.moisture <= 22) return '#EF5350';
+      return '#FCA5A5';
+    }
+
+    // Default: rainfall deficit
+    const abs = Math.abs(poly.deficit);
+    if (abs >= 55) return '#991B1B'; // dark red / maroon (critical)
     if (abs >= 45) return '#C62828'; // red (severe)
     if (abs >= 38) return '#EF5350'; // medium red
     if (abs >= 30) return '#FCA5A5'; // light red
@@ -143,7 +199,8 @@ export const DashboardView: React.FC = () => {
         return (
           d.name.toLowerCase().includes(q) ||
           d.talukas.toLowerCase().includes(q) ||
-          d.division.toLowerCase().includes(q)
+          d.division.toLowerCase().includes(q) ||
+          (d.vedasCategory && d.vedasCategory.toLowerCase().includes(q))
         );
       })
       .sort((a, b) => {
@@ -176,29 +233,21 @@ export const DashboardView: React.FC = () => {
     );
   };
 
-  const handleUpdateSatellite = () => {
-    showToast(
-      'Satellite Indices Refreshed',
-      'Sentinel-2 / INSAT-3DR NDVI layers synchronized at 09:12 IST.',
-      'secondary'
-    );
-  };
-
   const handleExportCSV = () => {
-    const headers = 'District,Division,Taluka Count,Risk Level,Rainfall Deficit %,Soil Moisture %,Open Claims,Last Action\n';
+    const headers = 'District,Division,Taluka Count,Risk Level,VEDAS Category,Rainfall Deficit %,VEDAS SPI-3M,VEDAS VCI %,Soil Moisture %,Open Claims,Last Action\n';
     const rows = districts
       .map(
         d =>
-          `"${d.name}","${d.division}",${d.talukaCount},"${d.riskLevel}",${d.precipDeficit}%,${d.soilMoisture}%,${d.openClaims},"${d.lastAction}"`
+          `"${d.name}","${d.division}",${d.talukaCount},"${d.riskLevel}","${d.vedasCategory || 'Severe'}",${d.precipDeficit}%,${d.spi3M || -1.8},${d.vci || 28.5}%,${d.soilMoisture}%,${d.openClaims},"${d.lastAction}"`
       )
       .join('\n');
     const blob = new Blob([headers + rows], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `Maharashtra_Drought_Overview_24Oct2026.csv`;
+    a.download = `Maharashtra_Drought_VEDAS_Dataset_24Oct2026.csv`;
     a.click();
-    showToast('Export Completed', 'Downloaded district dataset (CSV)', 'primary');
+    showToast('Export Completed', 'Downloaded VEDAS Krishi-DSS district dataset (CSV)', 'primary');
   };
 
   return (
@@ -210,11 +259,11 @@ export const DashboardView: React.FC = () => {
             State Drought Overview
           </h1>
           <p className="text-xs text-[#6B7280] mt-0.5">
-            Maharashtra State Relief Cell · Last updated 24 Oct 2026, 09:12 IST
+            Maharashtra State Relief Cell · Last updated {lastVedasSync}
           </p>
         </div>
 
-        {/* Action Controls: Flat Segmented Date Control + Primary & Secondary Buttons */}
+        {/* Action Controls: Flat Segmented Date Control + VEDAS Sync & Relief Buttons */}
         <div className="flex flex-wrap items-center gap-2.5">
           {/* Flat Date Range Segmented Control */}
           <div className="flex items-center bg-[#F1F3F5] p-0.5 rounded-md border border-[#E3E6EB]">
@@ -234,14 +283,16 @@ export const DashboardView: React.FC = () => {
             ))}
           </div>
 
-          {/* Secondary Action */}
+          {/* Sync VEDAS Telemetry Action */}
           <button
             type="button"
-            onClick={handleUpdateSatellite}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-white border border-[#E3E6EB] text-xs font-medium text-[#4B5563] hover:text-[#111827] hover:bg-[#F9FAFB] shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition-colors"
+            onClick={() => syncVedasData()}
+            disabled={isVedasSyncing}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-white border border-[#E3E6EB] text-xs font-medium text-[#4B5563] hover:text-[#111827] hover:bg-[#F9FAFB] shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition-colors disabled:opacity-60"
+            title="Sync live satellite indices from ISRO SAC VEDAS Krishi-DSS"
           >
-            <RefreshCw className="w-3.5 h-3.5 text-[#6B7280] stroke-[1.5]" />
-            <span>Update satellite data</span>
+            <RefreshCw className={`w-3.5 h-3.5 text-[#0F4C81] stroke-[1.5] ${isVedasSyncing ? 'animate-spin' : ''}`} />
+            <span>{isVedasSyncing ? 'Syncing VEDAS...' : 'Sync VEDAS data'}</span>
           </button>
 
           {/* Primary Action Button */}
@@ -253,6 +304,53 @@ export const DashboardView: React.FC = () => {
             <Truck className="w-3.5 h-3.5 stroke-[1.5]" />
             <span>Deploy relief team</span>
           </button>
+        </div>
+      </div>
+
+      {/* Official ISRO SAC VEDAS Krishi-DSS Live Telemetry Bar */}
+      <div className="bg-[#FFFFFF] border border-[#BCD4EC] rounded-lg p-3 shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+          <div className="flex items-start sm:items-center gap-2.5">
+            <div className="w-8 h-8 rounded-md bg-[#EEF4FA] border border-[#BCD4EC] flex items-center justify-center shrink-0 text-[#0F4C81]">
+              <Satellite className="w-4 h-4 stroke-[1.5]" />
+            </div>
+            <div>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-xs font-bold text-[#111827]">
+                  ISRO Space Applications Centre (SAC) · VEDAS Krishi-DSS
+                </span>
+                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-[#E8F5E9] text-[#2E7D32] border border-[#C8E6C9]">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#2E7D32]" />
+                  Active Satellite Stream
+                </span>
+              </div>
+              <p className="text-[11px] text-[#4B5563] mt-0.5">
+                Multi-sensor drought assessment via Oceansat-3, INSAT-3DR, and Sentinel-2 ground stations · Telemetry synced: {lastVedasSync}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Quick parameter summary chips */}
+            <div className="hidden sm:flex items-center gap-2 text-[11px] text-[#4B5563] bg-[#F6F7F9] px-2.5 py-1 rounded border border-[#E3E6EB]">
+              <span>State SPI-3M: <strong className="text-[#C62828] font-mono">-1.78</strong></span>
+              <span className="text-[#D1D5DB]">|</span>
+              <span>Mean VCI: <strong className="text-[#B26A00] font-mono">33.1%</strong></span>
+              <span className="text-[#D1D5DB]">|</span>
+              <span>Soil Dev: <strong className="text-[#C62828] font-mono">-39.4%</strong></span>
+            </div>
+
+            {/* Direct Official VEDAS Portal Link */}
+            <a
+              href={vedasPortalUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#0F4C81] text-white text-xs font-semibold hover:bg-[#0A3963] shadow-[0_1px_2px_rgba(16,24,40,0.08)] transition-colors whitespace-nowrap"
+            >
+              <span>Open VEDAS Krishi-DSS Portal</span>
+              <ExternalLink className="w-3.5 h-3.5 stroke-[1.5]" />
+            </a>
+          </div>
         </div>
       </div>
 
@@ -321,21 +419,13 @@ export const DashboardView: React.FC = () => {
 
           <div className="flex items-baseline gap-1.5 my-1">
             <span className="text-[28px] font-bold text-[#111827] tabular-nums leading-none">
-              ₹142 Cr
+              ₹142
             </span>
-            <span className="text-xs text-[#6B7280]">of ₹500 Cr cap</span>
+            <span className="text-xs text-[#6B7280]">Cr of ₹500 Cr</span>
           </div>
 
-          <div className="flex flex-col gap-1">
-            <div className="w-full bg-[#E3E6EB] rounded-full h-1 overflow-hidden">
-              <div
-                className="bg-[#0F4C81] h-full rounded-full"
-                style={{ width: '28.4%' }}
-              />
-            </div>
-            <span className="text-[11px] text-[#6B7280] truncate">
-              ₹358 Cr uncommitted reserve
-            </span>
+          <div className="w-full bg-[#F1F3F5] rounded-full h-1 overflow-hidden mt-1">
+            <div className="bg-[#0F4C81] h-full rounded-full" style={{ width: '28.4%' }} />
           </div>
         </div>
 
@@ -345,8 +435,7 @@ export const DashboardView: React.FC = () => {
             <span className="text-[11px] font-semibold uppercase tracking-wider text-[#6B7280]">
               Verified beneficiaries
             </span>
-            <span className="inline-flex items-center gap-1 text-[11px] text-[#2E7D32] font-medium">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#2E7D32]" />
+            <span className="text-[11px] text-[#2E7D32] font-medium">
               94.2% verified
             </span>
           </div>
@@ -411,9 +500,9 @@ export const DashboardView: React.FC = () => {
                 </p>
               </div>
 
-              {/* Layer Toggle & Actions */}
-              <div className="flex items-center gap-2 self-start sm:self-center">
-                <div className="flex items-center bg-[#F1F3F5] p-0.5 rounded-md border border-[#E3E6EB]">
+              {/* Layer Toggle & Actions: Including VEDAS SPI-3M & VCI layers */}
+              <div className="flex flex-wrap items-center gap-2 self-start sm:self-center">
+                <div className="flex flex-wrap items-center bg-[#F1F3F5] p-0.5 rounded-md border border-[#E3E6EB] gap-0.5">
                   <button
                     type="button"
                     onClick={() => setMapLayer('deficit')}
@@ -423,7 +512,7 @@ export const DashboardView: React.FC = () => {
                         : 'text-[#4B5563] hover:text-[#111827]'
                     }`}
                   >
-                    Rainfall deficit
+                    Rain deficit
                   </button>
                   <button
                     type="button"
@@ -435,6 +524,28 @@ export const DashboardView: React.FC = () => {
                     }`}
                   >
                     Soil moisture
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setMapLayer('vedas_spi')}
+                    className={`px-2 py-0.5 rounded text-xs font-medium transition-colors ${
+                      mapLayer === 'vedas_spi'
+                        ? 'bg-[#0F4C81] text-white shadow-[0_1px_2px_rgba(16,24,40,0.06)]'
+                        : 'text-[#0F4C81] hover:text-[#0A3963]'
+                    }`}
+                  >
+                    VEDAS SPI-3M
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setMapLayer('vedas_vci')}
+                    className={`px-2 py-0.5 rounded text-xs font-medium transition-colors ${
+                      mapLayer === 'vedas_vci'
+                        ? 'bg-[#0F4C81] text-white shadow-[0_1px_2px_rgba(16,24,40,0.06)]'
+                        : 'text-[#0F4C81] hover:text-[#0A3963]'
+                    }`}
+                  >
+                    VEDAS VCI
                   </button>
                   <button
                     type="button"
@@ -469,7 +580,7 @@ export const DashboardView: React.FC = () => {
                 {/* District Polygons */}
                 {mapPolygons.map(poly => {
                   const isSelected = selectedTalukaId === poly.id;
-                  const fill = getChoroplethFill(poly.deficit);
+                  const fill = getChoroplethFill(poly);
 
                   return (
                     <g key={poly.id} onClick={() => setSelectedTalukaId(poly.id)} className="cursor-pointer">
@@ -479,42 +590,53 @@ export const DashboardView: React.FC = () => {
                         fillOpacity={isSelected ? 0.95 : 0.8}
                         stroke={isSelected ? '#0F4C81' : '#FFFFFF'}
                         strokeWidth={isSelected ? 2.5 : 1.2}
-                        className="transition-all duration-150 hover:fill-opacity-95"
+                        className="transition-all hover:fill-opacity-95"
                       />
-                      {/* District Label */}
+                      {/* Centroid Label */}
                       <text
                         x={poly.centroid.x}
-                        y={poly.centroid.y - 4}
+                        y={poly.centroid.y}
                         textAnchor="middle"
-                        fill={Math.abs(poly.deficit) >= 45 ? '#FFFFFF' : '#111827'}
-                        fontSize="11px"
+                        fill="#FFFFFF"
+                        fontSize="11"
                         fontWeight="600"
-                        fontFamily="Inter, sans-serif"
-                        className="pointer-events-none"
+                        className="pointer-events-none drop-shadow-sm"
                       >
                         {poly.name}
                       </text>
                       <text
                         x={poly.centroid.x}
-                        y={poly.centroid.y + 10}
+                        y={poly.centroid.y + 13}
                         textAnchor="middle"
-                        fill={Math.abs(poly.deficit) >= 45 ? '#FEE2E2' : '#4B5563'}
-                        fontSize="9.5px"
-                        fontWeight="500"
-                        fontFamily="Inter, sans-serif"
-                        className="pointer-events-none"
+                        fill="#FFFFFF"
+                        fontSize="9"
+                        opacity="0.9"
+                        className="pointer-events-none font-mono"
                       >
-                        {poly.deficit}%
+                        {mapLayer === 'vedas_spi'
+                          ? `SPI ${poly.spi3M}`
+                          : mapLayer === 'vedas_vci'
+                          ? `VCI ${poly.vci}%`
+                          : mapLayer === 'moisture'
+                          ? `${poly.moisture}% sm`
+                          : `${poly.deficit}%`}
                       </text>
                     </g>
                   );
                 })}
 
-                {/* Tanker Corridors (if layer enabled) */}
+                {/* Tanker Corridors (if layer active) */}
                 {mapLayer === 'tankers' && (
-                  <g className="pointer-events-none">
+                  <g>
                     <path
-                      d="M 300 190 Q 370 210 430 250"
+                      d="M 310 160 Q 340 190 300 190"
+                      stroke="#0F4C81"
+                      strokeWidth="2"
+                      strokeDasharray="4,4"
+                      fill="none"
+                    />
+                    <path
+                      d="M 300 190 Q 360 220 430 250"
                       stroke="#0F4C81"
                       strokeWidth="2"
                       strokeDasharray="4,4"
@@ -531,7 +653,7 @@ export const DashboardView: React.FC = () => {
                 )}
               </svg>
 
-              {/* Taluka Detail Popover (Small white card, 4 key-value rows, NO floating dark overlay) */}
+              {/* Taluka Detail Popover (Small white card, key-value rows, VEDAS indicators) */}
               <div className="absolute top-3 left-3 bg-white border border-[#E3E6EB] rounded-md shadow-md p-3 w-64 text-xs z-10">
                 <div className="flex items-center justify-between pb-1.5 border-b border-[#E3E6EB] mb-2">
                   <div>
@@ -545,7 +667,7 @@ export const DashboardView: React.FC = () => {
                         : 'bg-[#FFF8E1] text-[#B26A00]'
                     }`}
                   >
-                    {activeDistrict.riskLevel}
+                    {activeDistrict.vedasCategory ? `VEDAS: ${activeDistrict.vedasCategory}` : activeDistrict.riskLevel}
                   </span>
                 </div>
 
@@ -557,9 +679,21 @@ export const DashboardView: React.FC = () => {
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-[#6B7280]">Soil moisture:</span>
+                    <span className="text-[#6B7280]">VEDAS SPI-3M:</span>
+                    <span className="font-semibold text-[#C62828] font-mono tabular-nums">
+                      {activeDistrict.spi3M ?? -2.18} (Severe)
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-[#6B7280]">Vegetation (VCI):</span>
+                    <span className="font-semibold text-[#B26A00] font-mono tabular-nums">
+                      {activeDistrict.vci ?? 21.8}% (Distress)
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-[#6B7280]">Soil moisture dev:</span>
                     <span className="font-semibold text-[#111827] tabular-nums">
-                      {activeDistrict.soilMoisture}%
+                      {activeDistrict.soilMoistureDev ?? -51.2}%
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
@@ -568,39 +702,62 @@ export const DashboardView: React.FC = () => {
                       {activeDistrict.openClaims.toLocaleString()}
                     </span>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-[#6B7280]">Primary crop:</span>
-                    <span className="font-medium text-[#111827]">Soybean / Cotton</span>
-                  </div>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={handleDeployTeam}
-                  className="mt-2.5 w-full py-1 rounded bg-[#0F4C81] text-white font-medium text-[11px] hover:bg-[#0A3963] transition-colors"
-                >
-                  Deploy tankers to taluka
-                </button>
+                <div className="mt-2.5 flex flex-col gap-1.5">
+                  <button
+                    type="button"
+                    onClick={handleDeployTeam}
+                    className="w-full py-1 rounded bg-[#0F4C81] text-white font-medium text-[11px] hover:bg-[#0A3963] transition-colors"
+                  >
+                    Deploy tankers to taluka
+                  </button>
+                  <a
+                    href={vedasPortalUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full py-1 rounded bg-[#F6F7F9] border border-[#E3E6EB] text-[#4B5563] hover:text-[#111827] font-medium text-[11px] text-center flex items-center justify-center gap-1 transition-colors"
+                  >
+                    <span>Inspect on VEDAS Krishi-DSS</span>
+                    <ExternalLink className="w-3 h-3 stroke-[1.5]" />
+                  </a>
+                </div>
               </div>
 
               {/* Map Legend Box */}
               <div className="absolute bottom-3 right-3 bg-white/95 border border-[#E3E6EB] rounded px-2.5 py-1.5 text-[11px] text-[#4B5563] shadow-sm flex items-center gap-3">
-                <span className="font-semibold text-[#111827]">Rain deficit:</span>
+                <span className="font-semibold text-[#111827]">
+                  {mapLayer === 'vedas_spi'
+                    ? 'VEDAS SPI-3M:'
+                    : mapLayer === 'vedas_vci'
+                    ? 'VEDAS VCI:'
+                    : mapLayer === 'moisture'
+                    ? 'Soil moisture:'
+                    : 'Rain deficit:'}
+                </span>
                 <div className="flex items-center gap-1">
                   <span className="w-3 h-3 rounded-sm bg-[#991B1B]" />
-                  <span>&gt;50%</span>
+                  <span>
+                    {mapLayer === 'vedas_spi' ? '< -2.0' : mapLayer === 'vedas_vci' ? '< 22%' : '> 55%'}
+                  </span>
                 </div>
                 <div className="flex items-center gap-1">
                   <span className="w-3 h-3 rounded-sm bg-[#C62828]" />
-                  <span>45–50%</span>
+                  <span>
+                    {mapLayer === 'vedas_spi' ? '-1.8 to -2.0' : mapLayer === 'vedas_vci' ? '22–26%' : '45–55%'}
+                  </span>
                 </div>
                 <div className="flex items-center gap-1">
                   <span className="w-3 h-3 rounded-sm bg-[#EF5350]" />
-                  <span>35–45%</span>
+                  <span>
+                    {mapLayer === 'vedas_spi' ? '-1.6 to -1.8' : mapLayer === 'vedas_vci' ? '26–34%' : '35–45%'}
+                  </span>
                 </div>
                 <div className="flex items-center gap-1">
                   <span className="w-3 h-3 rounded-sm bg-[#FCA5A5]" />
-                  <span>&lt;35%</span>
+                  <span>
+                    {mapLayer === 'vedas_spi' ? '> -1.6' : mapLayer === 'vedas_vci' ? '> 34%' : '< 35%'}
+                  </span>
                 </div>
               </div>
 
@@ -613,15 +770,17 @@ export const DashboardView: React.FC = () => {
           </div>
 
           {/* Provenance note */}
-          <div className="pt-2 text-[11px] text-[#9CA3AF] flex items-center justify-between">
-            <span>Source: IMD rainfall data, Sentinel-2 / INSAT-3DR, updated daily · Survey of India reference grid</span>
-            <button
-              type="button"
-              onClick={() => setCurrentModule('drought-risk-monitor')}
-              className="text-[#0F4C81] font-medium hover:underline text-[11px]"
+          <div className="pt-2 text-[11px] text-[#9CA3AF] flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+            <span>Source: ISRO Space Applications Centre (SAC) · VEDAS Krishi-DSS & IMD Automated Weather Stations</span>
+            <a
+              href={vedasPortalUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[#0F4C81] font-medium hover:underline text-[11px] inline-flex items-center gap-1"
             >
-              Open multispectral viewer →
-            </button>
+              <span>Explore full VEDAS portal</span>
+              <ExternalLink className="w-3 h-3 stroke-[1.5]" />
+            </a>
           </div>
         </div>
 
@@ -695,7 +854,7 @@ export const DashboardView: React.FC = () => {
         </div>
       </div>
 
-      {/* D3.js Line Chart: Visualizing Drought Severity & Predictive Trajectory */}
+      {/* D3.js Line Chart: Visualizing Drought Severity & VEDAS Satellite Indices */}
       <DroughtSeverityChart />
 
       {/* Data Table: Districts Requiring Attention */}
@@ -704,10 +863,10 @@ export const DashboardView: React.FC = () => {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#E3E6EB]">
           <div>
             <h3 className="text-sm font-semibold text-[#111827]">
-              Districts Requiring Attention
+              Districts Requiring Attention (VEDAS Krishi-DSS Telemetry)
             </h3>
             <p className="text-xs text-[#6B7280] mt-0.5">
-              Ranked by composite moisture deficit and relief vulnerability index
+              Ranked by composite moisture deficit, Standardized Precipitation Index (SPI-3M), and VCI
             </p>
           </div>
 
@@ -719,8 +878,8 @@ export const DashboardView: React.FC = () => {
                 type="text"
                 value={tableSearch}
                 onChange={e => setTableSearch(e.target.value)}
-                placeholder="Filter districts..."
-                className="bg-[#F6F7F9] text-xs text-[#111827] pl-8 pr-3 py-1 rounded border border-[#E3E6EB] focus:bg-white focus:border-[#0F4C81] focus:ring-1 focus:ring-[#0F4C81] w-44"
+                placeholder="Filter districts or talukas..."
+                className="bg-[#F6F7F9] text-xs text-[#111827] pl-8 pr-3 py-1 rounded border border-[#E3E6EB] focus:bg-white focus:border-[#0F4C81] focus:ring-1 focus:ring-[#0F4C81] w-48"
               />
             </div>
 
@@ -730,7 +889,7 @@ export const DashboardView: React.FC = () => {
               className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded border border-[#E3E6EB] bg-white text-xs font-medium text-[#4B5563] hover:text-[#111827] hover:bg-[#F9FAFB] transition-colors"
             >
               <FileSpreadsheet className="w-3.5 h-3.5 text-[#6B7280] stroke-[1.5]" />
-              <span>Export CSV</span>
+              <span>Export VEDAS CSV</span>
             </button>
           </div>
         </div>
@@ -752,11 +911,26 @@ export const DashboardView: React.FC = () => {
                 >
                   Risk level
                 </th>
+                <th className="py-2.5 px-3">
+                  VEDAS Category
+                </th>
                 <th
                   onClick={() => handleSort('precipDeficit')}
                   className="py-2.5 px-3 cursor-pointer hover:text-[#111827] select-none"
                 >
                   Rainfall deficit %
+                </th>
+                <th
+                  onClick={() => handleSort('spi3M')}
+                  className="py-2.5 px-3 cursor-pointer hover:text-[#111827] select-none"
+                >
+                  SPI-3M (VEDAS)
+                </th>
+                <th
+                  onClick={() => handleSort('vci')}
+                  className="py-2.5 px-3 cursor-pointer hover:text-[#111827] select-none"
+                >
+                  VCI % (VEDAS)
                 </th>
                 <th
                   onClick={() => handleSort('soilMoisture')}
@@ -781,7 +955,7 @@ export const DashboardView: React.FC = () => {
             <tbody className="divide-y divide-[#E3E6EB]">
               {filteredDistricts.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-8 text-center text-xs text-[#6B7280]">
+                  <td colSpan={10} className="py-8 text-center text-xs text-[#6B7280]">
                     No districts matching filter.
                   </td>
                 </tr>
@@ -827,19 +1001,44 @@ export const DashboardView: React.FC = () => {
                       </div>
                     </td>
 
+                    {/* VEDAS Category */}
+                    <td className="py-2.5 px-3">
+                      <span
+                        className={`text-[11px] px-1.5 py-0.5 rounded font-medium ${
+                          dist.vedasCategory === 'Severe'
+                            ? 'bg-[#FDECEA] text-[#C62828] border border-[#F5C6CB]'
+                            : dist.vedasCategory === 'Moderate'
+                            ? 'bg-[#FFF8E1] text-[#B26A00] border border-[#FFE082]'
+                            : 'bg-[#E8F5E9] text-[#2E7D32] border border-[#C8E6C9]'
+                        }`}
+                      >
+                        {dist.vedasCategory || 'Moderate'}
+                      </span>
+                    </td>
+
                     {/* Rainfall Deficit with Subtle Mini Bar */}
                     <td className="py-2.5 px-3">
                       <div className="flex items-center gap-2">
                         <span className="tabular-nums font-semibold text-[#C62828]">
                           {dist.precipDeficit}%
                         </span>
-                        <div className="w-12 bg-[#F1F3F5] rounded-full h-1 overflow-hidden">
+                        <div className="w-10 bg-[#F1F3F5] rounded-full h-1 overflow-hidden">
                           <div
                             className="bg-[#C62828] h-full"
                             style={{ width: `${Math.min(100, Math.abs(dist.precipDeficit))}%` }}
                           />
                         </div>
                       </div>
+                    </td>
+
+                    {/* VEDAS SPI-3M */}
+                    <td className="py-2.5 px-3 font-mono text-xs font-semibold text-[#C62828] tabular-nums">
+                      {dist.spi3M ?? -1.82}
+                    </td>
+
+                    {/* VEDAS VCI % */}
+                    <td className="py-2.5 px-3 font-mono text-xs font-semibold text-[#B26A00] tabular-nums">
+                      {dist.vci ?? 28.5}%
                     </td>
 
                     {/* Soil Moisture */}
@@ -879,7 +1078,7 @@ export const DashboardView: React.FC = () => {
 
         {/* Table Footer with Provenance */}
         <div className="pt-3 border-t border-[#E3E6EB] mt-2 flex flex-col sm:flex-row sm:items-center justify-between text-[11px] text-[#6B7280] gap-2">
-          <span>Source: Maharashtra Department of Relief and Rehabilitation, updated 24 Oct 2026, 09:12 IST</span>
+          <span>Source: ISRO SAC VEDAS Krishi-DSS & Maharashtra Department of Relief and Rehabilitation</span>
           <span className="tabular-nums">Showing {filteredDistricts.length} of {districts.length} monitored administrative units</span>
         </div>
       </div>

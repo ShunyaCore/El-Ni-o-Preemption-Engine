@@ -12,7 +12,7 @@ export const INITIAL_DISTRICTS: DistrictMetric[] = [
     talukaCount: 11,
     riskScore: 0.92,
     riskLevel: 'Critical',
-    precipDeficit: -54.2,
+    precipDeficit: -62.4,
     soilMoisture: 14.8,
     drySpellDays: 22,
     openClaims: 14820,
@@ -22,7 +22,13 @@ export const INITIAL_DISTRICTS: DistrictMetric[] = [
     reqBudgetCr: 42.0,
     baseSharePct: 29.5,
     trend: 'up',
-    coordinates: { x: 350, y: 220 }
+    coordinates: { x: 350, y: 220 },
+    spi3M: -2.18,
+    vci: 21.8,
+    soilMoistureDev: -51.2,
+    pasgPct: 78.4,
+    vedasCategory: 'Severe',
+    vedasLastSync: '24 Oct 2026, 09:12 IST'
   },
   {
     id: 'latur',
@@ -32,7 +38,7 @@ export const INITIAL_DISTRICTS: DistrictMetric[] = [
     talukaCount: 10,
     riskScore: 0.88,
     riskLevel: 'Critical',
-    precipDeficit: -49.6,
+    precipDeficit: -57.8,
     soilMoisture: 16.2,
     drySpellDays: 19,
     openClaims: 12450,
@@ -42,7 +48,13 @@ export const INITIAL_DISTRICTS: DistrictMetric[] = [
     reqBudgetCr: 38.0,
     baseSharePct: 26.8,
     trend: 'up',
-    coordinates: { x: 440, y: 270 }
+    coordinates: { x: 440, y: 270 },
+    spi3M: -2.08,
+    vci: 24.5,
+    soilMoistureDev: -47.8,
+    pasgPct: 73.6,
+    vedasCategory: 'Severe',
+    vedasLastSync: '24 Oct 2026, 09:12 IST'
   },
   {
     id: 'osmanabad',
@@ -52,7 +64,7 @@ export const INITIAL_DISTRICTS: DistrictMetric[] = [
     talukaCount: 8,
     riskScore: 0.81,
     riskLevel: 'Critical',
-    precipDeficit: -46.8,
+    precipDeficit: -54.1,
     soilMoisture: 18.1,
     drySpellDays: 17,
     openClaims: 9120,
@@ -62,7 +74,13 @@ export const INITIAL_DISTRICTS: DistrictMetric[] = [
     reqBudgetCr: 30.0,
     baseSharePct: 21.1,
     trend: 'up',
-    coordinates: { x: 380, y: 310 }
+    coordinates: { x: 380, y: 310 },
+    spi3M: -1.99,
+    vci: 27.2,
+    soilMoistureDev: -44.6,
+    pasgPct: 69.8,
+    vedasCategory: 'Severe',
+    vedasLastSync: '24 Oct 2026, 09:12 IST'
   },
   {
     id: 'parbhani',
@@ -72,7 +90,7 @@ export const INITIAL_DISTRICTS: DistrictMetric[] = [
     talukaCount: 9,
     riskScore: 0.72,
     riskLevel: 'Warning',
-    precipDeficit: -42.1,
+    precipDeficit: -46.7,
     soilMoisture: 21.4,
     drySpellDays: 14,
     openClaims: 7840,
@@ -82,7 +100,13 @@ export const INITIAL_DISTRICTS: DistrictMetric[] = [
     reqBudgetCr: 24.0,
     baseSharePct: 16.9,
     trend: 'steady',
-    coordinates: { x: 460, y: 190 }
+    coordinates: { x: 460, y: 190 },
+    spi3M: -1.78,
+    vci: 32.6,
+    soilMoistureDev: -39.5,
+    pasgPct: 63.2,
+    vedasCategory: 'Moderate',
+    vedasLastSync: '24 Oct 2026, 09:12 IST'
   },
   {
     id: 'nanded',
@@ -92,7 +116,7 @@ export const INITIAL_DISTRICTS: DistrictMetric[] = [
     talukaCount: 16,
     riskScore: 0.68,
     riskLevel: 'Warning',
-    precipDeficit: -38.5,
+    precipDeficit: -43.2,
     soilMoisture: 23.0,
     drySpellDays: 12,
     openClaims: 6420,
@@ -102,7 +126,13 @@ export const INITIAL_DISTRICTS: DistrictMetric[] = [
     reqBudgetCr: 22.0,
     baseSharePct: 15.5,
     trend: 'steady',
-    coordinates: { x: 520, y: 240 }
+    coordinates: { x: 520, y: 240 },
+    spi3M: -1.69,
+    vci: 36.1,
+    soilMoistureDev: -36.1,
+    pasgPct: 58.7,
+    vedasCategory: 'Moderate',
+    vedasLastSync: '24 Oct 2026, 09:12 IST'
   },
   {
     id: 'jalna',
@@ -112,7 +142,7 @@ export const INITIAL_DISTRICTS: DistrictMetric[] = [
     talukaCount: 8,
     riskScore: 0.64,
     riskLevel: 'Warning',
-    precipDeficit: -36.2,
+    precipDeficit: -39.5,
     soilMoisture: 24.5,
     drySpellDays: 11,
     openClaims: 5610,
@@ -122,7 +152,13 @@ export const INITIAL_DISTRICTS: DistrictMetric[] = [
     reqBudgetCr: 18.0,
     baseSharePct: 12.7,
     trend: 'steady',
-    coordinates: { x: 370, y: 150 }
+    coordinates: { x: 370, y: 150 },
+    spi3M: -1.62,
+    vci: 39.4,
+    soilMoistureDev: -32.8,
+    pasgPct: 53.4,
+    vedasCategory: 'Moderate',
+    vedasLastSync: '24 Oct 2026, 09:12 IST'
   },
   {
     id: 'hingoli',
@@ -132,7 +168,7 @@ export const INITIAL_DISTRICTS: DistrictMetric[] = [
     talukaCount: 5,
     riskScore: 0.52,
     riskLevel: 'Moderate',
-    precipDeficit: -31.4,
+    precipDeficit: -35.2,
     soilMoisture: 26.8,
     drySpellDays: 8,
     openClaims: 3450,
@@ -142,7 +178,13 @@ export const INITIAL_DISTRICTS: DistrictMetric[] = [
     reqBudgetCr: 14.0,
     baseSharePct: 9.8,
     trend: 'down',
-    coordinates: { x: 480, y: 150 }
+    coordinates: { x: 480, y: 150 },
+    spi3M: -1.48,
+    vci: 44.8,
+    soilMoistureDev: -27.4,
+    pasgPct: 46.1,
+    vedasCategory: 'Mild',
+    vedasLastSync: '24 Oct 2026, 09:12 IST'
   },
   {
     id: 'aurangabad',
@@ -152,7 +194,7 @@ export const INITIAL_DISTRICTS: DistrictMetric[] = [
     talukaCount: 9,
     riskScore: 0.48,
     riskLevel: 'Moderate',
-    precipDeficit: -29.8,
+    precipDeficit: -33.4,
     soilMoisture: 28.2,
     drySpellDays: 7,
     openClaims: 4120,
@@ -162,7 +204,13 @@ export const INITIAL_DISTRICTS: DistrictMetric[] = [
     reqBudgetCr: 16.0,
     baseSharePct: 11.2,
     trend: 'down',
-    coordinates: { x: 310, y: 160 }
+    coordinates: { x: 310, y: 160 },
+    spi3M: -1.41,
+    vci: 48.2,
+    soilMoistureDev: -24.8,
+    pasgPct: 42.0,
+    vedasCategory: 'Mild',
+    vedasLastSync: '24 Oct 2026, 09:12 IST'
   },
   {
     id: 'solapur',
@@ -178,11 +226,17 @@ export const INITIAL_DISTRICTS: DistrictMetric[] = [
     openClaims: 5582,
     activeClaims: 5582,
     farmersCount: 85000,
-    lastAction: 'Ujani tail-end monitored',
-    reqBudgetCr: 20.0,
-    baseSharePct: 14.1,
+    lastAction: 'Fodder camps authorized',
+    reqBudgetCr: 18.0,
+    baseSharePct: 12.0,
     trend: 'steady',
-    coordinates: { x: 310, y: 340 }
+    coordinates: { x: 340, y: 360 },
+    spi3M: -1.55,
+    vci: 40.5,
+    soilMoistureDev: -30.1,
+    pasgPct: 51.0,
+    vedasCategory: 'Moderate',
+    vedasLastSync: '24 Oct 2026, 09:12 IST'
   }
 ];
 

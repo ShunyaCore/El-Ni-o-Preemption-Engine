@@ -30,6 +30,13 @@ export interface DistrictMetric {
   baseSharePct: number;
   trend: 'up' | 'down' | 'steady';
   coordinates: { x: number; y: number };
+  // ISRO SAC VEDAS Krishi-DSS Telemetry Fields
+  spi3M?: number; // Standardized Precipitation Index 3-Month
+  vci?: number; // Vegetation Condition Index (%)
+  soilMoistureDev?: number; // Soil moisture deviation (%)
+  pasgPct?: number; // % Agricultural area affected
+  vedasCategory?: 'Severe' | 'Moderate' | 'Mild' | 'Normal';
+  vedasLastSync?: string;
 }
 
 export interface ConvoyRoute {
@@ -86,4 +93,44 @@ export interface DepotInventory {
   inTransit: number;
   statusTone: 'healthy' | 'warning' | 'critical';
   statusText: string;
+}
+
+export interface GroundingSource {
+  title: string;
+  uri: string;
+}
+
+export interface GroundingPlace {
+  title: string;
+  uri: string;
+}
+
+export interface ProteinRecord {
+  accession: string;
+  id: string;
+  gene: string;
+  proteinName: string;
+  organism: string;
+  length: number;
+  function: string;
+  uniprotLink: string;
+}
+
+export interface LiteratureRecord {
+  id: string;
+  title: string;
+  author: string;
+  journal: string;
+  year: number;
+  doi?: string;
+  url: string;
+  abstract: string;
+}
+
+export interface UserAccount {
+  name: string;
+  email: string;
+  role: string;
+  photoUrl?: string;
+  provider: 'google' | 'gov-sso';
 }
