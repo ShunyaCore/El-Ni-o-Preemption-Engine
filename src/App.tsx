@@ -9,6 +9,8 @@ import { BudgetOptimizerView } from './components/BudgetOptimizerView';
 import { ClaimReviewView } from './components/ClaimReviewView';
 import { ResourceRoutingView } from './components/ResourceRoutingView';
 import { ReportsView } from './components/ReportsView';
+import { RiskForecastView } from './components/RiskForecastView';
+import { ScenarioLabView } from './components/ScenarioLabView';
 import { DriverCallModal } from './components/DriverCallModal';
 import { DashcamModal } from './components/DashcamModal';
 import { SettingsModal } from './components/SettingsModal';
@@ -40,7 +42,9 @@ const AppContent: React.FC = () => {
         <main className="w-full pt-16 px-4 sm:px-6 lg:px-8 py-5 flex-1 max-w-[1600px] mx-auto">
           {currentModule === 'overview' && <DashboardView />}
           {currentModule === 'drought-risk-monitor' && <DroughtRiskView />}
+          {currentModule === 'risk-forecast' && <RiskForecastView />}
           {currentModule === 'relief-budget-optimizer' && <BudgetOptimizerView />}
+          {currentModule === 'scenario-lab' && <ScenarioLabView />}
           {currentModule === 'claim-evidence-review' && <ClaimReviewView />}
           {currentModule === 'resource-routing-logistics' && <ResourceRoutingView />}
           {currentModule === 'reports-and-analytics' && <ReportsView />}

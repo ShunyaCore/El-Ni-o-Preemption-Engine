@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useApp } from '../context/AppContext';
 import { DroughtSeverityChart } from './DroughtSeverityChart';
 import { DistrictMetric } from '../types';
+import { RESERVOIR_DATA } from '../services/optimizerEngine';
 import {
   Download,
   FileSpreadsheet,
@@ -17,7 +18,8 @@ import {
   Radio,
   Satellite,
   Activity,
-  Globe
+  Globe,
+  Droplets
 } from 'lucide-react';
 
 export const DashboardView: React.FC = () => {
@@ -319,7 +321,7 @@ export const DashboardView: React.FC = () => {
                 <span className="text-xs font-bold text-[#111827]">
                   ISRO Space Applications Centre (SAC) · VEDAS Krishi-DSS
                 </span>
-                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-[#E8F5E9] text-[#2E7D32] border border-[#C8E6C9]">
+                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-[#EEF4FA] text-[#2E7D32] border border-[#BCD4EC]">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#2E7D32]" />
                   Active Satellite Stream
                 </span>
@@ -476,6 +478,71 @@ export const DashboardView: React.FC = () => {
             <span>Water tankers & fodder</span>
             <span>4 hr avg ETA</span>
           </div>
+        </div>
+      </div>
+
+      {/* Water Availability & Critical Reservoir Storage Monitoring Grid */}
+      <div className="bg-white rounded-lg border border-[#E3E6EB] p-4 shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-[#E3E6EB] mb-3 gap-2">
+          <div className="flex items-center gap-2">
+            <Droplets className="w-4 h-4 text-[#0F4C81]" />
+            <h3 className="text-xs font-bold uppercase tracking-wider text-[#111827]">
+              Major Reservoir Live Storage & Potable Water Runway
+            </h3>
+          </div>
+          <div className="flex items-center gap-3 text-xs text-[#6B7280]">
+            <span>Telemetry: Maharashtra Water Resources Dept (CWC/WRD)</span>
+            <span>•</span>
+            <span>Refreshed: 24 Oct 2026</span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+          {RESERVOIR_DATA.map(res => (
+            <div key={res.id} className="p-3 bg-[#F9FAF8] rounded border border-[#E3E6EB] flex flex-col justify-between">
+              <div>
+                <div className="flex items-start justify-between gap-1 mb-1">
+                  <h4 className="text-xs font-bold text-[#111827] truncate" title={res.name}>
+                    {res.name}
+                  </h4>
+                  <span className={`px-1.5 py-0.2 rounded text-[10px] font-bold shrink-0 ${
+                    res.status === 'Depleted' ? 'bg-[#FEE2E2] text-[#991B1B]' :
+                    res.status === 'Critical Low' ? 'bg-[#FEF3C7] text-[#92400E]' :
+                    'bg-[#DCFCE7] text-[#166534]'
+                  }`}>
+                    {res.status}
+                  </span>
+                </div>
+                <span className="text-[10px] text-[#6B7280] block truncate">{res.river} · {res.district}</span>
+
+                <div className="flex items-baseline gap-1 my-2">
+                  <span className="text-lg font-bold text-[#111827] tabular-nums">
+                    {res.currentPct}%
+                  </span>
+                  <span className="text-[11px] text-[#6B7280]">
+                    ({res.currentLiveTmc} / {res.grossCapacityTmc} TMC)
+                  </span>
+                </div>
+
+                <div className="w-full bg-[#E5E7EB] rounded-full h-1.5 overflow-hidden mb-2">
+                  <div
+                    className={`h-full rounded-full ${
+                      res.currentPct < 10 ? 'bg-[#DC2626]' :
+                      res.currentPct < 25 ? 'bg-[#D97706]' : 'bg-[#10B981]'
+                    }`}
+                    style={{ width: `${Math.min(100, res.currentPct)}%` }}
+                  />
+                </div>
+              </div>
+
+              <div className="pt-2 border-t border-[#E3E6EB] flex justify-between items-center text-[10px] text-[#6B7280]">
+                <span>Drinking reserve:</span>
+                <span className={`font-bold ${res.drinkingWaterReserveMonths < 2.5 ? 'text-[#DC2626]' : 'text-[#0F4C81]'}`}>
+                  {res.drinkingWaterReserveMonths} Months
+                </span>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -1009,7 +1076,7 @@ export const DashboardView: React.FC = () => {
                             ? 'bg-[#FDECEA] text-[#C62828] border border-[#F5C6CB]'
                             : dist.vedasCategory === 'Moderate'
                             ? 'bg-[#FFF8E1] text-[#B26A00] border border-[#FFE082]'
-                            : 'bg-[#E8F5E9] text-[#2E7D32] border border-[#C8E6C9]'
+                            : 'bg-[#EEF4FA] text-[#2E7D32] border border-[#BCD4EC]'
                         }`}
                       >
                         {dist.vedasCategory || 'Moderate'}

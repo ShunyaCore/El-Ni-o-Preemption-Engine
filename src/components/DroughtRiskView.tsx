@@ -1,6 +1,20 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { CloudRain, AlertTriangle, ArrowRight, Layers, FileDown } from 'lucide-react';
+import {
+  CloudRain,
+  AlertTriangle,
+  ArrowRight,
+  Layers,
+  FileDown,
+  Map as MapIcon,
+  Grid,
+  Maximize,
+  Compass,
+  Radio,
+  Satellite
+} from 'lucide-react';
+import { MaharashtraDroughtMap } from './MaharashtraDroughtMap';
+import { MAHARASHTRA_DISTRICTS_GEO } from '../data/maharashtraGeoData';
 
 interface CropLossProfile {
   id: string;
@@ -82,6 +96,25 @@ const REGIONAL_CROP_PROFILES: Record<string, CropLossProfile> = {
     polygonPath: 'M 325 270 L 415 275 L 435 305 L 415 365 L 345 375 L 295 325 Z',
     centroid: { x: 370, y: 320 }
   },
+  parbhani: {
+    id: 'parbhani',
+    name: 'Parbhani',
+    talukas: 'Jintur, Gangakhed, Palam & Selu',
+    overallLossRiskPct: 54,
+    totalAcreageHa: '5.1 Lakh Hectares',
+    projectedYieldShortfallMT: '225,000 MT',
+    economicExposureCr: 158,
+    soilRootDeficit: '-43% root-zone moisture saturation',
+    ndviAnomalyDelta: '-0.18 vs 5-yr baseline',
+    preemptiveIntervention: 'Canal rotational rationing + 18 potable water tanker units deployed',
+    crops: [
+      { name: 'Cotton (Bt)', lossRisk: 59, acreage: '2.8 L Ha', stage: 'Boll retention drop', severity: 'Severe' },
+      { name: 'Soybean', lossRisk: 52, acreage: '1.8 L Ha', stage: 'Pod formation stress', severity: 'Severe' },
+      { name: 'Pigeon Pea (Tur)', lossRisk: 44, acreage: '0.5 L Ha', stage: 'Vegetative moisture deficit', severity: 'Moderate' }
+    ],
+    polygonPath: 'M 410 155 L 530 145 L 530 205 L 450 215 Z',
+    centroid: { x: 470, y: 180 }
+  },
   nanded: {
     id: 'nanded',
     name: 'Nanded',
@@ -138,6 +171,82 @@ const REGIONAL_CROP_PROFILES: Record<string, CropLossProfile> = {
     ],
     polygonPath: 'M 315 110 L 435 95 L 505 155 L 410 155 L 290 170 L 285 125 Z',
     centroid: { x: 385, y: 135 }
+  },
+  hingoli: {
+    id: 'hingoli',
+    name: 'Hingoli',
+    talukas: 'Kalamnuri, Basmath & Sengaon',
+    overallLossRiskPct: 41,
+    totalAcreageHa: '3.6 Lakh Hectares',
+    projectedYieldShortfallMT: '130,000 MT',
+    economicExposureCr: 94,
+    soilRootDeficit: '-27% moisture deficit',
+    ndviAnomalyDelta: '-0.12 vs 5-yr baseline',
+    preemptiveIntervention: 'Drip kit allocation + turmeric micro-irrigation tranches',
+    crops: [
+      { name: 'Turmeric', lossRisk: 48, acreage: '0.9 L Ha', stage: 'Rhizome expansion', severity: 'Moderate' },
+      { name: 'Soybean', lossRisk: 39, acreage: '1.9 L Ha', stage: 'Pod maturity', severity: 'Moderate' },
+      { name: 'Cotton', lossRisk: 36, acreage: '0.8 L Ha', stage: 'Boll development', severity: 'Moderate' }
+    ],
+    polygonPath: 'M 435 95 L 530 145 L 480 180 Z',
+    centroid: { x: 480, y: 140 }
+  },
+  aurangabad: {
+    id: 'aurangabad',
+    name: 'Chhatrapati Sambhajinagar',
+    talukas: 'Paithan, Vaijapur, Gangapur & Sillod',
+    overallLossRiskPct: 38,
+    totalAcreageHa: '6.4 Lakh Hectares',
+    projectedYieldShortfallMT: '175,000 MT',
+    economicExposureCr: 122,
+    soilRootDeficit: '-25% Jayakwadi left-bank canal drop',
+    ndviAnomalyDelta: '-0.10 vs 5-yr baseline',
+    preemptiveIntervention: 'Jayakwadi dam sluice calibration + drinking water priority order',
+    crops: [
+      { name: 'Cotton', lossRisk: 44, acreage: '3.2 L Ha', stage: 'Flowering stage', severity: 'Moderate' },
+      { name: 'Bajra', lossRisk: 36, acreage: '1.8 L Ha', stage: 'Grain filling', severity: 'Moderate' },
+      { name: 'Maize', lossRisk: 31, acreage: '1.4 L Ha', stage: 'Cob development', severity: 'Moderate' }
+    ],
+    polygonPath: 'M 240 100 L 315 110 L 290 170 L 210 150 Z',
+    centroid: { x: 260, y: 130 }
+  },
+  ahmednagar: {
+    id: 'ahmednagar',
+    name: 'Ahilyanagar (Ahmednagar)',
+    talukas: 'Sangamner, Shrigonda, Karjat & Jamkhed',
+    overallLossRiskPct: 45,
+    totalAcreageHa: '8.2 Lakh Hectares',
+    projectedYieldShortfallMT: '260,000 MT',
+    economicExposureCr: 180,
+    soilRootDeficit: '-32% Godavari-Pravara dry zone',
+    ndviAnomalyDelta: '-0.14 vs 5-yr baseline',
+    preemptiveIntervention: 'Fodder camps authorization + water tanker route clearing',
+    crops: [
+      { name: 'Sugarcane', lossRisk: 52, acreage: '2.4 L Ha', stage: 'Growth deficit', severity: 'Severe' },
+      { name: 'Pomegranate & Onion', lossRisk: 46, acreage: '1.9 L Ha', stage: 'Bulb maturation', severity: 'Moderate' },
+      { name: 'Bajra', lossRisk: 38, acreage: '2.5 L Ha', stage: 'Grain filling', severity: 'Moderate' }
+    ],
+    polygonPath: 'M 180 160 L 260 170 L 240 250 L 170 230 Z',
+    centroid: { x: 210, y: 200 }
+  },
+  pune: {
+    id: 'pune',
+    name: 'Pune',
+    talukas: 'Baramati, Indapur, Daund & Shirur',
+    overallLossRiskPct: 22,
+    totalAcreageHa: '5.8 Lakh Hectares',
+    projectedYieldShortfallMT: '85,000 MT',
+    economicExposureCr: 65,
+    soilRootDeficit: '-12% eastern rainshadow talukas',
+    ndviAnomalyDelta: '-0.04 vs 5-yr baseline',
+    preemptiveIntervention: 'Canal release monitoring + micro-irrigation checks',
+    crops: [
+      { name: 'Sugarcane', lossRisk: 28, acreage: '2.1 L Ha', stage: 'Normal vegetative', severity: 'Moderate' },
+      { name: 'Vegetables & Floriculture', lossRisk: 20, acreage: '1.5 L Ha', stage: 'Harvesting', severity: 'Moderate' },
+      { name: 'Wheat / Rabi Jowar', lossRisk: 18, acreage: '2.2 L Ha', stage: 'Sowing readiness', severity: 'Moderate' }
+    ],
+    polygonPath: 'M 120 220 L 190 230 L 170 310 L 110 290 Z',
+    centroid: { x: 150, y: 260 }
   }
 };
 
@@ -145,9 +254,13 @@ export const DroughtRiskView: React.FC = () => {
   const { districts, setCurrentModule, showToast } = useApp();
   const [selectedHorizon, setSelectedHorizon] = useState<'30d' | '60d' | '90d'>('30d');
   const [selectedDistrictId, setSelectedDistrictId] = useState<string>('beed');
+  const [cartographyMode, setCartographyMode] = useState<'leaflet' | 'schematic'>('leaflet');
+  const [isWideMapLayout, setIsWideMapLayout] = useState<boolean>(false);
 
   const selectedDist = districts.find(d => d.id === selectedDistrictId) || districts[0];
-  const activeCropProfile = REGIONAL_CROP_PROFILES[selectedDistrictId] || REGIONAL_CROP_PROFILES.beed;
+  const activeCropProfile =
+    REGIONAL_CROP_PROFILES[selectedDistrictId] ||
+    REGIONAL_CROP_PROFILES.beed;
 
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   const years = [2026, 2025, 2024, 2023, 2022, 2021, 2020];
@@ -169,7 +282,7 @@ export const DroughtRiskView: React.FC = () => {
     if (profile) {
       showToast(
         `${profile.name} Crop Loss Profile Active`,
-        `Selected ${profile.name} (${profile.overallLossRiskPct}% overall risk). Highlighted ${profile.crops[0].name} loss data.`,
+        `Selected ${profile.name} (${profile.overallLossRiskPct}% overall loss risk). Loaded regional crop telemetry.`,
         'primary'
       );
     }
@@ -197,11 +310,16 @@ export const DroughtRiskView: React.FC = () => {
       {/* Title Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-1">
         <div>
-          <h1 className="text-xl font-bold text-[#111827] tracking-tight">
-            Drought Risk & Rainfall Indices
-          </h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-xl font-bold text-[#111827] tracking-tight">
+              Drought Risk & Rainfall Indices
+            </h1>
+            <span className="text-[11px] font-semibold bg-[#EEF4FA] text-[#0F4C81] px-2.5 py-0.5 rounded-full border border-[#BCD4EC]">
+              ISRO SAC VEDAS Real-Time Feed
+            </span>
+          </div>
           <p className="text-xs text-[#6B7280] mt-0.5">
-            Vegetation Condition Index (VCI) anomaly analysis and regional crop loss vulnerability
+            Real-time geospatial drought intensity indices, Vegetation Condition Index (VCI) anomaly, and crop vulnerability cartography
           </p>
         </div>
 
@@ -247,7 +365,7 @@ export const DroughtRiskView: React.FC = () => {
             {selectedDist.precipDeficit}%
           </div>
           <span className="text-[11px] text-[#6B7280] mt-2 block">
-            vs 50-year state baseline
+            vs 50-year state IMD baseline
           </span>
         </div>
 
@@ -259,7 +377,7 @@ export const DroughtRiskView: React.FC = () => {
             {activeCropProfile.overallLossRiskPct}% Loss
           </div>
           <span className="text-[11px] text-[#6B7280] mt-2 block">
-            Projected yield shortfall
+            Projected yield shortfall: {activeCropProfile.projectedYieldShortfallMT}
           </span>
         </div>
 
@@ -271,7 +389,7 @@ export const DroughtRiskView: React.FC = () => {
             {selectedDist.soilMoisture}%
           </div>
           <span className="text-[11px] text-[#C62828] font-medium mt-2 block">
-            Critical root-zone depletion
+            Critical root-zone depletion ({selectedDist.soilMoistureDev || -51.2}%)
           </span>
         </div>
 
@@ -288,113 +406,184 @@ export const DroughtRiskView: React.FC = () => {
         </div>
       </div>
 
-      {/* Main Grid: Interactive SVG Polygon Map + Crop Loss Telemetry Inspector */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-        {/* Left Column: Interactive SVG Regional Polygon Map (7 cols) */}
-        <div className="lg:col-span-7 bg-white rounded-lg border border-[#E3E6EB] p-4 shadow-[0_1px_2px_rgba(16,24,40,0.04)] flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between pb-3 border-b border-[#E3E6EB]">
-              <div>
-                <h3 className="text-sm font-semibold text-[#111827]">
-                  Interactive Regional Crop Loss Cartography
-                </h3>
-                <p className="text-xs text-[#6B7280]">
-                  Click on any district polygon to load specific crop failure telemetry
-                </p>
-              </div>
-              <span className="text-xs font-semibold text-[#0F4C81] bg-[#EEF4FA] px-2 py-0.5 rounded border border-[#BCD4EC]">
-                Selected: {activeCropProfile.name}
-              </span>
-            </div>
-
-            {/* SVG Cartographic Canvas */}
-            <div className="relative w-full h-[360px] bg-[#F9FAFB] rounded-md border border-[#E3E6EB] mt-3 overflow-hidden">
-              <div className="absolute inset-0 bg-[radial-gradient(#D1D5DB_1px,transparent_1px)] [background-size:20px_20px] opacity-40 pointer-events-none" />
-
-              <svg className="w-full h-full" viewBox="0 0 800 450" preserveAspectRatio="xMidYMid meet">
-                {Object.values(REGIONAL_CROP_PROFILES).map(profile => {
-                  const isSelected = selectedDistrictId === profile.id;
-                  const style = getPolygonStyle(profile.id, profile.overallLossRiskPct);
-
-                  return (
-                    <g key={profile.id} onClick={() => handlePolygonClick(profile.id)} className="cursor-pointer">
-                      <path
-                        d={profile.polygonPath}
-                        fill={style.fill}
-                        fillOpacity={style.fillOpacity}
-                        stroke={style.stroke}
-                        strokeWidth={style.strokeWidth}
-                        className="transition-all duration-150 hover:fill-opacity-95"
-                      />
-                      <circle
-                        cx={profile.centroid.x}
-                        cy={profile.centroid.y}
-                        r={isSelected ? 4 : 3}
-                        fill={isSelected ? '#0F4C81' : '#FFFFFF'}
-                        stroke="#111827"
-                        strokeWidth="1.2"
-                      />
-                      <text
-                        x={profile.centroid.x}
-                        y={profile.centroid.y - 7}
-                        textAnchor="middle"
-                        fill={profile.overallLossRiskPct >= 60 ? '#FFFFFF' : '#111827'}
-                        fontSize="11px"
-                        fontWeight="600"
-                        fontFamily="Inter, sans-serif"
-                        className="pointer-events-none"
-                      >
-                        {profile.name}
-                      </text>
-                      <text
-                        x={profile.centroid.x}
-                        y={profile.centroid.y + 14}
-                        textAnchor="middle"
-                        fill={profile.overallLossRiskPct >= 60 ? '#FEE2E2' : '#4B5563'}
-                        fontSize="9.5px"
-                        fontWeight="500"
-                        fontFamily="Inter, sans-serif"
-                        className="pointer-events-none"
-                      >
-                        {profile.overallLossRiskPct}% Loss Risk
-                      </text>
-                    </g>
-                  );
-                })}
-              </svg>
-
-              {/* Map Legend */}
-              <div className="absolute bottom-3 right-3 bg-white/95 border border-[#E3E6EB] rounded px-2.5 py-1.5 text-[11px] text-[#4B5563] shadow-sm flex items-center gap-3">
-                <span className="font-semibold text-[#111827]">Loss Risk:</span>
-                <div className="flex items-center gap-1">
-                  <span className="w-3 h-3 rounded-sm bg-[#991B1B]" />
-                  <span>&gt;70% Critical</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <span className="w-3 h-3 rounded-sm bg-[#C62828]" />
-                  <span>60–70% Severe</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <span className="w-3 h-3 rounded-sm bg-[#EF5350]" />
-                  <span>50–60% Moderate</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="pt-2 text-[11px] text-[#9CA3AF]">
-            Cartography: ISRO CartoSat-3 Digital Elevation Model & Sentinel-2 Multispectral NDVI
-          </div>
+      {/* Cartography View Switcher Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-2.5 rounded-lg border border-[#E3E6EB] shadow-xs">
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-bold text-[#111827] flex items-center gap-1.5 mr-2">
+            <Layers className="w-4 h-4 text-[#0F4C81]" />
+            Cartography Engine:
+          </span>
+          <button
+            type="button"
+            onClick={() => setCartographyMode('leaflet')}
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
+              cartographyMode === 'leaflet'
+                ? 'bg-[#0F4C81] text-white shadow-xs'
+                : 'bg-[#F1F3F5] text-[#4B5563] hover:text-[#111827]'
+            }`}
+          >
+            <MapIcon className="w-3.5 h-3.5" />
+            <span>Interactive Leaflet GIS Map</span>
+            <span className="text-[9.5px] bg-white/20 px-1.5 py-0.2 rounded-full font-bold ml-0.5">
+              Live
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setCartographyMode('schematic')}
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
+              cartographyMode === 'schematic'
+                ? 'bg-[#0F4C81] text-white shadow-xs'
+                : 'bg-[#F1F3F5] text-[#4B5563] hover:text-[#111827]'
+            }`}
+          >
+            <Grid className="w-3.5 h-3.5" />
+            <span>Schematic Cartogram</span>
+          </button>
         </div>
 
-        {/* Right Column: Crop Loss Telemetry Inspector (5 cols) */}
-        <div className="lg:col-span-5 bg-white rounded-lg border border-[#E3E6EB] p-4 shadow-[0_1px_2px_rgba(16,24,40,0.04)] flex flex-col justify-between">
+        <div className="flex items-center gap-2 self-end sm:self-auto">
+          {cartographyMode === 'leaflet' && (
+            <button
+              type="button"
+              onClick={() => setIsWideMapLayout(!isWideMapLayout)}
+              className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-[#4B5563] bg-[#F1F3F5] hover:bg-[#E5E7EB] rounded transition-colors"
+            >
+              <Maximize className="w-3.5 h-3.5" />
+              <span>{isWideMapLayout ? 'Show Side Inspector' : 'Wide Map Layout'}</span>
+            </button>
+          )}
+
+          <span className="text-xs font-semibold text-[#0F4C81] bg-[#EEF4FA] px-2.5 py-1 rounded border border-[#BCD4EC]">
+            Active District: {activeCropProfile.name}
+          </span>
+        </div>
+      </div>
+
+      {/* Main Grid: Leaflet GIS Map or Schematic Cartogram + Crop Loss Telemetry Inspector */}
+      <div className={`grid grid-cols-1 ${isWideMapLayout ? 'grid-cols-1' : 'lg:grid-cols-12'} gap-5`}>
+        {/* Left Column (or Full Width): Map Visualization */}
+        <div className={isWideMapLayout ? 'w-full' : 'lg:col-span-7'}>
+          {cartographyMode === 'leaflet' ? (
+            <MaharashtraDroughtMap
+              selectedDistrictId={selectedDistrictId}
+              onSelectDistrict={handlePolygonClick}
+              className="w-full h-full min-h-[520px]"
+            />
+          ) : (
+            <div className="bg-white rounded-lg border border-[#E3E6EB] p-4 shadow-[0_1px_2px_rgba(16,24,40,0.04)] flex flex-col justify-between h-full">
+              <div>
+                <div className="flex items-center justify-between pb-3 border-b border-[#E3E6EB]">
+                  <div>
+                    <h3 className="text-sm font-semibold text-[#111827]">
+                      Interactive Regional Crop Loss Cartography
+                    </h3>
+                    <p className="text-xs text-[#6B7280]">
+                      Click on any district polygon to load specific crop failure telemetry
+                    </p>
+                  </div>
+                  <span className="text-xs font-semibold text-[#0F4C81] bg-[#EEF4FA] px-2 py-0.5 rounded border border-[#BCD4EC]">
+                    Selected: {activeCropProfile.name}
+                  </span>
+                </div>
+
+                {/* SVG Cartographic Canvas */}
+                <div className="relative w-full h-[400px] bg-[#F9FAFB] rounded-md border border-[#E3E6EB] mt-3 overflow-hidden">
+                  <div className="absolute inset-0 bg-[radial-gradient(#D1D5DB_1px,transparent_1px)] [background-size:20px_20px] opacity-40 pointer-events-none" />
+
+                  <svg className="w-full h-full" viewBox="0 0 800 450" preserveAspectRatio="xMidYMid meet">
+                    {Object.values(REGIONAL_CROP_PROFILES).map(profile => {
+                      const isSelected = selectedDistrictId === profile.id;
+                      const style = getPolygonStyle(profile.id, profile.overallLossRiskPct);
+
+                      return (
+                        <g key={profile.id} onClick={() => handlePolygonClick(profile.id)} className="cursor-pointer">
+                          <path
+                            d={profile.polygonPath}
+                            fill={style.fill}
+                            fillOpacity={style.fillOpacity}
+                            stroke={style.stroke}
+                            strokeWidth={style.strokeWidth}
+                            className="transition-all duration-150 hover:fill-opacity-95"
+                          />
+                          <circle
+                            cx={profile.centroid.x}
+                            cy={profile.centroid.y}
+                            r={isSelected ? 4 : 3}
+                            fill={isSelected ? '#0F4C81' : '#FFFFFF'}
+                            stroke="#111827"
+                            strokeWidth="1.2"
+                          />
+                          <text
+                            x={profile.centroid.x}
+                            y={profile.centroid.y - 7}
+                            textAnchor="middle"
+                            fill={profile.overallLossRiskPct >= 60 ? '#FFFFFF' : '#111827'}
+                            fontSize="11px"
+                            fontWeight="600"
+                            fontFamily="Inter, sans-serif"
+                            className="pointer-events-none"
+                          >
+                            {profile.name}
+                          </text>
+                          <text
+                            x={profile.centroid.x}
+                            y={profile.centroid.y + 14}
+                            textAnchor="middle"
+                            fill={profile.overallLossRiskPct >= 60 ? '#FEE2E2' : '#4B5563'}
+                            fontSize="9.5px"
+                            fontWeight="500"
+                            fontFamily="Inter, sans-serif"
+                            className="pointer-events-none"
+                          >
+                            {profile.overallLossRiskPct}% Loss Risk
+                          </text>
+                        </g>
+                      );
+                    })}
+                  </svg>
+
+                  {/* Map Legend */}
+                  <div className="absolute bottom-3 right-3 bg-white/95 border border-[#E3E6EB] rounded px-2.5 py-1.5 text-[11px] text-[#4B5563] shadow-sm flex items-center gap-3">
+                    <span className="font-semibold text-[#111827]">Loss Risk:</span>
+                    <div className="flex items-center gap-1">
+                      <span className="w-3 h-3 rounded-sm bg-[#991B1B]" />
+                      <span>&gt;70% Critical</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span className="w-3 h-3 rounded-sm bg-[#C62828]" />
+                      <span>60–70% Severe</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span className="w-3 h-3 rounded-sm bg-[#EF5350]" />
+                      <span>50–60% Moderate</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-2 text-[11px] text-[#9CA3AF]">
+                Cartography: ISRO CartoSat-3 Digital Elevation Model & Sentinel-2 Multispectral NDVI
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Right Column (or Sub-section if wide): Crop Loss Telemetry Inspector */}
+        <div
+          className={`${
+            isWideMapLayout ? 'w-full' : 'lg:col-span-5'
+          } bg-white rounded-lg border border-[#E3E6EB] p-4 shadow-[0_1px_2px_rgba(16,24,40,0.04)] flex flex-col justify-between`}
+        >
           <div>
             <div className="pb-3 border-b border-[#E3E6EB]">
               <div className="flex items-center justify-between">
-                <h3 className="text-sm font-semibold text-[#111827]">
-                  {activeCropProfile.name} District Assessment
-                </h3>
+                <div>
+                  <h3 className="text-sm font-semibold text-[#111827]">
+                    {activeCropProfile.name} District Assessment
+                  </h3>
+                  <p className="text-xs text-[#6B7280] mt-0.5">{activeCropProfile.talukas}</p>
+                </div>
                 <span
                   className={`text-[10px] px-2 py-0.5 rounded font-semibold ${
                     activeCropProfile.overallLossRiskPct >= 65
@@ -405,7 +594,6 @@ export const DroughtRiskView: React.FC = () => {
                   {activeCropProfile.overallLossRiskPct}% Loss Risk
                 </span>
               </div>
-              <p className="text-xs text-[#6B7280] mt-0.5">{activeCropProfile.talukas}</p>
             </div>
 
             {/* Key Agrarian Metrics */}

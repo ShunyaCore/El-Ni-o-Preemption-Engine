@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { Building2, ShieldCheck, Lock, Mail, Eye, EyeOff, ArrowRight } from 'lucide-react';
+import { Compass, ShieldCheck, Lock, Mail, Eye, EyeOff, ArrowRight, Satellite } from 'lucide-react';
 
 export const LoginScreen: React.FC = () => {
   const { login } = useApp();
-  const [email, setEmail] = useState('officer.yatharth@maharashtra.gov.in');
-  const [password, setPassword] = useState('GovSecure#2026');
+  const [email, setEmail] = useState('officer.yatharth@relief-intel.in');
+  const [password, setPassword] = useState('ClimateSecure#2026');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -15,38 +15,38 @@ export const LoginScreen: React.FC = () => {
     setTimeout(() => {
       login(email, 'Yatharth Ladkat');
       setIsLoading(false);
-    }, 400);
+    }, 300);
   };
 
-  const handleGovBypass = () => {
+  const handleDemoBypass = () => {
     setIsLoading(true);
     setTimeout(() => {
-      login('officer.yatharth@maharashtra.gov.in', 'Yatharth Ladkat');
+      login('officer.yatharth@relief-intel.in', 'Yatharth Ladkat');
       setIsLoading(false);
-    }, 300);
+    }, 200);
   };
 
   return (
     <div className="min-h-screen w-full bg-[#F6F7F9] flex flex-col justify-between font-sans text-[#111827]">
-      {/* Top Government Banner */}
+      {/* Top Banner */}
       <header className="w-full bg-white border-b border-[#E3E6EB] px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-md bg-[#0F4C81] text-white flex items-center justify-center shrink-0">
-            <Building2 className="w-5 h-5 stroke-[1.5]" />
+          <div className="w-9 h-9 rounded-md bg-[#0F4C81] text-white flex items-center justify-center shrink-0 shadow-xs">
+            <Compass className="w-5 h-5 stroke-[1.5]" />
           </div>
           <div>
             <h1 className="text-xs font-bold text-[#111827] uppercase tracking-wide">
-              Government of Maharashtra
+              El Niño — Drought Intelligence Platform
             </h1>
             <p className="text-[11px] text-[#6B7280]">
-              Revenue & Forest Department · Relief & Rehabilitation Cell
+              Geospatial Climate Risk Assessment & Scarcity Optimizer
             </p>
           </div>
         </div>
 
         <div className="hidden sm:flex items-center gap-2 text-[11px] text-[#6B7280]">
-          <ShieldCheck className="w-4 h-4 text-[#2E7D32] stroke-[1.5]" />
-          <span>Secure State Disaster Management Network</span>
+          <Satellite className="w-4 h-4 text-[#0F4C81] stroke-[1.5]" />
+          <span>ISRO SAC VEDAS & IMD Pune Open Feeds</span>
         </div>
       </header>
 
@@ -56,13 +56,13 @@ export const LoginScreen: React.FC = () => {
           {/* Header */}
           <div className="pb-5 border-b border-[#E3E6EB] mb-5">
             <span className="text-[11px] font-semibold uppercase tracking-wider text-[#0F4C81]">
-              Officer Single Sign-On
+              Decision Support Access
             </span>
             <h2 className="text-lg font-bold text-[#111827] mt-1">
-              Drought Preemption Portal
+              El Niño Intelligence Portal
             </h2>
             <p className="text-xs text-[#6B7280] mt-0.5">
-              Authorized access for District Collectors, Relief Administrators & Logistics Officers
+              Access for Relief Planners, Hydrologists, and Agrarian Logistics Analysts
             </p>
           </div>
 
@@ -70,7 +70,7 @@ export const LoginScreen: React.FC = () => {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-xs font-medium text-[#4B5563] mb-1">
-                Official Email Address
+                Official / Analyst Email
               </label>
               <div className="relative">
                 <Mail className="w-4 h-4 text-[#9CA3AF] absolute left-3 top-1/2 -translate-y-1/2 stroke-[1.5]" />
@@ -79,7 +79,7 @@ export const LoginScreen: React.FC = () => {
                   required
                   value={email}
                   onChange={e => setEmail(e.target.value)}
-                  placeholder="name@maharashtra.gov.in"
+                  placeholder="name@relief-intel.in"
                   className="w-full bg-[#F6F7F9] text-xs text-[#111827] pl-9 pr-3 py-2 rounded-md border border-[#E3E6EB] focus:bg-white focus:border-[#0F4C81] focus:ring-1 focus:ring-[#0F4C81] transition-all"
                 />
               </div>
@@ -88,10 +88,10 @@ export const LoginScreen: React.FC = () => {
             <div>
               <div className="flex justify-between items-center mb-1">
                 <label className="block text-xs font-medium text-[#4B5563]">
-                  Password
+                  Security Credential
                 </label>
                 <span className="text-[11px] text-[#6B7280]">
-                  State NIC Auth
+                  Analyst SSO
                 </span>
               </div>
               <div className="relative">
@@ -121,10 +121,10 @@ export const LoginScreen: React.FC = () => {
                 className="w-full py-2 px-4 rounded-md bg-[#0F4C81] text-white text-xs font-semibold hover:bg-[#0A3963] shadow-[0_1px_2px_rgba(16,24,40,0.08)] transition-colors flex items-center justify-center gap-2 cursor-pointer"
               >
                 {isLoading ? (
-                  <span>Authenticating...</span>
+                  <span>Connecting to Intelligence Platform...</span>
                 ) : (
                   <>
-                    <span>Sign In with Gov ID</span>
+                    <span>Enter Decision Support Platform</span>
                     <ArrowRight className="w-3.5 h-3.5 stroke-[1.5]" />
                   </>
                 )}
@@ -136,17 +136,17 @@ export const LoginScreen: React.FC = () => {
           <div className="mt-4 pt-4 border-t border-[#E3E6EB]">
             <button
               type="button"
-              onClick={handleGovBypass}
+              onClick={handleDemoBypass}
               disabled={isLoading}
-              className="w-full py-2 px-3 rounded-md bg-[#F1F3F5] hover:bg-[#E3E6EB] text-[#4B5563] text-xs font-medium transition-colors text-center"
+              className="w-full py-2 px-3 rounded-md bg-[#EEF4FA] hover:bg-[#E0ECF8] text-[#0F4C81] text-xs font-semibold transition-colors text-center border border-[#BCD4EC]"
             >
-              Demo Access: State Relief Officer (Yatharth Ladkat)
+              1-Click Demo Evaluation Mode (Officer Yatharth Ladkat)
             </button>
           </div>
 
           <div className="mt-4 text-center">
-            <p className="text-[11px] text-[#9CA3AF]">
-              For emergency login assistance, contact State Relief Control Room: 022-22027990
+            <p className="text-[11px] text-[#6B7280] leading-relaxed">
+              <strong>Transparency Note:</strong> This platform is an analytical decision support prototype built on open scientific data from ISRO SAC VEDAS, IMD, and CWC. It provides explainable optimization models for resource allocation.
             </p>
           </div>
         </div>
@@ -155,7 +155,7 @@ export const LoginScreen: React.FC = () => {
       {/* Footer */}
       <footer className="w-full bg-white border-t border-[#E3E6EB] px-6 py-3 text-center text-xs text-[#6B7280]">
         <p>
-          © 2026 Disaster Management Cell, Government of Maharashtra · Designed for official state relief administration
+          © 2026 Maharashtra Drought Intelligence & Relief Preemption Platform · Open Climate Risk Analytics
         </p>
       </footer>
     </div>

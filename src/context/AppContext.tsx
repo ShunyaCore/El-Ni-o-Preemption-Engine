@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useMemo, ReactNode } from 'react';
 import {
   OperationalModule,
+  OperatingMode,
   StressScenario,
   OptimizationObjective,
   DistrictMetric,
@@ -35,6 +36,12 @@ interface AppContextType {
   // Navigation
   currentModule: OperationalModule;
   setCurrentModule: (m: OperationalModule) => void;
+
+  // Operating Mode & Geography
+  operatingMode: OperatingMode;
+  setOperatingMode: (mode: OperatingMode) => void;
+  selectedGeography: string;
+  setSelectedGeography: (geo: string) => void;
 
   // Search
   searchQuery: string;
@@ -108,6 +115,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [officerRole] = useState<string>('State Relief Officer, Grade I');
 
   const [currentModule, setCurrentModule] = useState<OperationalModule>('overview');
+  const [operatingMode, setOperatingMode] = useState<OperatingMode>('live');
+  const [selectedGeography, setSelectedGeography] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   // Budget Simulation State
@@ -336,6 +345,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         officerRole,
         currentModule,
         setCurrentModule,
+        operatingMode,
+        setOperatingMode,
+        selectedGeography,
+        setSelectedGeography,
         searchQuery,
         setSearchQuery,
         budget,

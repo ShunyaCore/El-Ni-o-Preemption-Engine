@@ -1,15 +1,19 @@
 export type OperationalModule =
   | 'overview'
   | 'drought-risk-monitor'
+  | 'risk-forecast'
   | 'relief-budget-optimizer'
+  | 'scenario-lab'
   | 'claim-evidence-review'
   | 'resource-routing-logistics'
   | 'reports-and-analytics'
   | 'settings';
 
+export type OperatingMode = 'live' | 'historical' | 'simulation';
+
 export type StressScenario = 'mild' | 'severe' | 'extreme';
 
-export type OptimizationObjective = 'farmers' | 'latency' | 'floor';
+export type OptimizationObjective = 'farmers' | 'latency' | 'floor' | 'composite';
 
 export interface DistrictMetric {
   id: string;
@@ -37,6 +41,132 @@ export interface DistrictMetric {
   pasgPct?: number; // % Agricultural area affected
   vedasCategory?: 'Severe' | 'Moderate' | 'Mild' | 'Normal';
   vedasLastSync?: string;
+  // Reservoir and Groundwater
+  reservoirStoragePct?: number;
+  groundwaterDeficitM?: number;
+  cattlePopulation?: number;
+  vulnerableSmallholders?: number;
+}
+
+export interface ReservoirMetric {
+  id: string;
+  name: string;
+  river: string;
+  district: string;
+  grossCapacityTmc: number;
+  currentLiveTmc: number;
+  currentPct: number;
+  lastYearPct: number;
+  status: 'Critical Low' | 'Depleted' | 'Moderate' | 'Adequate';
+  deadStorageTmc: number;
+  drinkingWaterReserveMonths: number;
+}
+
+export interface InterventionType {
+  id: string;
+  name: string;
+  category: 'water' | 'fodder' | 'agriculture' | 'cash';
+  unit: string;
+  unitCostInr: number;
+  defaultPriority: number;
+  description: string;
+  deliveryTimeDays: number;
+}
+
+export interface DistrictDemand {
+  districtId: string;
+  districtName: string;
+  waterDemandTankerTrips: number;
+  fodderDemandTonnes: number;
+  contingencySeedHectares: number;
+  directCashBeneficiaries: number;
+  vulnerabilityWeight: number; // 0 - 1
+  minServiceThresholdPct: number; // minimum % demand that MUST be met
+}
+
+export interface OptimizationParams {
+  totalBudgetCr: number;
+  maxTankersPerDay: number;
+  availableFodderTonnes: number;
+  contingencyFundCr: number;
+  planningHorizonDays: 15 | 30 | 60;
+  minServiceFloorPct: number;
+  priorityWeights: {
+    drinkingWater: number;
+    fodderSecurity: number;
+    cropProtection: number;
+    smallholderEquity: number;
+  };
+  objective: 'max_demand_reduction' | 'equitable_distribution' | 'critical_needs_first';
+}
+
+export interface DistrictAllocationResult {
+  districtId: string;
+  districtName: string;
+  riskScore: number;
+  // Quantities allocated
+  tankerTrips: number;
+  tankerTripsDemand: number;
+  tankerSatisfactionPct: number;
+  fodderTonnes: number;
+  fodderDemandTonnes: number;
+  fodderSatisfactionPct: number;
+  cropSubsidyHectares: number;
+  cropSubsidyDemandHectares: number;
+  directGrantBeneficiaries: number;
+  // Costs in Cr
+  waterCostCr: number;
+  fodderCostCr: number;
+  agriCostCr: number;
+  cashCostCr: number;
+  totalDistrictCostCr: number;
+  demandReductionScore: number;
+  bindingConstraintsForDistrict: string[];
+}
+
+export interface OptimizationResult {
+  success: boolean;
+  timestamp: string;
+  totalCostCr: number;
+  budgetUtilizationPct: number;
+  remainingBudgetCr: number;
+  overallDemandServedPct: number;
+  tankersUtilized: number;
+  tankerFleetCapacity: number;
+  fodderUtilizedTonnes: number;
+  fodderAvailableTonnes: number;
+  peopleProtectedLakh: number;
+  livestockProtectedLakh: number;
+  districtAllocations: DistrictAllocationResult[];
+  bindingConstraints: {
+    constraint: string;
+    resource: string;
+    capacity: number | string;
+    utilization: number | string;
+    shadowPriceEstimated: string;
+    description: string;
+  }[];
+  explanation: string;
+  sensitivityNotes: string[];
+  infeasibilityReason?: string;
+  relaxationOptions?: {
+    action: string;
+    impact: string;
+    applied: boolean;
+  }[];
+}
+
+export interface ScenarioDefinition {
+  id: string;
+  name: string;
+  tagline: string;
+  description: string;
+  budgetCr: number;
+  tankerCapacity: number;
+  fodderTonnes: number;
+  minFloorPct: number;
+  focus: 'status_quo' | 'balanced' | 'essential_water';
+  params: OptimizationParams;
 }
 
 export interface ConvoyRoute {
@@ -93,6 +223,18 @@ export interface DepotInventory {
   inTransit: number;
   statusTone: 'healthy' | 'warning' | 'critical';
   statusText: string;
+}
+
+export interface AdvisoryMessage {
+  id: string;
+  sender: 'user' | 'assistant' | 'system';
+  language: 'en' | 'mr' | 'hi';
+  text: string;
+  timestamp: string;
+  sources?: { title: string; uri: string }[];
+  suggestedFollowUps?: string[];
+  districtContext?: string;
+  cropContext?: string;
 }
 
 export interface GroundingSource {
