@@ -17,7 +17,7 @@
 
 ## 🚀 Prototype
 
-🔗 **Live Website:** [Explore Our Prototype](elnino.ai.studio)
+🔗 **Live Website:** [Explore Our Prototype](https://elnino.ai.studio)
 
 > ⚡ This is an early-stage prototype currently under active development. Features and functionality are being continuously improved.
 
