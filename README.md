@@ -14,6 +14,15 @@
 > An enterprise-grade climate-risk analytics, deterministic resource optimization, satellite crop loss verification, and emergency fleet logistics platform.
 
 ---
+
+## 🚀 Prototype
+
+🔗 **Live Website:** [Explore Our Prototype](elnino.ai.studio)
+
+> ⚡ This is an early-stage prototype currently under active development. Features and functionality are being continuously improved.
+
+---
+
 ## Team Contribution:
 
 | Team Member       | Role / Contribution                         | Evidence / Artifact             | 
