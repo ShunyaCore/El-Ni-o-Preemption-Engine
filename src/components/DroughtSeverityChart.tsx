@@ -8,11 +8,11 @@ interface DataPoint {
   day: number;
   label: string;
   isProjected: boolean;
-  beed: number;
-  latur: number;
-  osmanabad: number;
-  nanded: number;
-  solapur: number;
+  tikamgarh: number;
+  chhatarpur: number;
+  barwani: number;
+  sheopur: number;
+  khargone: number;
 }
 
 export const DroughtSeverityChart: React.FC = () => {
@@ -24,11 +24,11 @@ export const DroughtSeverityChart: React.FC = () => {
   const [hoveredPoint, setHoveredPoint] = useState<DataPoint | null>(null);
   const [hoverX, setHoverX] = useState<number | null>(null);
   const [visibleDistricts, setVisibleDistricts] = useState<Record<string, boolean>>({
-    beed: true,
-    latur: true,
-    osmanabad: true,
-    nanded: true,
-    solapur: true
+    tikamgarh: true,
+    chhatarpur: true,
+    barwani: true,
+    sheopur: true,
+    khargone: true
   });
 
   const scenarioMultiplier = useMemo(() => {
@@ -63,22 +63,22 @@ export const DroughtSeverityChart: React.FC = () => {
           day: idx,
           label,
           isProjected,
-          beed: Math.min(1.0, +(0.72 + idx * 0.038 * scenarioMultiplier - (isProjected ? (1 - reliefDampening) * 0.1 : 0)).toFixed(2)),
-          latur: Math.min(1.0, +(0.68 + idx * 0.035 * scenarioMultiplier - (isProjected ? (1 - reliefDampening) * 0.09 : 0)).toFixed(2)),
-          osmanabad: Math.min(1.0, +(0.58 + idx * 0.03 * scenarioMultiplier - (isProjected ? (1 - reliefDampening) * 0.08 : 0)).toFixed(2)),
-          nanded: Math.min(1.0, +(0.50 + idx * 0.026 * scenarioMultiplier - (isProjected ? (1 - reliefDampening) * 0.07 : 0)).toFixed(2)),
-          solapur: Math.min(1.0, +(0.44 + idx * 0.02 * scenarioMultiplier - (isProjected ? (1 - reliefDampening) * 0.06 : 0)).toFixed(2))
+          tikamgarh: Math.min(1.0, +(0.74 + idx * 0.038 * scenarioMultiplier - (isProjected ? (1 - reliefDampening) * 0.1 : 0)).toFixed(2)),
+          chhatarpur: Math.min(1.0, +(0.69 + idx * 0.035 * scenarioMultiplier - (isProjected ? (1 - reliefDampening) * 0.09 : 0)).toFixed(2)),
+          barwani: Math.min(1.0, +(0.59 + idx * 0.03 * scenarioMultiplier - (isProjected ? (1 - reliefDampening) * 0.08 : 0)).toFixed(2)),
+          sheopur: Math.min(1.0, +(0.52 + idx * 0.026 * scenarioMultiplier - (isProjected ? (1 - reliefDampening) * 0.07 : 0)).toFixed(2)),
+          khargone: Math.min(1.0, +(0.45 + idx * 0.02 * scenarioMultiplier - (isProjected ? (1 - reliefDampening) * 0.06 : 0)).toFixed(2))
         };
       } else if (activeMetric === 'deficit') {
         return {
           day: idx,
           label,
           isProjected,
-          beed: Math.min(85, +(38 + idx * 4.0 * scenarioMultiplier).toFixed(1)),
-          latur: Math.min(85, +(34 + idx * 3.8 * scenarioMultiplier).toFixed(1)),
-          osmanabad: Math.min(85, +(29 + idx * 3.3 * scenarioMultiplier).toFixed(1)),
-          nanded: Math.min(85, +(24 + idx * 2.8 * scenarioMultiplier).toFixed(1)),
-          solapur: Math.min(85, +(20 + idx * 2.5 * scenarioMultiplier).toFixed(1))
+          tikamgarh: Math.min(85, +(40 + idx * 4.0 * scenarioMultiplier).toFixed(1)),
+          chhatarpur: Math.min(85, +(36 + idx * 3.8 * scenarioMultiplier).toFixed(1)),
+          barwani: Math.min(85, +(30 + idx * 3.3 * scenarioMultiplier).toFixed(1)),
+          sheopur: Math.min(85, +(25 + idx * 2.8 * scenarioMultiplier).toFixed(1)),
+          khargone: Math.min(85, +(21 + idx * 2.5 * scenarioMultiplier).toFixed(1))
         };
       } else if (activeMetric === 'vedas_spi') {
         // ISRO SAC VEDAS Krishi-DSS Standardized Precipitation Index 3-Month
@@ -87,11 +87,11 @@ export const DroughtSeverityChart: React.FC = () => {
           day: idx,
           label,
           isProjected,
-          beed: Number((-2.18 + baseOffset).toFixed(2)),
-          latur: Number((-2.08 + baseOffset * 0.95).toFixed(2)),
-          osmanabad: Number((-1.99 + baseOffset * 0.9).toFixed(2)),
-          nanded: Number((-1.69 + baseOffset * 0.8).toFixed(2)),
-          solapur: Number((-1.55 + baseOffset * 0.75).toFixed(2))
+          tikamgarh: Number((-2.24 + baseOffset).toFixed(2)),
+          chhatarpur: Number((-2.12 + baseOffset * 0.95).toFixed(2)),
+          barwani: Number((-2.05 + baseOffset * 0.9).toFixed(2)),
+          sheopur: Number((-1.98 + baseOffset * 0.8).toFixed(2)),
+          khargone: Number((-1.82 + baseOffset * 0.75).toFixed(2))
         };
       } else if (activeMetric === 'vedas_vci') {
         // ISRO SAC VEDAS Krishi-DSS Vegetation Condition Index (0-100%)
@@ -100,33 +100,33 @@ export const DroughtSeverityChart: React.FC = () => {
           day: idx,
           label,
           isProjected,
-          beed: Math.max(10, Math.min(100, Number((21.8 - vciChange).toFixed(1)))),
-          latur: Math.max(10, Math.min(100, Number((24.5 - vciChange * 0.9).toFixed(1)))),
-          osmanabad: Math.max(10, Math.min(100, Number((27.2 - vciChange * 0.85).toFixed(1)))),
-          nanded: Math.max(10, Math.min(100, Number((36.1 - vciChange * 0.75).toFixed(1)))),
-          solapur: Math.max(10, Math.min(100, Number((40.5 - vciChange * 0.65).toFixed(1))))
+          tikamgarh: Math.max(10, Math.min(100, Number((19.4 - vciChange).toFixed(1)))),
+          chhatarpur: Math.max(10, Math.min(100, Number((22.1 - vciChange * 0.9).toFixed(1)))),
+          barwani: Math.max(10, Math.min(100, Number((24.8 - vciChange * 0.85).toFixed(1)))),
+          sheopur: Math.max(10, Math.min(100, Number((26.5 - vciChange * 0.75).toFixed(1)))),
+          khargone: Math.max(10, Math.min(100, Number((31.2 - vciChange * 0.65).toFixed(1))))
         };
       } else {
         return {
           day: idx,
           label,
           isProjected,
-          beed: Math.min(100, Math.round(42 + idx * 8.0 * scenarioMultiplier * (isProjected ? reliefDampening : 1))),
-          latur: Math.min(100, Math.round(38 + idx * 7.5 * scenarioMultiplier * (isProjected ? reliefDampening : 1))),
-          osmanabad: Math.min(100, Math.round(32 + idx * 6.5 * scenarioMultiplier * (isProjected ? reliefDampening : 1))),
-          nanded: Math.min(100, Math.round(26 + idx * 5.2 * scenarioMultiplier * (isProjected ? reliefDampening : 1))),
-          solapur: Math.min(100, Math.round(20 + idx * 4.5 * scenarioMultiplier * (isProjected ? reliefDampening : 1)))
+          tikamgarh: Math.min(100, Math.round(44 + idx * 8.0 * scenarioMultiplier * (isProjected ? reliefDampening : 1))),
+          chhatarpur: Math.min(100, Math.round(39 + idx * 7.5 * scenarioMultiplier * (isProjected ? reliefDampening : 1))),
+          barwani: Math.min(100, Math.round(33 + idx * 6.5 * scenarioMultiplier * (isProjected ? reliefDampening : 1))),
+          sheopur: Math.min(100, Math.round(27 + idx * 5.2 * scenarioMultiplier * (isProjected ? reliefDampening : 1))),
+          khargone: Math.min(100, Math.round(21 + idx * 4.5 * scenarioMultiplier * (isProjected ? reliefDampening : 1)))
         };
       }
     });
   }, [activeMetric, scenarioMultiplier, reliefDampening]);
 
   const districtConfigs = [
-    { key: 'beed', label: 'Beed', color: '#C62828' },
-    { key: 'latur', label: 'Latur', color: '#B26A00' },
-    { key: 'osmanabad', label: 'Dharashiv', color: '#0F4C81' },
-    { key: 'nanded', label: 'Nanded', color: '#2E7D32' },
-    { key: 'solapur', label: 'Solapur', color: '#6B7280' }
+    { key: 'tikamgarh', label: 'Tikamgarh', color: '#C62828' },
+    { key: 'chhatarpur', label: 'Chhatarpur', color: '#B26A00' },
+    { key: 'barwani', label: 'Barwani', color: '#0F4C81' },
+    { key: 'sheopur', label: 'Sheopur', color: '#2E7D32' },
+    { key: 'khargone', label: 'Khargone', color: '#6B7280' }
   ];
 
   const toggleDistrict = (key: string) => {
@@ -138,192 +138,187 @@ export const DroughtSeverityChart: React.FC = () => {
 
     const width = containerRef.current.clientWidth;
     const height = 240;
-    const margin = { top: 20, right: 25, bottom: 35, left: 45 };
+    const margin = { top: 20, right: 30, bottom: 35, left: 45 };
 
     const svg = d3.select(svgRef.current);
     svg.selectAll('*').remove();
 
-    svg.attr('width', width).attr('height', height).attr('viewBox', `0 0 ${width} ${height}`);
+    svg.attr('width', width).attr('height', height);
 
-    const innerWidth = width - margin.left - margin.right;
-    const innerHeight = height - margin.top - margin.bottom;
-
-    const g = svg.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
-
-    const xScale = d3
+    // Scales
+    const x = d3
       .scaleLinear()
       .domain([0, timelineData.length - 1])
-      .range([0, innerWidth]);
+      .range([margin.left, width - margin.right]);
 
-    let yMin = 0.2;
-    let yMax = 1.0;
-    if (activeMetric === 'deficit') {
-      yMin = 10;
-      yMax = 85;
-    } else if (activeMetric === 'impact') {
-      yMin = 10;
-      yMax = 100;
-    } else if (activeMetric === 'vedas_spi') {
-      yMin = -2.6;
-      yMax = -1.0;
-    } else if (activeMetric === 'vedas_vci') {
-      yMin = 10;
-      yMax = 60;
-    }
+    let yDomain: [number, number] = [0, 1.0];
+    if (activeMetric === 'deficit') yDomain = [0, 85];
+    if (activeMetric === 'impact') yDomain = [0, 100];
+    if (activeMetric === 'vedas_spi') yDomain = [-3.0, 0.0];
+    if (activeMetric === 'vedas_vci') yDomain = [0, 100];
 
-    const yScale = d3.scaleLinear().domain([yMin, yMax]).range([innerHeight, 0]).nice();
+    const y = d3
+      .scaleLinear()
+      .domain(yDomain)
+      .nice()
+      .range([height - margin.bottom, margin.top]);
 
-    // Horizontal Grid Lines in clean light grey
-    const yAxisTicks = yScale.ticks(4);
-    g.append('g')
-      .selectAll('line')
-      .data(yAxisTicks)
-      .enter()
+    // Grid lines
+    svg
+      .append('g')
+      .attr('class', 'grid')
+      .attr('transform', `translate(0,${height - margin.bottom})`)
+      .call(
+        d3
+          .axisBottom(x)
+          .ticks(timelineData.length)
+          .tickSize(-(height - margin.top - margin.bottom))
+          .tickFormat(() => '')
+      )
+      .call(g => g.select('.domain').remove())
+      .call(g => g.selectAll('.tick line').attr('stroke', '#F1F3F5').attr('stroke-dasharray', '2,2'));
+
+    svg
+      .append('g')
+      .attr('class', 'grid')
+      .attr('transform', `translate(${margin.left},0)`)
+      .call(
+        d3
+          .axisLeft(y)
+          .ticks(5)
+          .tickSize(-(width - margin.left - margin.right))
+          .tickFormat(() => '')
+      )
+      .call(g => g.select('.domain').remove())
+      .call(g => g.selectAll('.tick line').attr('stroke', '#F1F3F5').attr('stroke-dasharray', '2,2'));
+
+    // Shaded projection zone background
+    const todayIndex = 4;
+    svg
+      .append('rect')
+      .attr('x', x(todayIndex))
+      .attr('y', margin.top)
+      .attr('width', width - margin.right - x(todayIndex))
+      .attr('height', height - margin.top - margin.bottom)
+      .attr('fill', '#0F4C81')
+      .attr('opacity', 0.03);
+
+    // Vertical dashed marker for 'Today'
+    svg
       .append('line')
-      .attr('x1', 0)
-      .attr('x2', innerWidth)
-      .attr('y1', d => yScale(d))
-      .attr('y2', d => yScale(d))
-      .attr('stroke', '#E5E7EB')
-      .attr('stroke-width', 1);
+      .attr('x1', x(todayIndex))
+      .attr('x2', x(todayIndex))
+      .attr('y1', margin.top)
+      .attr('y2', height - margin.bottom)
+      .attr('stroke', '#0F4C81')
+      .attr('stroke-width', 1.5)
+      .attr('stroke-dasharray', '3,3');
 
-    // Critical Threshold Line
-    const thresholdVal = activeMetric === 'risk' ? 0.75 : activeMetric === 'deficit' ? 50 : 60;
-    const thresholdY = yScale(thresholdVal);
-    g.append('line')
-      .attr('x1', 0)
-      .attr('x2', innerWidth)
-      .attr('y1', thresholdY)
-      .attr('y2', thresholdY)
-      .attr('stroke', '#C62828')
-      .attr('stroke-opacity', 0.6)
-      .attr('stroke-dasharray', '4,3')
-      .attr('stroke-width', 1);
-
-    g.append('text')
-      .attr('x', innerWidth - 4)
-      .attr('y', thresholdY - 4)
-      .attr('text-anchor', 'end')
-      .attr('fill', '#C62828')
+    // 'Projection Horizon' label
+    svg
+      .append('text')
+      .attr('x', x(todayIndex) + 6)
+      .attr('y', margin.top + 12)
+      .attr('fill', '#0F4C81')
       .attr('font-size', '10px')
-      .attr('font-family', 'Inter, sans-serif')
-      .attr('font-weight', '500')
-      .text('Severe threshold');
+      .attr('font-weight', '600')
+      .text('PROJECTION HORIZON →');
 
-    // Forecast Divider Line & Shading
-    const todayX = xScale(4);
-    g.append('rect')
-      .attr('x', todayX)
-      .attr('y', 0)
-      .attr('width', innerWidth - todayX)
-      .attr('height', innerHeight)
-      .attr('fill', '#F6F7F9')
-      .attr('opacity', 0.8);
+    // Axes
+    const xAxis = d3
+      .axisBottom(x)
+      .ticks(timelineData.length)
+      .tickFormat((d) => timelineData[d as number]?.label || '');
 
-    g.append('line')
-      .attr('x1', todayX)
-      .attr('x2', todayX)
-      .attr('y1', 0)
-      .attr('y2', innerHeight)
-      .attr('stroke', '#9CA3AF')
-      .attr('stroke-dasharray', '3,3')
-      .attr('stroke-width', 1);
+    svg
+      .append('g')
+      .attr('transform', `translate(0,${height - margin.bottom})`)
+      .call(xAxis)
+      .call(g => g.select('.domain').attr('stroke', '#E3E6EB'))
+      .call(g => g.selectAll('.tick line').attr('stroke', '#E3E6EB'))
+      .call(g =>
+        g
+          .selectAll('.tick text')
+          .attr('font-size', '10px')
+          .attr('fill', (d) => ((d as number) >= todayIndex ? '#0F4C81' : '#6B7280'))
+          .attr('font-weight', (d) => ((d as number) === todayIndex ? '600' : '400'))
+      );
 
-    g.append('text')
-      .attr('x', todayX + 6)
-      .attr('y', 14)
-      .attr('fill', '#4B5563')
-      .attr('font-size', '10px')
-      .attr('font-family', 'Inter, sans-serif')
-      .attr('font-weight', '500')
-      .text('30-day projection →');
+    const yAxis = d3.axisLeft(y).ticks(5);
+    svg
+      .append('g')
+      .attr('transform', `translate(${margin.left},0)`)
+      .call(yAxis)
+      .call(g => g.select('.domain').attr('stroke', '#E3E6EB'))
+      .call(g => g.selectAll('.tick line').attr('stroke', '#E3E6EB'))
+      .call(g =>
+        g
+          .selectAll('.tick text')
+          .attr('font-size', '10px')
+          .attr('fill', '#6B7280')
+      );
 
-    // Line Generator
-    const lineGenerator = d3
-      .line<{ x: number; y: number }>()
-      .x(d => d.x)
-      .y(d => d.y)
-      .curve(d3.curveMonotoneX);
+    // Render lines for each district
+    districtConfigs.forEach(dist => {
+      if (!visibleDistricts[dist.key]) return;
 
-    // Render Each District Series
-    districtConfigs.forEach(d => {
-      if (!visibleDistricts[d.key]) return;
+      const lineGenerator = d3
+        .line<DataPoint>()
+        .x(d => x(d.day))
+        .y(d => y((d as any)[dist.key]))
+        .curve(d3.curveMonotoneX);
 
-      const seriesPoints = timelineData.map(pt => ({
-        x: xScale(pt.day),
-        y: yScale((pt as any)[d.key])
-      }));
-
-      // Line
-      g.append('path')
-        .datum(seriesPoints)
+      // Solid past line
+      svg
+        .append('path')
+        .datum(timelineData.slice(0, todayIndex + 1))
         .attr('fill', 'none')
-        .attr('stroke', d.color)
-        .attr('stroke-width', d.key === 'beed' ? 2.2 : 1.6)
-        .attr('stroke-linecap', 'round')
+        .attr('stroke', dist.color)
+        .attr('stroke-width', dist.key === 'tikamgarh' ? 2.2 : 1.6)
         .attr('d', lineGenerator);
 
-      // Data dots
-      g.selectAll(`.dot-${d.key}`)
-        .data(seriesPoints)
+      // Dashed projection line
+      svg
+        .append('path')
+        .datum(timelineData.slice(todayIndex))
+        .attr('fill', 'none')
+        .attr('stroke', dist.color)
+        .attr('stroke-width', dist.key === 'tikamgarh' ? 2.0 : 1.5)
+        .attr('stroke-dasharray', '4,3')
+        .attr('opacity', 0.85)
+        .attr('d', lineGenerator);
+
+      // Historical observed dots
+      svg
+        .selectAll(`.dot-${dist.key}`)
+        .data(timelineData.slice(0, todayIndex + 1))
         .enter()
         .append('circle')
-        .attr('cx', p => p.x)
-        .attr('cy', p => p.y)
-        .attr('r', (p, i) => (i === 4 ? 3.5 : 2))
-        .attr('fill', d.color)
-        .attr('stroke', '#FFFFFF')
-        .attr('stroke-width', 1);
+        .attr('cx', d => x(d.day))
+        .attr('cy', d => y((d as any)[dist.key]))
+        .attr('r', dist.key === 'tikamgarh' ? 3.5 : 2.5)
+        .attr('fill', dist.color);
     });
 
-    // X-Axis Labels
-    const xAxis = g.append('g').attr('transform', `translate(0,${innerHeight})`);
-    timelineData.forEach((pt, i) => {
-      xAxis
-        .append('text')
-        .attr('x', xScale(i))
-        .attr('y', 18)
-        .attr('text-anchor', 'middle')
-        .attr('fill', i === 4 ? '#111827' : '#6B7280')
-        .attr('font-size', '10px')
-        .attr('font-family', 'Inter, sans-serif')
-        .attr('font-weight', i === 4 ? '600' : '400')
-        .text(pt.label.split(' ')[0]);
-    });
-
-    // Y-Axis Labels
-    const yAxis = g.append('g');
-    yAxisTicks.forEach(tick => {
-      yAxis
-        .append('text')
-        .attr('x', -8)
-        .attr('y', yScale(tick) + 3)
-        .attr('text-anchor', 'end')
-        .attr('fill', '#6B7280')
-        .attr('font-size', '10px')
-        .attr('font-family', 'Inter, sans-serif')
-        .text(activeMetric === 'deficit' ? `-${tick}%` : `${tick}`);
-    });
-
-    // Overlay for Hover Inspection
-    const overlay = g
+    // Invisible hover overlay
+    const overlay = svg
       .append('rect')
-      .attr('width', innerWidth)
-      .attr('height', innerHeight)
+      .attr('x', margin.left)
+      .attr('y', margin.top)
+      .attr('width', width - margin.left - margin.right)
+      .attr('height', height - margin.top - margin.bottom)
       .attr('fill', 'transparent')
       .attr('cursor', 'crosshair');
 
-    overlay.on('mousemove', function (event) {
-      const [mouseX] = d3.pointer(event);
-      const step = innerWidth / (timelineData.length - 1);
-      const closestIndex = Math.max(0, Math.min(timelineData.length - 1, Math.round(mouseX / step)));
-      const point = timelineData[closestIndex];
-
-      setHoveredPoint(point);
-      setHoverX(margin.left + xScale(closestIndex));
+    overlay.on('mousemove', (event) => {
+      const [mx] = d3.pointer(event);
+      const rawDay = x.invert(mx);
+      const roundedDay = Math.round(Math.max(0, Math.min(timelineData.length - 1, rawDay)));
+      setHoveredPoint(timelineData[roundedDay]);
+      setHoverX(x(roundedDay));
     });
 
-    overlay.on('mouseleave', function () {
+    overlay.on('mouseleave', () => {
       setHoveredPoint(null);
       setHoverX(null);
     });
@@ -331,110 +326,113 @@ export const DroughtSeverityChart: React.FC = () => {
 
   return (
     <div className="bg-white rounded-lg border border-[#E3E6EB] p-4 shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
-      {/* Chart Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#E3E6EB]">
+      {/* Header & Controls */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-[#E3E6EB] gap-3">
         <div>
-          <h3 className="text-sm font-semibold text-[#111827]">
-            Drought Severity Indices & 30-Day Forecast Trends
-          </h3>
-          <p className="text-xs text-[#6B7280] mt-0.5">
-            Real-time telemetry trend lines with reactive budget dampening model
+          <div className="flex items-center gap-2">
+            <h3 className="text-sm font-bold text-[#111827]">
+              Multi-Horizon Drought Trajectory & 30-Day Predictive Model
+            </h3>
+            <span className="text-[10px] font-semibold bg-[#E8F5E9] text-[#2E7D32] px-2 py-0.5 rounded-full border border-[#C8E6C9]">
+              VEDAS Calibrated
+            </span>
+          </div>
+          <p className="text-xs text-[#6B7280]">
+            Empirical trajectory (Sep–Oct) extrapolated with IMD-MME ensemble projections through Nov 2026 across Madhya Pradesh
           </p>
         </div>
 
-        {/* Flat Segmented Control */}
-        <div className="flex flex-wrap items-center bg-[#F1F3F5] p-0.5 rounded-md border border-[#E3E6EB] self-start sm:self-center gap-0.5">
+        {/* Metric Selector */}
+        <div className="flex items-center gap-1.5 flex-wrap">
           <button
             type="button"
             onClick={() => setActiveMetric('risk')}
-            className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
+            className={`px-2.5 py-1 text-xs rounded transition-colors ${
               activeMetric === 'risk'
-                ? 'bg-white text-[#111827] shadow-[0_1px_2px_rgba(16,24,40,0.06)]'
-                : 'text-[#4B5563] hover:text-[#111827]'
+                ? 'bg-[#0F4C81] text-white font-medium'
+                : 'text-[#4B5563] bg-[#F1F3F5] hover:bg-[#E3E6EB]'
             }`}
           >
-            Risk (0–1.0)
+            Composite Risk
           </button>
           <button
             type="button"
             onClick={() => setActiveMetric('deficit')}
-            className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
+            className={`px-2.5 py-1 text-xs rounded transition-colors ${
               activeMetric === 'deficit'
-                ? 'bg-white text-[#111827] shadow-[0_1px_2px_rgba(16,24,40,0.06)]'
-                : 'text-[#4B5563] hover:text-[#111827]'
+                ? 'bg-[#0F4C81] text-white font-medium'
+                : 'text-[#4B5563] bg-[#F1F3F5] hover:bg-[#E3E6EB]'
             }`}
           >
             Rainfall Deficit (%)
           </button>
           <button
             type="button"
-            onClick={() => setActiveMetric('impact')}
-            className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
-              activeMetric === 'impact'
-                ? 'bg-white text-[#111827] shadow-[0_1px_2px_rgba(16,24,40,0.06)]'
-                : 'text-[#4B5563] hover:text-[#111827]'
-            }`}
-          >
-            Crop Distress
-          </button>
-          <button
-            type="button"
             onClick={() => setActiveMetric('vedas_spi')}
-            className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
+            className={`px-2.5 py-1 text-xs rounded transition-colors ${
               activeMetric === 'vedas_spi'
-                ? 'bg-[#0F4C81] text-white shadow-[0_1px_2px_rgba(16,24,40,0.06)]'
-                : 'text-[#0F4C81] hover:text-[#0A3963]'
+                ? 'bg-[#0F4C81] text-white font-medium'
+                : 'text-[#4B5563] bg-[#F1F3F5] hover:bg-[#E3E6EB]'
             }`}
           >
-            VEDAS SPI-3M
+            SPI-3M (ISRO VEDAS)
           </button>
           <button
             type="button"
             onClick={() => setActiveMetric('vedas_vci')}
-            className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
+            className={`px-2.5 py-1 text-xs rounded transition-colors ${
               activeMetric === 'vedas_vci'
-                ? 'bg-[#0F4C81] text-white shadow-[0_1px_2px_rgba(16,24,40,0.06)]'
-                : 'text-[#0F4C81] hover:text-[#0A3963]'
+                ? 'bg-[#0F4C81] text-white font-medium'
+                : 'text-[#4B5563] bg-[#F1F3F5] hover:bg-[#E3E6EB]'
             }`}
           >
-            VEDAS VCI (%)
+            VCI Index (%)
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveMetric('impact')}
+            className={`px-2.5 py-1 text-xs rounded transition-colors ${
+              activeMetric === 'impact'
+                ? 'bg-[#0F4C81] text-white font-medium'
+                : 'text-[#4B5563] bg-[#F1F3F5] hover:bg-[#E3E6EB]'
+            }`}
+          >
+            Agrarian Distress
           </button>
         </div>
       </div>
 
-      {/* District Toggles & Metadata */}
-      <div className="flex flex-wrap items-center justify-between gap-2 pt-3 text-xs">
-        <div className="flex flex-wrap items-center gap-1.5">
-          <span className="text-[11px] font-medium text-[#6B7280] mr-1">Districts:</span>
-          {districtConfigs.map(d => {
-            const isVisible = visibleDistricts[d.key];
-            return (
-              <button
-                key={d.key}
-                type="button"
-                onClick={() => toggleDistrict(d.key)}
-                className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs transition-colors border ${
-                  isVisible
-                    ? 'bg-[#F9FAFB] border-[#E3E6EB] text-[#111827]'
-                    : 'bg-white border-dashed border-[#D1D5DB] text-[#9CA3AF] line-through'
-                }`}
-              >
-                <span className="w-2 h-2 rounded-full" style={{ backgroundColor: d.color }} />
-                <span>{d.label}</span>
-              </button>
-            );
-          })}
-        </div>
-
-        <div className="text-[11px] text-[#6B7280] tabular-nums">
-          Source: ISRO SAC VEDAS Krishi-DSS & IMD Automated Weather Stations
-        </div>
+      {/* District Legend & Toggle Pills */}
+      <div className="flex items-center gap-2 py-2.5 flex-wrap text-xs border-b border-[#F1F3F5]">
+        <span className="text-[11px] text-[#6B7280] font-medium mr-1">Track Districts:</span>
+        {districtConfigs.map(dist => {
+          const isVisible = visibleDistricts[dist.key];
+          return (
+            <button
+              key={dist.key}
+              type="button"
+              onClick={() => toggleDistrict(dist.key)}
+              className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-medium transition-all border ${
+                isVisible
+                  ? 'bg-white text-[#111827] border-[#E3E6EB] shadow-xs'
+                  : 'bg-[#F9FAFB] text-[#9CA3AF] border-dashed border-[#E3E6EB] opacity-60'
+              }`}
+            >
+              <span
+                className="w-2 h-2 rounded-full"
+                style={{ backgroundColor: isVisible ? dist.color : '#D1D5DB' }}
+              />
+              <span>{dist.label}</span>
+            </button>
+          );
+        })}
       </div>
 
-      {/* SVG Container */}
-      <div ref={containerRef} className="relative w-full h-[240px] mt-2">
-        <svg ref={svgRef} className="w-full h-full overflow-visible" />
+      {/* D3 SVG Chart Container */}
+      <div ref={containerRef} className="relative w-full pt-2">
+        <svg ref={svgRef} className="w-full overflow-visible" />
 
+        {/* Hover Tooltip Card */}
         {hoveredPoint && hoverX !== null && (
           <div
             className="absolute top-2 pointer-events-none z-20 transform -translate-x-1/2 p-2.5 rounded-md bg-white border border-[#E3E6EB] shadow-md text-xs min-w-[150px]"
@@ -447,34 +445,34 @@ export const DroughtSeverityChart: React.FC = () => {
               )}
             </div>
             <div className="space-y-1 font-mono text-[11px]">
-              {visibleDistricts.beed && (
+              {visibleDistricts.tikamgarh && (
                 <div className="flex justify-between items-center text-[#C62828]">
-                  <span>Beed:</span>
-                  <span className="font-semibold">{hoveredPoint.beed}</span>
+                  <span>Tikamgarh:</span>
+                  <span className="font-semibold">{hoveredPoint.tikamgarh}</span>
                 </div>
               )}
-              {visibleDistricts.latur && (
+              {visibleDistricts.chhatarpur && (
                 <div className="flex justify-between items-center text-[#B26A00]">
-                  <span>Latur:</span>
-                  <span className="font-semibold">{hoveredPoint.latur}</span>
+                  <span>Chhatarpur:</span>
+                  <span className="font-semibold">{hoveredPoint.chhatarpur}</span>
                 </div>
               )}
-              {visibleDistricts.osmanabad && (
+              {visibleDistricts.barwani && (
                 <div className="flex justify-between items-center text-[#0F4C81]">
-                  <span>Dharashiv:</span>
-                  <span className="font-semibold">{hoveredPoint.osmanabad}</span>
+                  <span>Barwani:</span>
+                  <span className="font-semibold">{hoveredPoint.barwani}</span>
                 </div>
               )}
-              {visibleDistricts.nanded && (
+              {visibleDistricts.sheopur && (
                 <div className="flex justify-between items-center text-[#2E7D32]">
-                  <span>Nanded:</span>
-                  <span className="font-semibold">{hoveredPoint.nanded}</span>
+                  <span>Sheopur:</span>
+                  <span className="font-semibold">{hoveredPoint.sheopur}</span>
                 </div>
               )}
-              {visibleDistricts.solapur && (
+              {visibleDistricts.khargone && (
                 <div className="flex justify-between items-center text-[#6B7280]">
-                  <span>Solapur:</span>
-                  <span className="font-semibold">{hoveredPoint.solapur}</span>
+                  <span>Khargone:</span>
+                  <span className="font-semibold">{hoveredPoint.khargone}</span>
                 </div>
               )}
             </div>

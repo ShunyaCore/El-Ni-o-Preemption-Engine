@@ -163,7 +163,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       setVedasSyncStatus('live');
       showToast(
         'VEDAS Krishi-DSS Synchronized',
-        `Live satellite telemetry updated (${result.severeCount} Severe, ${result.moderateCount} Moderate districts in Maharashtra).`,
+        `Live satellite telemetry updated (${result.severeCount} Severe, ${result.moderateCount} Moderate districts in Madhya Pradesh).`,
         'primary'
       );
     } catch {
@@ -195,7 +195,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       setOfficerName(prefix.charAt(0).toUpperCase() + prefix.slice(1) + ' (Officer)');
     }
     setIsAuthenticated(true);
-    showToast('Session Established', 'Logged into Maharashtra State Relief Cell Portal', 'primary');
+    showToast('Session Established', 'Logged into Madhya Pradesh State Relief Cell Portal', 'primary');
   };
 
   const logout = () => {
@@ -263,8 +263,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     const randomId = Math.floor(1000 + Math.random() * 9000);
     const regNum = Math.floor(1000 + Math.random() * 9000);
     const newConvoy: ConvoyRoute = {
-      id: `RT-MH-${randomId}`,
-      vehicleNo: `MH-${Math.floor(12 + Math.random() * 14)}-TX-${regNum}`,
+      id: `RT-MP-${randomId}`,
+      vehicleNo: `MP-${Math.floor(10 + Math.random() * 40)}-TX-${regNum}`,
       cargoType: convoyData.cargoType,
       cargoCapacity: convoyData.cargoCapacity,
       originDepot: convoyData.originDepot,
@@ -275,8 +275,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       eta: '02:30 PM',
       remainingKm: 94,
       progressPct: 10,
-      driverName: 'Sanjay Deshmukh',
-      driverPhone: '+91 97654 32190',
+      driverName: 'Rameshwar Lodhi',
+      driverPhone: '+91 98261 44019',
       waypoints: [
         { name: `${convoyData.originDepot} Gate`, time: '12:00 PM', passed: true },
         { name: 'Disaster FASTag Toll Bypass', time: '01:15 PM', passed: false },
@@ -332,7 +332,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const dismissDirective = (id: string) => {
     setDirectives(prev => prev.filter(d => d.id !== id));
-    showToast('Directive Executed', 'Action logged to Maharashtra State Relief Log.', 'secondary');
+    showToast('Directive Executed', 'Action logged to Madhya Pradesh State Relief Log.', 'secondary');
   };
 
   return (

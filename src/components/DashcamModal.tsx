@@ -39,7 +39,7 @@ export const DashcamModal: React.FC = () => {
           {/* Clean HUD Overlay */}
           <div className="absolute top-3 left-3 z-10 font-mono text-[11px] text-white bg-black/60 px-2 py-1 rounded">
             <div>CAM-01 · Forward High-Definition Telemetry</div>
-            <div>Marathwada Highway Sector · 18.9892° N, 75.7601° E</div>
+            <div>Bundelkhand-NH44 Highway Corridor · 24.7450° N, 78.8350° E</div>
           </div>
 
           <div className="absolute top-3 right-3 z-10 font-mono text-[11px] text-[#EF5350] bg-black/60 px-2 py-1 rounded flex items-center gap-1.5 font-bold">

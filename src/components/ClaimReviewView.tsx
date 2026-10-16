@@ -88,10 +88,11 @@ export const ClaimReviewView: React.FC = () => {
               className="bg-[#F6F7F9] text-xs text-[#111827] px-3 py-1.5 rounded-md border border-[#E3E6EB] focus:bg-white focus:border-[#0F4C81]"
             >
               <option value="all">All Districts</option>
-              <option value="Beed">Beed</option>
-              <option value="Latur">Latur</option>
-              <option value="Dharashiv (Osmanabad)">Dharashiv</option>
-              <option value="Nanded">Nanded</option>
+              <option value="Tikamgarh">Tikamgarh</option>
+              <option value="Chhatarpur">Chhatarpur</option>
+              <option value="Barwani">Barwani</option>
+              <option value="Sheopur">Sheopur</option>
+              <option value="Khargone">Khargone</option>
             </select>
 
             {/* Status Filter */}

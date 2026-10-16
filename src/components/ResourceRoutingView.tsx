@@ -13,12 +13,12 @@ export const ResourceRoutingView: React.FC = () => {
     setSelectedConvoyForDashcam
   } = useApp();
 
-  const [selectedConvoyId, setSelectedConvoyId] = useState<string>(convoys[0]?.id || 'CV-MH-4019');
+  const [selectedConvoyId, setSelectedConvoyId] = useState<string>(convoys[0]?.id || 'CV-MP-4019');
   const [statusFilter, setStatusFilter] = useState<'all' | 'en_route' | 'delayed'>('all');
 
   // Quick Dispatch Form State
-  const [originHub, setOriginHub] = useState('Chhatrapati Sambhajinagar Central Hub');
-  const [destTaluka, setDestTaluka] = useState('Patoda (Beed)');
+  const [originHub, setOriginHub] = useState('Sagar Bundelkhand Regional Grain & Water Reserve');
+  const [destTaluka, setDestTaluka] = useState('Baldeogarh (Tikamgarh)');
   const [cargoType, setCargoType] = useState<ConvoyRoute['cargoType']>('Potable Water');
   const [cargoCapacity, setCargoCapacity] = useState('20,000 Litres (Twin Tanker)');
 
@@ -259,10 +259,9 @@ export const ResourceRoutingView: React.FC = () => {
                   onChange={e => setOriginHub(e.target.value)}
                   className="w-full bg-[#F6F7F9] text-xs text-[#111827] p-2 rounded-md border border-[#E3E6EB] focus:bg-white focus:border-[#0F4C81]"
                 >
-                  <option value="Chhatrapati Sambhajinagar Central Hub">Chhatrapati Sambhajinagar Central Hub</option>
-                  <option value="Latur District Disaster Reserve">Latur District Disaster Reserve</option>
-                  <option value="Majalgaon Reservoir Feeder Outpost">Majalgaon Reservoir Feeder Outpost</option>
-                  <option value="Solapur Tactical Base">Solapur Tactical Base</option>
+                  <option value="Bhopal Vallabh Bhavan State Emergency Hub">Bhopal Vallabh Bhavan State Emergency Hub</option>
+                  <option value="Sagar Bundelkhand Regional Grain & Water Reserve">Sagar Bundelkhand Regional Grain & Water Reserve</option>
+                  <option value="Indore Nimar-Malwa Transit Storage Outpost">Indore Nimar-Malwa Transit Storage Outpost</option>
                 </select>
               </div>
 
@@ -274,7 +273,7 @@ export const ResourceRoutingView: React.FC = () => {
                   type="text"
                   value={destTaluka}
                   onChange={e => setDestTaluka(e.target.value)}
-                  placeholder="e.g. Ashti (Beed)"
+                  placeholder="e.g. Baldeogarh (Tikamgarh)"
                   className="w-full bg-[#F6F7F9] text-xs text-[#111827] p-2 rounded-md border border-[#E3E6EB] focus:bg-white focus:border-[#0F4C81]"
                 />
               </div>

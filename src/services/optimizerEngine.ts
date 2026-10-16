@@ -5,7 +5,7 @@ import {
   DistrictAllocationResult
 } from '../types';
 
-// Standard unit costs (based on Maharashtra Disaster Relief & GSDA guidelines)
+// Standard unit costs (based on Madhya Pradesh Disaster Relief & MPWRD guidelines)
 export const UNIT_COSTS = {
   tankerTripInr: 2400, // per tanker delivery (12,000L)
   fodderTonneInr: 16500, // per metric tonne green/dry fodder
@@ -15,152 +15,152 @@ export const UNIT_COSTS = {
 
 export const DEFAULT_DISTRICT_DEMANDS: DistrictDemand[] = [
   {
-    districtId: 'beed',
-    districtName: 'Beed',
-    waterDemandTankerTrips: 18500, // over planning horizon
-    fodderDemandTonnes: 14200,
-    contingencySeedHectares: 38000,
-    directCashBeneficiaries: 42000,
-    vulnerabilityWeight: 0.94,
+    districtId: 'tikamgarh',
+    districtName: 'Tikamgarh',
+    waterDemandTankerTrips: 19500, // over planning horizon
+    fodderDemandTonnes: 14800,
+    contingencySeedHectares: 39000,
+    directCashBeneficiaries: 44000,
+    vulnerabilityWeight: 0.95,
     minServiceThresholdPct: 20
   },
   {
-    districtId: 'latur',
-    districtName: 'Latur',
-    waterDemandTankerTrips: 16200,
-    fodderDemandTonnes: 12500,
-    contingencySeedHectares: 34000,
-    directCashBeneficiaries: 38000,
-    vulnerabilityWeight: 0.89,
+    districtId: 'chhatarpur',
+    districtName: 'Chhatarpur',
+    waterDemandTankerTrips: 17400,
+    fodderDemandTonnes: 13200,
+    contingencySeedHectares: 35000,
+    directCashBeneficiaries: 39000,
+    vulnerabilityWeight: 0.90,
     minServiceThresholdPct: 20
   },
   {
-    districtId: 'osmanabad',
-    districtName: 'Dharashiv',
-    waterDemandTankerTrips: 14800,
-    fodderDemandTonnes: 11000,
-    contingencySeedHectares: 29000,
-    directCashBeneficiaries: 31000,
-    vulnerabilityWeight: 0.86,
+    districtId: 'barwani',
+    districtName: 'Barwani',
+    waterDemandTankerTrips: 15200,
+    fodderDemandTonnes: 11800,
+    contingencySeedHectares: 31000,
+    directCashBeneficiaries: 33000,
+    vulnerabilityWeight: 0.87,
     minServiceThresholdPct: 20
   },
   {
-    districtId: 'parbhani',
-    districtName: 'Parbhani',
-    waterDemandTankerTrips: 11500,
-    fodderDemandTonnes: 9200,
-    contingencySeedHectares: 26000,
+    districtId: 'sheopur',
+    districtName: 'Sheopur',
+    waterDemandTankerTrips: 12800,
+    fodderDemandTonnes: 9800,
+    contingencySeedHectares: 27000,
+    directCashBeneficiaries: 26000,
+    vulnerabilityWeight: 0.81,
+    minServiceThresholdPct: 18
+  },
+  {
+    districtId: 'shivpuri',
+    districtName: 'Shivpuri',
+    waterDemandTankerTrips: 11800,
+    fodderDemandTonnes: 8900,
+    contingencySeedHectares: 25000,
     directCashBeneficiaries: 24000,
     vulnerabilityWeight: 0.76,
     minServiceThresholdPct: 15
   },
   {
-    districtId: 'nanded',
-    districtName: 'Nanded',
-    waterDemandTankerTrips: 10200,
-    fodderDemandTonnes: 8100,
-    contingencySeedHectares: 22000,
-    directCashBeneficiaries: 21000,
-    vulnerabilityWeight: 0.72,
-    minServiceThresholdPct: 15
-  },
-  {
-    districtId: 'jalna',
-    districtName: 'Jalna',
-    waterDemandTankerTrips: 9800,
-    fodderDemandTonnes: 7900,
+    districtId: 'khargone',
+    districtName: 'Khargone',
+    waterDemandTankerTrips: 11200,
+    fodderDemandTonnes: 8400,
     contingencySeedHectares: 24000,
-    directCashBeneficiaries: 19500,
-    vulnerabilityWeight: 0.70,
+    directCashBeneficiaries: 22500,
+    vulnerabilityWeight: 0.73,
     minServiceThresholdPct: 15
   },
   {
-    districtId: 'solapur',
-    districtName: 'Solapur',
-    waterDemandTankerTrips: 13200,
-    fodderDemandTonnes: 15400,
-    contingencySeedHectares: 31000,
-    directCashBeneficiaries: 28000,
-    vulnerabilityWeight: 0.82,
-    minServiceThresholdPct: 18
+    districtId: 'dewas',
+    districtName: 'Dewas',
+    waterDemandTankerTrips: 10500,
+    fodderDemandTonnes: 7800,
+    contingencySeedHectares: 23000,
+    directCashBeneficiaries: 21000,
+    vulnerabilityWeight: 0.68,
+    minServiceThresholdPct: 15
   },
   {
-    districtId: 'ahmednagar',
-    districtName: 'Ahmednagar',
-    waterDemandTankerTrips: 12000,
-    fodderDemandTonnes: 13800,
-    contingencySeedHectares: 30000,
-    directCashBeneficiaries: 26000,
-    vulnerabilityWeight: 0.78,
+    districtId: 'dhar',
+    districtName: 'Dhar',
+    waterDemandTankerTrips: 9800,
+    fodderDemandTonnes: 7400,
+    contingencySeedHectares: 21000,
+    directCashBeneficiaries: 19500,
+    vulnerabilityWeight: 0.65,
     minServiceThresholdPct: 15
   }
 ];
 
 export const RESERVOIR_DATA = [
   {
-    id: 'jayakwadi',
-    name: 'Jayakwadi (Paithan)',
-    river: 'Godavari',
-    district: 'Chhatrapati Sambhajinagar',
-    grossCapacityTmc: 102.7,
-    currentLiveTmc: 24.6,
-    currentPct: 23.9,
-    lastYearPct: 48.2,
+    id: 'gandhisagar',
+    name: 'Gandhi Sagar Dam',
+    river: 'Chambal',
+    district: 'Mandsaur / Neemuch',
+    grossCapacityTmc: 258.0,
+    currentLiveTmc: 48.2,
+    currentPct: 18.7,
+    lastYearPct: 44.5,
     status: 'Critical Low' as const,
-    deadStorageTmc: 26.0,
-    drinkingWaterReserveMonths: 4.2
+    deadStorageTmc: 32.0,
+    drinkingWaterReserveMonths: 3.8
   },
   {
-    id: 'majalgaon',
-    name: 'Majalgaon Dam',
-    river: 'Sindphana',
-    district: 'Beed',
-    grossCapacityTmc: 15.8,
-    currentLiveTmc: 1.1,
-    currentPct: 6.9,
-    lastYearPct: 34.0,
-    status: 'Depleted' as const,
-    deadStorageTmc: 4.2,
-    drinkingWaterReserveMonths: 1.8
-  },
-  {
-    id: 'manjara',
-    name: 'Manjara Dam',
-    river: 'Manjara',
-    district: 'Beed / Latur border',
-    grossCapacityTmc: 8.9,
-    currentLiveTmc: 0.6,
-    currentPct: 7.1,
-    lastYearPct: 39.5,
-    status: 'Depleted' as const,
-    deadStorageTmc: 2.1,
-    drinkingWaterReserveMonths: 1.5
-  },
-  {
-    id: 'ujjani',
-    name: 'Ujjani (Bhima)',
-    river: 'Bhima',
-    district: 'Solapur',
-    grossCapacityTmc: 117.2,
-    currentLiveTmc: 19.8,
-    currentPct: 16.8,
-    lastYearPct: 42.1,
+    id: 'rajghat',
+    name: 'Rajghat Dam (Betwa)',
+    river: 'Betwa',
+    district: 'Ashoknagar / Chhatarpur',
+    grossCapacityTmc: 74.5,
+    currentLiveTmc: 14.8,
+    currentPct: 19.8,
+    lastYearPct: 41.2,
     status: 'Critical Low' as const,
-    deadStorageTmc: 63.6,
-    drinkingWaterReserveMonths: 5.1
+    deadStorageTmc: 12.0,
+    drinkingWaterReserveMonths: 4.1
   },
   {
-    id: 'yeldari',
-    name: 'Yeldari Dam',
-    river: 'Purna',
-    district: 'Parbhani / Hingoli',
-    grossCapacityTmc: 33.0,
-    currentLiveTmc: 11.2,
-    currentPct: 33.9,
-    lastYearPct: 56.4,
+    id: 'indirasagar',
+    name: 'Indira Sagar Dam',
+    river: 'Narmada',
+    district: 'Khandwa',
+    grossCapacityTmc: 431.0,
+    currentLiveTmc: 142.5,
+    currentPct: 33.1,
+    lastYearPct: 56.8,
     status: 'Moderate' as const,
-    deadStorageTmc: 4.4,
-    drinkingWaterReserveMonths: 7.0
+    deadStorageTmc: 78.0,
+    drinkingWaterReserveMonths: 8.5
+  },
+  {
+    id: 'bansagar',
+    name: 'Bansagar Dam',
+    river: 'Son',
+    district: 'Shahdol',
+    grossCapacityTmc: 191.0,
+    currentLiveTmc: 52.4,
+    currentPct: 27.4,
+    lastYearPct: 49.3,
+    status: 'Moderate' as const,
+    deadStorageTmc: 35.0,
+    drinkingWaterReserveMonths: 7.2
+  },
+  {
+    id: 'bargi',
+    name: 'Bargi Dam (Rani Avanti Bai)',
+    river: 'Narmada',
+    district: 'Jabalpur',
+    grossCapacityTmc: 138.0,
+    currentLiveTmc: 42.1,
+    currentPct: 30.5,
+    lastYearPct: 52.4,
+    status: 'Moderate' as const,
+    deadStorageTmc: 24.0,
+    drinkingWaterReserveMonths: 7.8
   }
 ];
 
@@ -559,8 +559,8 @@ export function solveReliefAllocation(
 
   const sensitivityNotes = [
     `Increasing budget by +10% (₹${(params.totalBudgetCr * 0.1).toFixed(1)} Cr) improves overall demand coverage from ${overallDemandServedPct}% to ${Math.min(100, overallDemandServedPct + 7)}%.`,
-    `Expanding tanker fleet by 15% would alleviate logistics congestion in Beed, Latur, and Solapur.`,
-    `Shifting weights towards drinking water raises Beed tanker satisfaction to ${Math.min(100, districtResults[0].tankerSatisfactionPct + 12)}%.`
+    `Expanding tanker fleet by 15% would alleviate logistics congestion in Tikamgarh, Chhatarpur, and Barwani.`,
+    `Shifting weights towards drinking water raises Tikamgarh tanker satisfaction to ${Math.min(100, districtResults[0].tankerSatisfactionPct + 12)}%.`
   ];
 
   return {

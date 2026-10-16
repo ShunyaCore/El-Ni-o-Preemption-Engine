@@ -182,7 +182,7 @@ export const ReportsView: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
             <button
               type="button"
-              onClick={() => showToast('GeoJSON Exported', 'Downloaded Marathwada taluka GIS polygons (GeoJSON)', 'primary')}
+              onClick={() => showToast('GeoJSON Exported', 'Downloaded Madhya Pradesh tehsils GIS polygons (GeoJSON)', 'primary')}
               className="p-3 rounded border border-[#E3E6EB] hover:bg-[#F9FAFB] text-left flex flex-col justify-between"
             >
               <div>

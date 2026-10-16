@@ -93,10 +93,11 @@ export const Header: React.FC<HeaderProps> = ({ onToggleMobileMenu }) => {
   };
 
   const regions = [
-    { id: 'all', label: 'All Maharashtra (36 Districts)' },
-    { id: 'marathwada', label: 'Marathwada (Beed, Latur, Dharashiv)' },
-    { id: 'vidarbha', label: 'Vidarbha (Akola, Amravati, Yavatmal)' },
-    { id: 'western', label: 'Western Maharashtra (Solapur, Nagar)' }
+    { id: 'all', label: 'All Madhya Pradesh (55 Districts)' },
+    { id: 'bundelkhand', label: 'Bundelkhand (Tikamgarh, Chhatarpur, Panna)' },
+    { id: 'chambal', label: 'Chambal & Gwalior (Sheopur, Shivpuri, Morena)' },
+    { id: 'malwa', label: 'Malwa Plateau (Dewas, Ujjain, Ratlam)' },
+    { id: 'nimar', label: 'Nimar Valley (Khargone, Barwani, Khandwa)' }
   ];
 
   return (

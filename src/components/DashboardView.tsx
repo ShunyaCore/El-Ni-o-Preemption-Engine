@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { DroughtSeverityChart } from './DroughtSeverityChart';
 import { DistrictMetric } from '../types';
@@ -19,7 +19,10 @@ import {
   Satellite,
   Activity,
   Globe,
-  Droplets
+  Droplets,
+  Maximize2,
+  Minimize2,
+  X
 } from 'lucide-react';
 
 export const DashboardView: React.FC = () => {
@@ -43,8 +46,21 @@ export const DashboardView: React.FC = () => {
   // Map layer toggle: including official VEDAS Krishi-DSS satellite products
   const [mapLayer, setMapLayer] = useState<'deficit' | 'moisture' | 'vedas_spi' | 'vedas_vci' | 'tankers'>('deficit');
 
+  // Fullscreen map mode to prevent clutter in dashboard card and show all options when expanded
+  const [isMapFullscreen, setIsMapFullscreen] = useState<boolean>(false);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isMapFullscreen) {
+        setIsMapFullscreen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isMapFullscreen]);
+
   // Selected taluka popover on map
-  const [selectedTalukaId, setSelectedTalukaId] = useState<string>('beed');
+  const [selectedTalukaId, setSelectedTalukaId] = useState<string>('tikamgarh');
 
   // Data table state
   const [tableSearch, setTableSearch] = useState('');
@@ -54,104 +70,104 @@ export const DashboardView: React.FC = () => {
   // Active district for map popover
   const activeDistrict = districts.find(d => d.id === selectedTalukaId) || districts[0];
 
-  // Map Taluka Polygon definitions (single-hue choropleth)
+  // Map Tehsil Polygon definitions (single-hue choropleth for Madhya Pradesh)
   const mapPolygons = [
     {
-      id: 'beed',
-      name: 'Beed',
-      taluka: 'Patoda & Ashti',
+      id: 'tikamgarh',
+      name: 'Tikamgarh',
+      taluka: 'Baldeogarh & Jatara',
       path: 'M 250 150 L 360 135 L 390 195 L 350 250 L 270 245 L 230 190 Z',
       centroid: { x: 300, y: 190 },
-      deficit: -62.4,
-      moisture: 14.8,
-      claims: 14820,
-      crop: 'Soybean & Cotton',
-      spi3M: -2.18,
-      vci: 21.8,
+      deficit: -64.2,
+      moisture: 13.5,
+      claims: 15420,
+      crop: 'Soybean & Sesame',
+      spi3M: -2.24,
+      vci: 19.4,
       vedasCategory: 'Severe'
     },
     {
-      id: 'latur',
-      name: 'Latur',
-      taluka: 'Ausa & Nilanga',
+      id: 'chhatarpur',
+      name: 'Chhatarpur',
+      taluka: 'Nowgong & Bijawar',
       path: 'M 390 195 L 470 185 L 510 255 L 450 310 L 370 285 L 350 250 Z',
       centroid: { x: 430, y: 250 },
-      deficit: -57.8,
-      moisture: 16.2,
-      claims: 12450,
-      crop: 'Soybean & Pigeon Pea',
-      spi3M: -2.08,
-      vci: 24.5,
+      deficit: -59.5,
+      moisture: 15.2,
+      claims: 13850,
+      crop: 'Soybean & Mustard',
+      spi3M: -2.12,
+      vci: 22.1,
       vedasCategory: 'Severe'
     },
     {
-      id: 'osmanabad',
-      name: 'Dharashiv',
-      taluka: 'Tuljapur & Bhoom',
+      id: 'barwani',
+      name: 'Barwani',
+      taluka: 'Sendhwa & Pansemal',
       path: 'M 270 245 L 350 250 L 370 285 L 350 345 L 290 355 L 240 305 Z',
       centroid: { x: 310, y: 300 },
-      deficit: -54.1,
-      moisture: 18.1,
-      claims: 9120,
-      crop: 'Soybean & Sugarcane',
-      spi3M: -1.99,
-      vci: 27.2,
+      deficit: -56.8,
+      moisture: 16.8,
+      claims: 11200,
+      crop: 'Bt Cotton & Maize',
+      spi3M: -2.05,
+      vci: 24.8,
       vedasCategory: 'Severe'
     },
     {
-      id: 'parbhani',
-      name: 'Parbhani',
-      taluka: 'Jintur & Gangakhed',
+      id: 'sheopur',
+      name: 'Sheopur',
+      taluka: 'Karahal & Vijaypur',
       path: 'M 360 135 L 460 115 L 490 175 L 390 195 Z',
       centroid: { x: 420, y: 155 },
-      deficit: -46.7,
-      moisture: 21.4,
-      claims: 7840,
-      crop: 'Cotton & Soybean',
-      spi3M: -1.78,
-      vci: 32.6,
-      vedasCategory: 'Moderate'
+      deficit: -53.4,
+      moisture: 18.4,
+      claims: 8940,
+      crop: 'Mustard & Bajra',
+      spi3M: -1.98,
+      vci: 26.5,
+      vedasCategory: 'Severe'
     },
     {
-      id: 'nanded',
-      name: 'Nanded',
-      taluka: 'Mukhed & Biloli',
+      id: 'shivpuri',
+      name: 'Shivpuri',
+      taluka: 'Kolaras & Karera',
       path: 'M 470 185 L 570 170 L 610 240 L 510 255 Z',
       centroid: { x: 535, y: 210 },
-      deficit: -43.2,
-      moisture: 23.0,
-      claims: 6420,
-      crop: 'Cotton & Turmeric',
-      spi3M: -1.69,
-      vci: 36.1,
-      vedasCategory: 'Moderate'
+      deficit: -49.6,
+      moisture: 20.2,
+      claims: 8120,
+      crop: 'Soybean & Groundnut',
+      spi3M: -1.88,
+      vci: 28.9,
+      vedasCategory: 'Severe'
     },
     {
-      id: 'jalna',
-      name: 'Jalna',
-      taluka: 'Ambad & Partur',
+      id: 'khargone',
+      name: 'Khargone',
+      taluka: 'Kasrawad & Maheshwar',
       path: 'M 270 95 L 370 80 L 360 135 L 250 150 Z',
       centroid: { x: 310, y: 115 },
-      deficit: -39.5,
-      moisture: 24.5,
-      claims: 5610,
-      crop: 'Mosambi & Cotton',
-      spi3M: -1.62,
-      vci: 39.4,
-      vedasCategory: 'Moderate'
+      deficit: -48.2,
+      moisture: 21.0,
+      claims: 7650,
+      crop: 'Chilli & Cotton',
+      spi3M: -1.82,
+      vci: 31.2,
+      vedasCategory: 'Severe'
     },
     {
-      id: 'solapur',
-      name: 'Solapur',
-      taluka: 'Karmala & Sangola',
+      id: 'dewas',
+      name: 'Dewas',
+      taluka: 'Sonkatch & Bagli',
       path: 'M 180 260 L 240 305 L 290 355 L 240 405 L 150 375 L 145 310 Z',
       centroid: { x: 205, y: 335 },
-      deficit: -34.5,
-      moisture: 25.1,
-      claims: 5582,
-      crop: 'Pomegranate & Jowar',
-      spi3M: -1.55,
-      vci: 40.5,
+      deficit: -44.5,
+      moisture: 23.2,
+      claims: 6410,
+      crop: 'Soybean & Durum Wheat',
+      spi3M: -1.74,
+      vci: 33.8,
       vedasCategory: 'Moderate'
     }
   ];
@@ -247,7 +263,7 @@ export const DashboardView: React.FC = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `Maharashtra_Drought_VEDAS_Dataset_24Oct2026.csv`;
+    a.download = `Madhya_Pradesh_Drought_VEDAS_Dataset_24Oct2026.csv`;
     a.click();
     showToast('Export Completed', 'Downloaded VEDAS Krishi-DSS district dataset (CSV)', 'primary');
   };
@@ -261,7 +277,7 @@ export const DashboardView: React.FC = () => {
             State Drought Overview
           </h1>
           <p className="text-xs text-[#6B7280] mt-0.5">
-            Maharashtra State Relief Cell · Last updated {lastVedasSync}
+            Madhya Pradesh State Relief Commissionerate (Vallabh Bhavan, Bhopal) · Last updated {lastVedasSync}
           </p>
         </div>
 
@@ -361,7 +377,7 @@ export const DashboardView: React.FC = () => {
         <div className="flex items-center gap-2 text-[#C62828] min-w-0">
           <span className="w-2 h-2 rounded-full bg-[#C62828] shrink-0" />
           <span className="font-medium truncate">
-            Critical moisture deficit detected across 12 talukas in Beed, Latur and Dharashiv. Emergency tanker mobilization active.
+            Critical moisture deficit detected across 14 tehsils in Tikamgarh, Chhatarpur and Barwani. Emergency tanker mobilization active.
           </span>
         </div>
         <button
@@ -391,7 +407,7 @@ export const DashboardView: React.FC = () => {
             <span className="text-[28px] font-bold text-[#111827] tabular-nums leading-none">
               12
             </span>
-            <span className="text-xs text-[#6B7280]">of 36 districts</span>
+            <span className="text-xs text-[#6B7280]">of 55 districts</span>
           </div>
 
           <div className="flex items-center justify-between text-[11px] text-[#6B7280]">
@@ -491,7 +507,7 @@ export const DashboardView: React.FC = () => {
             </h3>
           </div>
           <div className="flex items-center gap-3 text-xs text-[#6B7280]">
-            <span>Telemetry: Maharashtra Water Resources Dept (CWC/WRD)</span>
+            <span>Telemetry: Madhya Pradesh Water Resources Dept (MPWRD / CWC)</span>
             <span>•</span>
             <span>Refreshed: 24 Oct 2026</span>
           </div>
@@ -506,8 +522,7 @@ export const DashboardView: React.FC = () => {
                     {res.name}
                   </h4>
                   <span className={`px-1.5 py-0.2 rounded text-[10px] font-bold shrink-0 ${
-                    res.status === 'Depleted' ? 'bg-[#FEE2E2] text-[#991B1B]' :
-                    res.status === 'Critical Low' ? 'bg-[#FEF3C7] text-[#92400E]' :
+                    res.status === 'Critical Low' ? 'bg-[#FEE2E2] text-[#991B1B]' :
                     'bg-[#DCFCE7] text-[#166534]'
                   }`}>
                     {res.status}
@@ -546,10 +561,24 @@ export const DashboardView: React.FC = () => {
         </div>
       </div>
 
+      {/* Backdrop for Fullscreen Map */}
+      {isMapFullscreen && (
+        <div
+          className="fixed inset-0 bg-black/60 z-40 backdrop-blur-xs transition-opacity"
+          onClick={() => setIsMapFullscreen(false)}
+        />
+      )}
+
       {/* Main Area: Map Card (65% width) next to Priority Actions Card (35% width) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-        {/* Map Card (~65% width, 8 cols on desktop) */}
-        <div className="lg:col-span-8 bg-white rounded-lg border border-[#E3E6EB] p-4 shadow-[0_1px_2px_rgba(16,24,40,0.04)] flex flex-col justify-between">
+        {/* Map Card (~65% width, 8 cols on desktop or full screen overlay) */}
+        <div
+          className={`bg-white rounded-lg border border-[#E3E6EB] p-4 shadow-[0_1px_2px_rgba(16,24,40,0.04)] flex flex-col justify-between transition-all ${
+            isMapFullscreen
+              ? 'fixed inset-2 md:inset-4 z-50 rounded-xl shadow-2xl border-[#BCD4EC] overflow-y-auto'
+              : 'lg:col-span-8'
+          }`}
+        >
           <div>
             {/* Map Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#E3E6EB]">
@@ -559,86 +588,150 @@ export const DashboardView: React.FC = () => {
                     Regional Drought Severity Map
                   </h3>
                   <span className="text-[11px] text-[#6B7280]">
-                    Marathwada Division
+                    Bundelkhand & Malwa Divisions
                   </span>
+                  {isMapFullscreen && (
+                    <span className="text-[10px] font-semibold bg-[#EEF4FA] text-[#0F4C81] px-2 py-0.5 rounded-full border border-[#BCD4EC]">
+                      Fullscreen Mode
+                    </span>
+                  )}
                 </div>
                 <p className="text-xs text-[#6B7280] mt-0.5">
                   Click a taluka polygon to inspect key telemetry and dispatch units
                 </p>
               </div>
 
-              {/* Layer Toggle & Actions: Including VEDAS SPI-3M & VCI layers */}
+              {/* Layer Toggle & Actions: Uncluttered in normal card view, all options displayed in fullscreen */}
               <div className="flex flex-wrap items-center gap-2 self-start sm:self-center">
-                <div className="flex flex-wrap items-center bg-[#F1F3F5] p-0.5 rounded-md border border-[#E3E6EB] gap-0.5">
-                  <button
-                    type="button"
-                    onClick={() => setMapLayer('deficit')}
-                    className={`px-2 py-0.5 rounded text-xs font-medium transition-colors ${
-                      mapLayer === 'deficit'
-                        ? 'bg-white text-[#111827] shadow-[0_1px_2px_rgba(16,24,40,0.06)]'
-                        : 'text-[#4B5563] hover:text-[#111827]'
-                    }`}
-                  >
-                    Rain deficit
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setMapLayer('moisture')}
-                    className={`px-2 py-0.5 rounded text-xs font-medium transition-colors ${
-                      mapLayer === 'moisture'
-                        ? 'bg-white text-[#111827] shadow-[0_1px_2px_rgba(16,24,40,0.06)]'
-                        : 'text-[#4B5563] hover:text-[#111827]'
-                    }`}
-                  >
-                    Soil moisture
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setMapLayer('vedas_spi')}
-                    className={`px-2 py-0.5 rounded text-xs font-medium transition-colors ${
-                      mapLayer === 'vedas_spi'
-                        ? 'bg-[#0F4C81] text-white shadow-[0_1px_2px_rgba(16,24,40,0.06)]'
-                        : 'text-[#0F4C81] hover:text-[#0A3963]'
-                    }`}
-                  >
-                    VEDAS SPI-3M
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setMapLayer('vedas_vci')}
-                    className={`px-2 py-0.5 rounded text-xs font-medium transition-colors ${
-                      mapLayer === 'vedas_vci'
-                        ? 'bg-[#0F4C81] text-white shadow-[0_1px_2px_rgba(16,24,40,0.06)]'
-                        : 'text-[#0F4C81] hover:text-[#0A3963]'
-                    }`}
-                  >
-                    VEDAS VCI
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setMapLayer('tankers')}
-                    className={`px-2 py-0.5 rounded text-xs font-medium transition-colors ${
-                      mapLayer === 'tankers'
-                        ? 'bg-white text-[#111827] shadow-[0_1px_2px_rgba(16,24,40,0.06)]'
-                        : 'text-[#4B5563] hover:text-[#111827]'
-                    }`}
-                  >
-                    Routes
-                  </button>
-                </div>
-                <button
-                  type="button"
-                  onClick={handleExportCSV}
-                  className="p-1 rounded-md text-[#4B5563] hover:text-[#111827] hover:bg-[#F1F3F5]"
-                  title="Download GIS data"
-                >
-                  <Download className="w-4 h-4 stroke-[1.5]" />
-                </button>
+                {isMapFullscreen ? (
+                  /* Expanded view: Show all options explicitly as requested */
+                  <>
+                    <div className="flex flex-wrap items-center bg-[#F1F3F5] p-0.5 rounded-md border border-[#E3E6EB] gap-0.5">
+                      <button
+                        type="button"
+                        onClick={() => setMapLayer('deficit')}
+                        className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
+                          mapLayer === 'deficit'
+                            ? 'bg-white text-[#111827] shadow-[0_1px_2px_rgba(16,24,40,0.06)] font-semibold'
+                            : 'text-[#4B5563] hover:text-[#111827]'
+                        }`}
+                      >
+                        Rain deficit
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setMapLayer('moisture')}
+                        className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
+                          mapLayer === 'moisture'
+                            ? 'bg-white text-[#111827] shadow-[0_1px_2px_rgba(16,24,40,0.06)] font-semibold'
+                            : 'text-[#4B5563] hover:text-[#111827]'
+                        }`}
+                      >
+                        Soil moisture
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setMapLayer('vedas_spi')}
+                        className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
+                          mapLayer === 'vedas_spi'
+                            ? 'bg-[#0F4C81] text-white shadow-[0_1px_2px_rgba(16,24,40,0.06)] font-semibold'
+                            : 'text-[#0F4C81] hover:text-[#0A3963]'
+                        }`}
+                      >
+                        VEDAS SPI-3M
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setMapLayer('vedas_vci')}
+                        className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
+                          mapLayer === 'vedas_vci'
+                            ? 'bg-[#0F4C81] text-white shadow-[0_1px_2px_rgba(16,24,40,0.06)] font-semibold'
+                            : 'text-[#0F4C81] hover:text-[#0A3963]'
+                        }`}
+                      >
+                        VEDAS VCI
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setMapLayer('tankers')}
+                        className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
+                          mapLayer === 'tankers'
+                            ? 'bg-white text-[#111827] shadow-[0_1px_2px_rgba(16,24,40,0.06)] font-semibold'
+                            : 'text-[#4B5563] hover:text-[#111827]'
+                        }`}
+                      >
+                        Routes
+                      </button>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={handleExportCSV}
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium text-[#4B5563] bg-white border border-[#E3E6EB] hover:text-[#111827] hover:bg-[#F9FAFB] shadow-xs transition-colors"
+                      title="Download GIS data"
+                    >
+                      <Download className="w-3.5 h-3.5 stroke-[1.5]" />
+                      <span>Export CSV</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setIsMapFullscreen(false)}
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold text-white bg-[#0F4C81] hover:bg-[#0A3963] shadow-xs transition-colors"
+                      title="Exit Fullscreen (Esc)"
+                    >
+                      <Minimize2 className="w-3.5 h-3.5 stroke-[1.5]" />
+                      <span>Exit Fullscreen</span>
+                    </button>
+                  </>
+                ) : (
+                  /* Compact uncluttered view: Clean dropdown selector + Fullscreen button */
+                  <>
+                    <div className="inline-flex items-center gap-1.5 bg-[#F6F7F9] border border-[#E3E6EB] px-2.5 py-1 rounded-md text-xs shadow-xs">
+                      <Layers className="w-3.5 h-3.5 text-[#0F4C81] shrink-0" />
+                      <span className="text-[#6B7280] font-medium text-[11px]">Layer:</span>
+                      <select
+                        value={mapLayer}
+                        onChange={e => setMapLayer(e.target.value as any)}
+                        className="bg-transparent text-xs font-semibold text-[#111827] focus:outline-none cursor-pointer pr-1"
+                      >
+                        <option value="deficit">Rain deficit</option>
+                        <option value="moisture">Soil moisture</option>
+                        <option value="vedas_spi">VEDAS SPI-3M</option>
+                        <option value="vedas_vci">VEDAS VCI</option>
+                        <option value="tankers">Routes</option>
+                      </select>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setIsMapFullscreen(true)}
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium text-[#0F4C81] bg-[#EEF4FA] border border-[#BCD4EC] hover:bg-[#E0EDF8] shadow-xs transition-colors"
+                      title="Fullscreen map to display all layer options"
+                    >
+                      <Maximize2 className="w-3.5 h-3.5 stroke-[1.5]" />
+                      <span className="hidden sm:inline">Fullscreen</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={handleExportCSV}
+                      className="p-1 rounded-md text-[#4B5563] hover:text-[#111827] hover:bg-[#F1F3F5] border border-transparent hover:border-[#E3E6EB] transition-colors"
+                      title="Download GIS data"
+                    >
+                      <Download className="w-3.5 h-3.5 stroke-[1.5]" />
+                    </button>
+                  </>
+                )}
               </div>
             </div>
 
             {/* Map Canvas with Single-Hue Choropleth & Scale Bar */}
-            <div className="relative w-full h-[360px] bg-[#F9FAFB] rounded-md border border-[#E3E6EB] mt-3 overflow-hidden">
+            <div
+              className={`relative w-full ${
+                isMapFullscreen ? 'h-[calc(100vh-220px)] min-h-[500px]' : 'h-[360px]'
+              } bg-[#F9FAFB] rounded-md border border-[#E3E6EB] mt-3 overflow-hidden transition-all`}
+            >
               {/* Subtle grid background */}
               <div className="absolute inset-0 bg-[radial-gradient(#D1D5DB_1px,transparent_1px)] [background-size:20px_20px] opacity-40 pointer-events-none" />
 
@@ -1145,7 +1238,7 @@ export const DashboardView: React.FC = () => {
 
         {/* Table Footer with Provenance */}
         <div className="pt-3 border-t border-[#E3E6EB] mt-2 flex flex-col sm:flex-row sm:items-center justify-between text-[11px] text-[#6B7280] gap-2">
-          <span>Source: ISRO SAC VEDAS Krishi-DSS & Maharashtra Department of Relief and Rehabilitation</span>
+          <span>Source: ISRO SAC VEDAS Krishi-DSS & Madhya Pradesh State Disaster Management Authority (MPSDMA)</span>
           <span className="tabular-nums">Showing {filteredDistricts.length} of {districts.length} monitored administrative units</span>
         </div>
       </div>

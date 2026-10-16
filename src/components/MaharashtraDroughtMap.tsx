@@ -17,13 +17,15 @@ import {
   Satellite,
   Compass,
   Maximize2,
+  Minimize2,
   RefreshCw,
   Info,
   Radio,
   Truck,
   Droplets,
   ExternalLink,
-  ChevronDown
+  ChevronDown,
+  X
 } from 'lucide-react';
 
 interface MaharashtraDroughtMapProps {
@@ -57,6 +59,27 @@ export const MaharashtraDroughtMap: React.FC<MaharashtraDroughtMapProps> = ({
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
   const [hoveredDistrict, setHoveredDistrict] = useState<DistrictGeoFeature | null>(null);
 
+  // Handle escape key to exit fullscreen
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isFullscreen) {
+        setIsFullscreen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isFullscreen]);
+
+  // Invalidate map size on fullscreen toggle so tiles recalculate immediately
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.invalidateSize();
+      }
+    }, 150);
+    return () => clearTimeout(timer);
+  }, [isFullscreen]);
+
   const activeMetricConfig = DROUGHT_METRICS_CONFIG[activeMetric];
 
   // Tile layer URLs
@@ -88,9 +111,9 @@ export const MaharashtraDroughtMap: React.FC<MaharashtraDroughtMapProps> = ({
     if (!mapContainerRef.current) return;
 
     if (!mapInstanceRef.current) {
-      // Default center over Maharashtra Marathwada drought zone
+      // Default center over Madhya Pradesh drought zone (Bhopal/Sagar/Bundelkhand)
       const map = L.map(mapContainerRef.current, {
-        center: [19.05, 76.15],
+        center: [23.40, 77.80],
         zoom: 7,
         minZoom: 6,
         maxZoom: 15,
@@ -422,22 +445,28 @@ export const MaharashtraDroughtMap: React.FC<MaharashtraDroughtMapProps> = ({
     if (!showConvoys) return;
 
     convoys.forEach(c => {
-      // Find matching district coordinates for the convoy
-      let lat = 18.9891;
-      let lng = 75.7601;
+      // Find matching district coordinates for the convoy across Madhya Pradesh
+      let lat = 24.7450;
+      let lng = 78.8350;
 
-      if (c.targetTaluka.includes('Beed') || c.targetTaluka.includes('Patoda')) {
-        lat = 18.9667;
-        lng = 75.4500;
-      } else if (c.targetTaluka.includes('Latur') || c.targetTaluka.includes('Ausa')) {
-        lat = 18.2483;
-        lng = 76.5050;
-      } else if (c.targetTaluka.includes('Dharashiv') || c.targetTaluka.includes('Tuljapur')) {
-        lat = 18.0050;
-        lng = 76.0800;
-      } else if (c.targetTaluka.includes('Parbhani')) {
-        lat = 19.2686;
-        lng = 76.7708;
+      if (c.targetTaluka.includes('Jatara') || c.targetTaluka.includes('Tikamgarh')) {
+        lat = 25.0167;
+        lng = 79.0500;
+      } else if (c.targetTaluka.includes('Nowgong') || c.targetTaluka.includes('Chhatarpur')) {
+        lat = 25.0667;
+        lng = 79.4500;
+      } else if (c.targetTaluka.includes('Sendhwa') || c.targetTaluka.includes('Barwani')) {
+        lat = 21.6833;
+        lng = 75.0833;
+      } else if (c.targetTaluka.includes('Karahal') || c.targetTaluka.includes('Sheopur')) {
+        lat = 25.5000;
+        lng = 77.0500;
+      } else if (c.targetTaluka.includes('Kolaras') || c.targetTaluka.includes('Shivpuri')) {
+        lat = 25.2333;
+        lng = 77.6000;
+      } else if (c.targetTaluka.includes('Kasrawad') || c.targetTaluka.includes('Khargone')) {
+        lat = 22.1333;
+        lng = 75.6000;
       }
 
       // Slightly perturb based on progress
@@ -511,201 +540,303 @@ export const MaharashtraDroughtMap: React.FC<MaharashtraDroughtMapProps> = ({
 
   const fitMaharashtraBounds = () => {
     if (!mapInstanceRef.current) return;
-    mapInstanceRef.current.flyTo([19.05, 76.15], 7, { duration: 1 });
+    mapInstanceRef.current.flyTo([23.40, 77.80], 7, { duration: 1 });
   };
 
   return (
-    <div
-      className={`bg-white rounded-lg border border-[#E3E6EB] shadow-[0_1px_2px_rgba(16,24,40,0.04)] overflow-hidden flex flex-col ${
-        isFullscreen ? 'fixed inset-2 z-50 rounded-xl shadow-2xl' : ''
-      } ${className}`}
-    >
-      {/* Top Map Control Bar */}
-      <div className="p-3.5 border-b border-[#E3E6EB] bg-[#FAFBFC] flex flex-col gap-3">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
-          {/* Title & Active Index Badge */}
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-md bg-[#0F4C81] text-white flex items-center justify-center shadow-sm">
-              <Compass className="w-4 h-4" />
+    <>
+      {/* Backdrop for Fullscreen Map */}
+      {isFullscreen && (
+        <div
+          className="fixed inset-0 bg-black/60 z-40 backdrop-blur-xs transition-opacity"
+          onClick={() => setIsFullscreen(false)}
+        />
+      )}
+
+      <div
+        className={`bg-white rounded-lg border border-[#E3E6EB] shadow-[0_1px_2px_rgba(16,24,40,0.04)] overflow-hidden flex flex-col transition-all ${
+          isFullscreen ? 'fixed inset-2 md:inset-4 z-50 rounded-xl shadow-2xl border-[#BCD4EC]' : ''
+        } ${className}`}
+      >
+        {/* Top Map Control Bar: Clean & uncluttered in normal view, full options in fullscreen */}
+        <div className="p-3 border-b border-[#E3E6EB] bg-[#FAFBFC]">
+          {!isFullscreen ? (
+            /* Clean & Uncluttered Normal View */
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+              <div className="flex items-center gap-2.5">
+                <div className="w-7 h-7 rounded-md bg-[#0F4C81] text-white flex items-center justify-center shrink-0 shadow-xs">
+                  <Compass className="w-3.5 h-3.5" />
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-xs font-bold text-[#111827] truncate">
+                      Madhya Pradesh Drought Observatory
+                    </h3>
+                    <span className="inline-flex items-center gap-1 text-[9.5px] font-semibold bg-[#E8F5E9] text-[#2E7D32] px-1.5 py-0.2 rounded-full border border-[#C8E6C9] shrink-0">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#2E7D32] animate-pulse" />
+                      Live
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-[#6B7280] truncate">
+                    ISRO SAC VEDAS · IMD Telemetry · {activeMetricConfig.shortLabel}: <strong className="text-[#0F4C81]">{activeMetricConfig.label}</strong>
+                  </p>
+                </div>
+              </div>
+
+              {/* Streamlined Controls */}
+              <div className="flex items-center gap-2 flex-wrap self-end sm:self-auto">
+                {/* Compact Drought Index Dropdown */}
+                <div className="relative">
+                  <select
+                    value={activeMetric}
+                    onChange={e => setActiveMetric(e.target.value as DroughtMapMetric)}
+                    className="appearance-none bg-white border border-[#E3E6EB] text-[#111827] text-xs font-medium rounded-md pl-2.5 pr-7 py-1 shadow-xs hover:border-[#BCD4EC] focus:outline-none focus:ring-1 focus:ring-[#0F4C81] cursor-pointer"
+                    title="Select Drought Severity Index"
+                  >
+                    {(Object.keys(DROUGHT_METRICS_CONFIG) as DroughtMapMetric[]).map(key => (
+                      <option key={key} value={key}>
+                        Index: {DROUGHT_METRICS_CONFIG[key].shortLabel} - {DROUGHT_METRICS_CONFIG[key].label}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="w-3 h-3 text-[#6B7280] absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
+
+                {/* Basemap Dropdown */}
+                <div className="relative hidden md:block">
+                  <select
+                    value={activeBasemap}
+                    onChange={e => setActiveBasemap(e.target.value as BasemapType)}
+                    className="appearance-none bg-white border border-[#E3E6EB] text-[#4B5563] text-xs rounded-md pl-2 pr-6 py-1 hover:border-[#BCD4EC] focus:outline-none focus:ring-1 focus:ring-[#0F4C81] cursor-pointer"
+                    title="Select Base Tilemap"
+                  >
+                    <option value="carto_light">Map: Light</option>
+                    <option value="esri_satellite">Map: Satellite</option>
+                    <option value="osm">Map: OSM</option>
+                  </select>
+                  <ChevronDown className="w-2.5 h-2.5 text-[#6B7280] absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
+
+                {/* Full State Bounds Reset */}
+                <button
+                  type="button"
+                  onClick={fitMaharashtraBounds}
+                  className="p-1 text-[#4B5563] hover:text-[#111827] border border-[#E3E6EB] rounded bg-white hover:bg-[#F9FAFB] transition-colors shadow-xs"
+                  title="Fit full Madhya Pradesh state bounds"
+                >
+                  <Compass className="w-3.5 h-3.5 text-[#0F4C81]" />
+                </button>
+
+                {/* Prominent Fullscreen Trigger */}
+                <button
+                  type="button"
+                  onClick={() => setIsFullscreen(true)}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold text-[#0F4C81] bg-[#EEF4FA] border border-[#BCD4EC] rounded-md hover:bg-[#E0EDF8] transition-colors shadow-xs"
+                  title="Expand to fullscreen - see all indices and layers"
+                >
+                  <Maximize2 className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Fullscreen</span>
+                </button>
+              </div>
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h3 className="text-sm font-bold text-[#111827] tracking-tight">
-                  Maharashtra Drought Geospatial Observatory
-                </h3>
-                <span className="inline-flex items-center gap-1 text-[10px] font-semibold bg-[#E8F5E9] text-[#2E7D32] px-2 py-0.5 rounded-full border border-[#C8E6C9]">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#2E7D32] animate-pulse" />
-                  Live GIS Telemetry
+          ) : (
+            /* Fullscreen Mode: Spaciously show ALL options explicitly */
+            <div className="flex flex-col gap-3">
+              {/* Top Bar */}
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pb-2.5 border-b border-[#E3E6EB]">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-md bg-[#0F4C81] text-white flex items-center justify-center shadow-xs">
+                    <Compass className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h3 className="text-sm font-bold text-[#111827] tracking-tight">
+                        Madhya Pradesh Drought Geospatial Observatory
+                      </h3>
+                      <span className="inline-flex items-center gap-1 text-[10px] font-semibold bg-[#E8F5E9] text-[#2E7D32] px-2 py-0.5 rounded-full border border-[#C8E6C9]">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#2E7D32] animate-pulse" />
+                        Live GIS Telemetry
+                      </span>
+                      <span className="text-[10px] font-semibold bg-[#EEF4FA] text-[#0F4C81] px-2 py-0.5 rounded-full border border-[#BCD4EC]">
+                        Fullscreen Mode (Esc to exit)
+                      </span>
+                    </div>
+                    <p className="text-xs text-[#6B7280]">
+                      Calibrated against ISRO SAC VEDAS Krishi-DSS, IMD Doppler & Copernicus Sentinel-2
+                    </p>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex items-center gap-2 flex-wrap">
+                  <button
+                    type="button"
+                    onClick={fitMaharashtraBounds}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-[#4B5563] bg-white border border-[#E3E6EB] rounded hover:bg-[#F9FAFB] transition-colors"
+                    title="Reset view to whole state"
+                  >
+                    <Compass className="w-3.5 h-3.5 text-[#0F4C81]" />
+                    <span>Full State</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    disabled={isVedasSyncing}
+                    onClick={() => syncVedasData()}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-[#0F4C81] bg-[#EEF4FA] border border-[#BCD4EC] rounded hover:bg-[#E0EDF8] transition-colors disabled:opacity-50"
+                    title="Refresh satellite telemetry from SAC VEDAS"
+                  >
+                    <RefreshCw className={`w-3.5 h-3.5 ${isVedasSyncing ? 'animate-spin' : ''}`} />
+                    <span>{isVedasSyncing ? 'Syncing VEDAS...' : 'Sync VEDAS'}</span>
+                  </button>
+
+                  <a
+                    href={vedasPortalUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-[#6B7280] bg-white border border-[#E3E6EB] rounded hover:text-[#111827] hover:bg-[#F9FAFB] transition-colors"
+                    title="Open ISRO SAC VEDAS Krishi-DSS portal"
+                  >
+                    <span>SAC Portal</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+
+                  <button
+                    type="button"
+                    onClick={() => setIsFullscreen(false)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold text-white bg-[#C62828] hover:bg-[#B71C1C] rounded shadow-xs transition-colors"
+                    title="Exit fullscreen mode (or press Esc)"
+                  >
+                    <Minimize2 className="w-3.5 h-3.5" />
+                    <span>Exit Fullscreen</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Second Row: All Options Laid Out Spaciously */}
+              <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3 pt-0.5">
+                {/* All 6 Drought Indices Laid Out */}
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="text-[11px] font-semibold text-[#4B5563] whitespace-nowrap uppercase tracking-wider mr-1">
+                    Drought Indices:
+                  </span>
+                  {(Object.keys(DROUGHT_METRICS_CONFIG) as DroughtMapMetric[]).map(key => {
+                    const cfg = DROUGHT_METRICS_CONFIG[key];
+                    const isActive = activeMetric === key;
+                    return (
+                      <button
+                        key={key}
+                        type="button"
+                        onClick={() => setActiveMetric(key)}
+                        className={`px-3 py-1 rounded text-xs font-medium whitespace-nowrap transition-all ${
+                          isActive
+                            ? 'bg-[#0F4C81] text-white shadow-xs font-semibold'
+                            : 'bg-white text-[#4B5563] border border-[#E3E6EB] hover:bg-[#F3F4F6] hover:text-[#111827]'
+                        }`}
+                      >
+                        {cfg.label}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Basemaps and Layers */}
+                <div className="flex items-center gap-3 flex-wrap">
+                  {/* Basemap switcher */}
+                  <div className="flex items-center gap-1 bg-white border border-[#E3E6EB] rounded p-0.5 text-xs">
+                    <span className="text-[10px] uppercase font-bold text-[#6B7280] px-1.5">Basemap:</span>
+                    <button
+                      type="button"
+                      onClick={() => setActiveBasemap('carto_light')}
+                      className={`px-2.5 py-0.5 rounded text-[11px] font-medium transition-colors ${
+                        activeBasemap === 'carto_light' ? 'bg-[#EEF4FA] text-[#0F4C81] font-semibold' : 'text-[#6B7280]'
+                      }`}
+                    >
+                      Light
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setActiveBasemap('esri_satellite')}
+                      className={`px-2.5 py-0.5 rounded text-[11px] font-medium transition-colors ${
+                        activeBasemap === 'esri_satellite' ? 'bg-[#EEF4FA] text-[#0F4C81] font-semibold' : 'text-[#6B7280]'
+                      }`}
+                    >
+                      Satellite
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setActiveBasemap('osm')}
+                      className={`px-2.5 py-0.5 rounded text-[11px] font-medium transition-colors ${
+                        activeBasemap === 'osm' ? 'bg-[#EEF4FA] text-[#0F4C81] font-semibold' : 'text-[#6B7280]'
+                      }`}
+                    >
+                      OSM
+                    </button>
+                  </div>
+
+                  {/* Layer Checkboxes */}
+                  <div className="flex items-center gap-3 bg-white border border-[#E3E6EB] rounded px-3 py-1 text-xs">
+                    <span className="text-[10px] uppercase font-bold text-[#6B7280]">Layers:</span>
+                    <label className="flex items-center gap-1 text-[11px] text-[#4B5563] cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={showTalukas}
+                        onChange={e => setShowTalukas(e.target.checked)}
+                        className="rounded border-[#D1D5DB] text-[#0F4C81] focus:ring-[#0F4C81] w-3 h-3"
+                      />
+                      <span>Talukas</span>
+                    </label>
+
+                    <label className="flex items-center gap-1 text-[11px] text-[#4B5563] cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={showAWS}
+                        onChange={e => setShowAWS(e.target.checked)}
+                        className="rounded border-[#D1D5DB] text-[#0F4C81] focus:ring-[#0F4C81] w-3 h-3"
+                      />
+                      <span>AWS Weather</span>
+                    </label>
+
+                    <label className="flex items-center gap-1 text-[11px] text-[#4B5563] cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={showConvoys}
+                        onChange={e => setShowConvoys(e.target.checked)}
+                        className="rounded border-[#D1D5DB] text-[#0F4C81] focus:ring-[#0F4C81] w-3 h-3"
+                      />
+                      <span>Tanker Convoys</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              {/* Metric Explanation Banner in Fullscreen */}
+              <div className="flex items-center justify-between text-[11px] bg-[#F1F5F9] px-3 py-1.5 rounded text-[#334155] border border-[#E2E8F0]">
+                <div className="flex items-center gap-1.5">
+                  <Info className="w-3.5 h-3.5 text-[#0F4C81] shrink-0" />
+                  <span>
+                    <strong>{activeMetricConfig.label}:</strong> {activeMetricConfig.description}
+                  </span>
+                </div>
+                <span className="text-[10px] text-[#64748B] shrink-0 font-medium">
+                  Sync: {lastVedasSync}
                 </span>
               </div>
-              <p className="text-xs text-[#6B7280]">
-                Calibrated against ISRO SAC VEDAS Krishi-DSS, IMD Doppler & Copernicus Sentinel-2
-              </p>
             </div>
-          </div>
-
-          {/* Quick Actions: Sync Button & Fullscreen */}
-          <div className="flex items-center gap-2 flex-wrap">
-            <button
-              type="button"
-              onClick={fitMaharashtraBounds}
-              className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-[#4B5563] bg-white border border-[#E3E6EB] rounded hover:bg-[#F9FAFB] transition-colors"
-              title="Reset view to whole state"
-            >
-              <Compass className="w-3.5 h-3.5 text-[#0F4C81]" />
-              <span>Full State</span>
-            </button>
-
-            <button
-              type="button"
-              disabled={isVedasSyncing}
-              onClick={() => syncVedasData()}
-              className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-[#0F4C81] bg-[#EEF4FA] border border-[#BCD4EC] rounded hover:bg-[#E0EDF8] transition-colors disabled:opacity-50"
-              title="Refresh satellite telemetry from SAC VEDAS"
-            >
-              <RefreshCw className={`w-3.5 h-3.5 ${isVedasSyncing ? 'animate-spin' : ''}`} />
-              <span>Sync VEDAS</span>
-            </button>
-
-            <a
-              href={vedasPortalUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-[#6B7280] bg-white border border-[#E3E6EB] rounded hover:text-[#111827] hover:bg-[#F9FAFB] transition-colors"
-              title="Open ISRO SAC VEDAS Krishi-DSS portal"
-            >
-              <span>SAC Portal</span>
-              <ExternalLink className="w-3 h-3" />
-            </a>
-
-            <button
-              type="button"
-              onClick={() => setIsFullscreen(!isFullscreen)}
-              className="p-1 text-[#6B7280] hover:text-[#111827] border border-[#E3E6EB] rounded bg-white hover:bg-[#F9FAFB] transition-colors"
-              title={isFullscreen ? 'Exit Fullscreen' : 'Fullscreen Map'}
-            >
-              <Maximize2 className="w-3.5 h-3.5" />
-            </button>
-          </div>
+          )}
         </div>
 
-        {/* Index Selector Pills */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pt-1 border-t border-[#ECEEF2]">
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
-            <span className="text-[11px] font-semibold text-[#4B5563] whitespace-nowrap uppercase tracking-wider mr-1">
-              Drought Index:
-            </span>
-            {(Object.keys(DROUGHT_METRICS_CONFIG) as DroughtMapMetric[]).map(key => {
-              const cfg = DROUGHT_METRICS_CONFIG[key];
-              const isActive = activeMetric === key;
-              return (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() => setActiveMetric(key)}
-                  className={`px-2.5 py-1 rounded text-xs font-medium whitespace-nowrap transition-all ${
-                    isActive
-                      ? 'bg-[#0F4C81] text-white shadow-xs font-semibold'
-                      : 'bg-white text-[#4B5563] border border-[#E3E6EB] hover:bg-[#F3F4F6] hover:text-[#111827]'
-                  }`}
-                >
-                  {cfg.shortLabel}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Basemap & Layer Toggles */}
-          <div className="flex items-center gap-2 self-end sm:self-auto flex-wrap">
-            {/* Basemap switcher */}
-            <div className="flex items-center gap-1 bg-white border border-[#E3E6EB] rounded p-0.5 text-xs">
-              <button
-                type="button"
-                onClick={() => setActiveBasemap('carto_light')}
-                className={`px-2 py-0.5 rounded text-[11px] font-medium transition-colors ${
-                  activeBasemap === 'carto_light' ? 'bg-[#EEF4FA] text-[#0F4C81] font-semibold' : 'text-[#6B7280]'
-                }`}
-              >
-                Light
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveBasemap('esri_satellite')}
-                className={`px-2 py-0.5 rounded text-[11px] font-medium transition-colors ${
-                  activeBasemap === 'esri_satellite' ? 'bg-[#EEF4FA] text-[#0F4C81] font-semibold' : 'text-[#6B7280]'
-                }`}
-              >
-                Satellite
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveBasemap('osm')}
-                className={`px-2 py-0.5 rounded text-[11px] font-medium transition-colors ${
-                  activeBasemap === 'osm' ? 'bg-[#EEF4FA] text-[#0F4C81] font-semibold' : 'text-[#6B7280]'
-                }`}
-              >
-                OSM
-              </button>
-            </div>
-
-            {/* Layer Checkboxes */}
-            <label className="flex items-center gap-1 text-[11px] text-[#4B5563] cursor-pointer select-none">
-              <input
-                type="checkbox"
-                checked={showTalukas}
-                onChange={e => setShowTalukas(e.target.checked)}
-                className="rounded border-[#D1D5DB] text-[#0F4C81] focus:ring-[#0F4C81] w-3 h-3"
-              />
-              <span>Talukas</span>
-            </label>
-
-            <label className="flex items-center gap-1 text-[11px] text-[#4B5563] cursor-pointer select-none">
-              <input
-                type="checkbox"
-                checked={showAWS}
-                onChange={e => setShowAWS(e.target.checked)}
-                className="rounded border-[#D1D5DB] text-[#0F4C81] focus:ring-[#0F4C81] w-3 h-3"
-              />
-              <span>AWS Weather</span>
-            </label>
-
-            <label className="flex items-center gap-1 text-[11px] text-[#4B5563] cursor-pointer select-none">
-              <input
-                type="checkbox"
-                checked={showConvoys}
-                onChange={e => setShowConvoys(e.target.checked)}
-                className="rounded border-[#D1D5DB] text-[#0F4C81] focus:ring-[#0F4C81] w-3 h-3"
-              />
-              <span>Tankers</span>
-            </label>
-          </div>
-        </div>
-
-        {/* Metric Explanation Banner */}
-        <div className="flex items-center justify-between text-[11px] bg-[#F1F5F9] px-2.5 py-1.5 rounded text-[#334155] border border-[#E2E8F0]">
-          <div className="flex items-center gap-1.5">
-            <Info className="w-3.5 h-3.5 text-[#0F4C81] shrink-0" />
-            <span>
-              <strong>{activeMetricConfig.label}:</strong> {activeMetricConfig.description}
-            </span>
-          </div>
-          <span className="text-[10px] text-[#64748B] shrink-0 font-medium">
-            Sync: {lastVedasSync}
-          </span>
-        </div>
-      </div>
-
-      {/* Main Map Canvas Area */}
-      <div className="relative w-full flex-1 min-h-[460px] lg:min-h-[500px]">
-        {/* Leaflet DOM Node */}
-        <div ref={mapContainerRef} className="w-full h-full min-h-[460px] lg:min-h-[500px]" />
+        {/* Main Map Canvas Area */}
+        <div className={`relative w-full flex-1 ${isFullscreen ? 'h-[calc(100vh-210px)] min-h-[500px]' : 'min-h-[460px] lg:min-h-[500px]'}`}>
+          {/* Leaflet DOM Node */}
+          <div ref={mapContainerRef} className="w-full h-full min-h-[460px] lg:min-h-[500px]" />
 
         {/* Floating Quick District Jump Bar (Top-Right) */}
         <div className="absolute top-3 right-3 z-20 bg-white/95 backdrop-blur-xs border border-[#E3E6EB] rounded-md shadow-md p-2 flex items-center gap-1.5 text-xs">
           <span className="text-[10px] uppercase font-bold text-[#6B7280] tracking-wider mr-1">
             Focus:
           </span>
-          {['beed', 'latur', 'osmanabad', 'parbhani', 'nanded', 'solapur'].map(distId => {
+          {['tikamgarh', 'chhatarpur', 'barwani', 'sheopur', 'shivpuri', 'khargone', 'dewas'].map(distId => {
             const isCurrent = selectedDistrictId === distId;
             const geo = MAHARASHTRA_DISTRICTS_GEO.find(d => d.id === distId);
             return (
@@ -800,7 +931,7 @@ export const MaharashtraDroughtMap: React.FC<MaharashtraDroughtMapProps> = ({
         <div className="flex items-center gap-2">
           <span className="font-semibold text-[#111827]">Active Focus District:</span>
           <span className="text-[#0F4C81] font-bold bg-[#EEF4FA] px-2 py-0.5 rounded border border-[#BCD4EC]">
-            {MAHARASHTRA_DISTRICTS_GEO.find(d => d.id === selectedDistrictId)?.name || 'Beed'}
+            {MAHARASHTRA_DISTRICTS_GEO.find(d => d.id === selectedDistrictId)?.name || 'Tikamgarh'}
           </span>
           <span className="text-[11px] text-[#6B7280]">
             (Division: {MAHARASHTRA_DISTRICTS_GEO.find(d => d.id === selectedDistrictId)?.division})
@@ -811,6 +942,7 @@ export const MaharashtraDroughtMap: React.FC<MaharashtraDroughtMapProps> = ({
           <span>Layers: Districts · Taluka Hotspots ({TALUKA_HOTSPOTS.length}) · IMD AWS ({AWS_WEATHER_STATIONS.length})</span>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };

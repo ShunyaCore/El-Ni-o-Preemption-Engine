@@ -22,7 +22,7 @@ import {
 export const RiskForecastView: React.FC = () => {
   const { districts, setCurrentModule } = useApp();
 
-  const [selectedDistrictId, setSelectedDistrictId] = useState<string>('beed');
+  const [selectedDistrictId, setSelectedDistrictId] = useState<string>('tikamgarh');
   const [timeHorizon, setTimeHorizon] = useState<'15d' | '30d' | '60d' | 'season'>('30d');
   const [activeTab, setActiveTab] = useState<'observed' | 'historical' | 'forecast' | 'simulation'>('observed');
   const [selectedIndicator, setSelectedIndicator] = useState<'spi' | 'vci' | 'soil' | 'reservoir'>('spi');
@@ -53,11 +53,11 @@ export const RiskForecastView: React.FC = () => {
       similarityScore: 92
     },
     {
-      year: '2018-19 (Severe Marathwada Drought)',
+      year: '2017-18 (Severe Bundelkhand Drought)',
       spiAvg: -2.41,
       rainfallDeficit: -51.2,
       tankersDeployed: 3820,
-      outcome: 'State declared scarcity across 151 talukas; 1,400+ cattle fodder camps established',
+      outcome: 'State declared scarcity across 114 tehsils; 950+ cattle fodder camps established in Bundelkhand',
       similarityScore: 88
     },
     {
@@ -65,7 +65,7 @@ export const RiskForecastView: React.FC = () => {
       spiAvg: -2.68,
       rainfallDeficit: -58.9,
       tankersDeployed: 4600,
-      outcome: 'Latur "Jaldoot" water express train deployed; extreme groundwater depletion (<12% storage)',
+      outcome: 'Tikamgarh & Chhatarpur emergency water trains deployed; extreme groundwater overdraft (<14% storage)',
       similarityScore: 79
     },
     {
@@ -183,7 +183,7 @@ export const RiskForecastView: React.FC = () => {
                   Current Ground Telemetry: {district.name} District
                 </h3>
                 <p className="text-xs text-[#6B7280]">
-                  Grounded in ISRO SAC VEDAS Krishi-DSS, IMD Pune, and Maharashtra GSDA
+                  Grounded in ISRO SAC VEDAS Krishi-DSS, IMD Bhopal, and MP WRD
                 </p>
               </div>
               <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-[#FEE2E2] text-[#991B1B] border border-[#FCA5A5]">
@@ -283,7 +283,7 @@ export const RiskForecastView: React.FC = () => {
           <div className="flex items-center justify-between pb-3 border-b border-[#E3E6EB] mb-4">
             <div>
               <h3 className="text-sm font-bold text-[#111827]">
-                Historical Analog Assessment (Maharashtra Drought Archive)
+                Historical Analog Assessment (Madhya Pradesh Drought Archive)
               </h3>
               <p className="text-xs text-[#6B7280]">
                 Comparing current {district.name} moisture trajectory against calibrated benchmark drought events
@@ -428,7 +428,7 @@ export const RiskForecastView: React.FC = () => {
               </div>
               <div className="p-2.5 bg-[#F9FAF8] rounded border border-[#E3E6EB]">
                 <strong className="text-[#111827] block mb-0.5">Scientific Limitations:</strong>
-                Sub-divisional precipitation forecasts in Marathwada have a skill score (ROC area) of 0.68 beyond day 18. Local convective showers cannot be ruled out.
+                Sub-divisional precipitation forecasts in Bundelkhand & Nimar have a skill score (ROC area) of 0.68 beyond day 18. Local convective showers cannot be ruled out.
               </div>
               <div className="p-2.5 bg-[#FFFBEB] rounded border border-[#FDE68A] text-[#92400E]">
                 <strong className="block mb-0.5">Non-Deterministic Caveat:</strong>

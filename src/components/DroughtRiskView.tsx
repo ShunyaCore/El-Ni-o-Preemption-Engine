@@ -39,228 +39,209 @@ interface CropLossProfile {
 }
 
 const REGIONAL_CROP_PROFILES: Record<string, CropLossProfile> = {
-  beed: {
-    id: 'beed',
-    name: 'Beed',
-    talukas: 'Patoda, Ashti, Majalgaon & Georai',
-    overallLossRiskPct: 74,
-    totalAcreageHa: '6.7 Lakh Hectares',
-    projectedYieldShortfallMT: '420,000 MT',
-    economicExposureCr: 284,
-    soilRootDeficit: '-64% root-zone moisture saturation',
-    ndviAnomalyDelta: '-0.28 vs 5-yr baseline',
-    preemptiveIntervention: 'Emergency borewell recharge tranches + 34 potable water tanker units',
+  tikamgarh: {
+    id: 'tikamgarh',
+    name: 'Tikamgarh',
+    talukas: 'Baldeogarh, Jatara, Palera & Mohangarh',
+    overallLossRiskPct: 78,
+    totalAcreageHa: '4.8 Lakh Hectares',
+    projectedYieldShortfallMT: '390,000 MT',
+    economicExposureCr: 295,
+    soilRootDeficit: '-68% root-zone moisture saturation',
+    ndviAnomalyDelta: '-0.32 vs 5-yr baseline',
+    preemptiveIntervention: 'Emergency rocky-aquifer borewell recharge + 38 potable water tanker units',
     crops: [
-      { name: 'Soybean', lossRisk: 78, acreage: '3.4 L Ha', stage: 'Pod filling / grain development', severity: 'Critical' },
-      { name: 'Cotton (Bt)', lossRisk: 71, acreage: '2.1 L Ha', stage: 'Boll formation stress', severity: 'Critical' },
-      { name: 'Bajra / Pearl Millet', lossRisk: 58, acreage: '1.2 L Ha', stage: 'Flowering & earhead emergence', severity: 'Severe' }
+      { name: 'Soybean', lossRisk: 82, acreage: '2.6 L Ha', stage: 'Pod filling / grain maturation failure', severity: 'Critical' },
+      { name: 'Sesame (Til)', lossRisk: 74, acreage: '1.2 L Ha', stage: 'Capsule setting moisture stress', severity: 'Critical' },
+      { name: 'Gram / Chickpea', lossRisk: 62, acreage: '1.0 L Ha', stage: 'Pre-sowing seedbed deficit', severity: 'Severe' }
     ],
     polygonPath: 'M 290 170 L 410 155 L 450 215 L 415 275 L 325 270 L 275 210 Z',
     centroid: { x: 360, y: 215 }
   },
-  latur: {
-    id: 'latur',
-    name: 'Latur',
-    talukas: 'Ausa, Nilanga, Renapur & Udgir',
-    overallLossRiskPct: 68,
-    totalAcreageHa: '5.9 Lakh Hectares',
-    projectedYieldShortfallMT: '385,000 MT',
-    economicExposureCr: 256,
-    soilRootDeficit: '-58% deep aquifer depletion',
-    ndviAnomalyDelta: '-0.24 vs 5-yr baseline',
-    preemptiveIntervention: 'Deep aquifer recharge funding + emergency fodder bank subsidies',
+  chhatarpur: {
+    id: 'chhatarpur',
+    name: 'Chhatarpur',
+    talukas: 'Nowgong, Rajnagar, Bijawar & Bada Malhera',
+    overallLossRiskPct: 72,
+    totalAcreageHa: '6.4 Lakh Hectares',
+    projectedYieldShortfallMT: '425,000 MT',
+    economicExposureCr: 278,
+    soilRootDeficit: '-60% Ken basin tributary depletion',
+    ndviAnomalyDelta: '-0.27 vs 5-yr baseline',
+    preemptiveIntervention: 'Ken-Betwa linked canal diversion + emergency fodder bank subsidies',
     crops: [
-      { name: 'Soybean', lossRisk: 72, acreage: '3.8 L Ha', stage: 'Seed maturation failure', severity: 'Critical' },
-      { name: 'Pigeon Pea (Tur)', lossRisk: 64, acreage: '1.4 L Ha', stage: 'Vegetative growth stunt', severity: 'Severe' },
-      { name: 'Gram / Chickpea', lossRisk: 48, acreage: '0.7 L Ha', stage: 'Pre-sowing moisture deficit', severity: 'Moderate' }
+      { name: 'Soybean', lossRisk: 76, acreage: '3.5 L Ha', stage: 'Seed maturation failure', severity: 'Critical' },
+      { name: 'Mustard (Rai)', lossRisk: 68, acreage: '1.8 L Ha', stage: 'Sowing moisture deficit', severity: 'Severe' },
+      { name: 'Gram / Wheat', lossRisk: 52, acreage: '1.1 L Ha', stage: 'Pre-sowing land preparation', severity: 'Moderate' }
     ],
     polygonPath: 'M 450 215 L 530 205 L 575 275 L 515 330 L 435 305 L 415 275 Z',
     centroid: { x: 485, y: 265 }
   },
-  osmanabad: {
-    id: 'osmanabad',
-    name: 'Dharashiv (Osmanabad)',
-    talukas: 'Tuljapur, Bhoom, Paranda & Kalamb',
-    overallLossRiskPct: 58,
-    totalAcreageHa: '4.8 Lakh Hectares',
-    projectedYieldShortfallMT: '275,000 MT',
-    economicExposureCr: 195,
-    soilRootDeficit: '-49% upper topsoil dryness',
-    ndviAnomalyDelta: '-0.19 vs 5-yr baseline',
-    preemptiveIntervention: 'Cattle fodder depot supply expansion + micro-irrigation grants',
+  barwani: {
+    id: 'barwani',
+    name: 'Barwani',
+    talukas: 'Sendhwa, Rajpur, Pansemal & Niwali',
+    overallLossRiskPct: 69,
+    totalAcreageHa: '5.2 Lakh Hectares',
+    projectedYieldShortfallMT: '340,000 MT',
+    economicExposureCr: 242,
+    soilRootDeficit: '-58% Nimar rainshadow upland deficit',
+    ndviAnomalyDelta: '-0.25 vs 5-yr baseline',
+    preemptiveIntervention: 'Tribal solar pump water stations + 29 emergency water tankers',
     crops: [
-      { name: 'Soybean', lossRisk: 62, acreage: '2.5 L Ha', stage: 'Flowering abortion', severity: 'Severe' },
-      { name: 'Sugarcane (Ratoon)', lossRisk: 59, acreage: '1.1 L Ha', stage: 'Severe stalk moisture stress', severity: 'Severe' },
-      { name: 'Kharif Jowar', lossRisk: 46, acreage: '1.2 L Ha', stage: 'Grain filling stage', severity: 'Moderate' }
+      { name: 'Cotton (Bt)', lossRisk: 75, acreage: '2.8 L Ha', stage: 'Square drop & boll cracking', severity: 'Critical' },
+      { name: 'Maize (Makka)', lossRisk: 66, acreage: '1.5 L Ha', stage: 'Tasseling moisture abortion', severity: 'Severe' },
+      { name: 'Jowar', lossRisk: 48, acreage: '0.9 L Ha', stage: 'Grain filling stage', severity: 'Moderate' }
     ],
     polygonPath: 'M 325 270 L 415 275 L 435 305 L 415 365 L 345 375 L 295 325 Z',
     centroid: { x: 370, y: 320 }
   },
-  parbhani: {
-    id: 'parbhani',
-    name: 'Parbhani',
-    talukas: 'Jintur, Gangakhed, Palam & Selu',
-    overallLossRiskPct: 54,
-    totalAcreageHa: '5.1 Lakh Hectares',
-    projectedYieldShortfallMT: '225,000 MT',
-    economicExposureCr: 158,
-    soilRootDeficit: '-43% root-zone moisture saturation',
-    ndviAnomalyDelta: '-0.18 vs 5-yr baseline',
-    preemptiveIntervention: 'Canal rotational rationing + 18 potable water tanker units deployed',
+  sheopur: {
+    id: 'sheopur',
+    name: 'Sheopur',
+    talukas: 'Karahal, Vijaypur & Sheopur',
+    overallLossRiskPct: 65,
+    totalAcreageHa: '3.9 Lakh Hectares',
+    projectedYieldShortfallMT: '260,000 MT',
+    economicExposureCr: 185,
+    soilRootDeficit: '-54% semi-arid Chambal soil dryness',
+    ndviAnomalyDelta: '-0.22 vs 5-yr baseline',
+    preemptiveIntervention: 'Chambal canal water rationing + 24 potable water tanker units',
     crops: [
-      { name: 'Cotton (Bt)', lossRisk: 59, acreage: '2.8 L Ha', stage: 'Boll retention drop', severity: 'Severe' },
-      { name: 'Soybean', lossRisk: 52, acreage: '1.8 L Ha', stage: 'Pod formation stress', severity: 'Severe' },
-      { name: 'Pigeon Pea (Tur)', lossRisk: 44, acreage: '0.5 L Ha', stage: 'Vegetative moisture deficit', severity: 'Moderate' }
+      { name: 'Mustard (Sarson)', lossRisk: 70, acreage: '2.1 L Ha', stage: 'Germination soil crusting', severity: 'Critical' },
+      { name: 'Wheat', lossRisk: 62, acreage: '1.2 L Ha', stage: 'Rabi sowing moisture crunch', severity: 'Severe' },
+      { name: 'Bajra', lossRisk: 45, acreage: '0.6 L Ha', stage: 'Flowering & earhead emergence', severity: 'Moderate' }
     ],
     polygonPath: 'M 410 155 L 530 145 L 530 205 L 450 215 Z',
     centroid: { x: 470, y: 180 }
   },
-  nanded: {
-    id: 'nanded',
-    name: 'Nanded',
-    talukas: 'Mukhed, Biloli, Degloor & Loha',
-    overallLossRiskPct: 46,
-    totalAcreageHa: '6.2 Lakh Hectares',
-    projectedYieldShortfallMT: '215,000 MT',
-    economicExposureCr: 148,
-    soilRootDeficit: '-41% Godavari tributary basin drop',
-    ndviAnomalyDelta: '-0.14 vs 5-yr baseline',
-    preemptiveIntervention: 'Agrarian pump electricity subsidies + drought seed bank kits',
+  shivpuri: {
+    id: 'shivpuri',
+    name: 'Shivpuri',
+    talukas: 'Kolaras, Karera, Pohari & Pichhore',
+    overallLossRiskPct: 61,
+    totalAcreageHa: '6.1 Lakh Hectares',
+    projectedYieldShortfallMT: '295,000 MT',
+    economicExposureCr: 215,
+    soilRootDeficit: '-49% Gwalior division aquifer drop',
+    ndviAnomalyDelta: '-0.19 vs 5-yr baseline',
+    preemptiveIntervention: 'Agrarian power guarantees + seed kit distribution',
     crops: [
-      { name: 'Cotton', lossRisk: 51, acreage: '3.1 L Ha', stage: 'Squaring & vegetative', severity: 'Severe' },
-      { name: 'Turmeric', lossRisk: 44, acreage: '0.8 L Ha', stage: 'Rhizome development', severity: 'Moderate' },
-      { name: 'Soybean', lossRisk: 42, acreage: '2.3 L Ha', stage: 'Pod setting', severity: 'Moderate' }
+      { name: 'Soybean', lossRisk: 66, acreage: '3.2 L Ha', stage: 'Pod maturity stunting', severity: 'Severe' },
+      { name: 'Groundnut (Mungfali)', lossRisk: 58, acreage: '1.6 L Ha', stage: 'Pegging moisture stress', severity: 'Severe' },
+      { name: 'Mustard', lossRisk: 46, acreage: '1.3 L Ha', stage: 'Pre-sowing readiness', severity: 'Moderate' }
     ],
     polygonPath: 'M 530 145 L 640 165 L 685 245 L 575 275 L 530 205 L 505 155 Z',
     centroid: { x: 590, y: 215 }
   },
-  solapur: {
-    id: 'solapur',
-    name: 'Solapur',
-    talukas: 'Karmala, Sangola, Pandharpur & Madha',
-    overallLossRiskPct: 49,
-    totalAcreageHa: '7.1 Lakh Hectares',
-    projectedYieldShortfallMT: '240,000 MT',
-    economicExposureCr: 162,
-    soilRootDeficit: '-38% Ujani canal tail-end shortfall',
-    ndviAnomalyDelta: '-0.16 vs 5-yr baseline',
-    preemptiveIntervention: 'Potable water convoy line SH-142 + fruit orchard drip relief',
+  khargone: {
+    id: 'khargone',
+    name: 'Khargone (West Nimar)',
+    talukas: 'Kasrawad, Barwaha, Maheshwar & Bhikangaon',
+    overallLossRiskPct: 58,
+    totalAcreageHa: '6.9 Lakh Hectares',
+    projectedYieldShortfallMT: '310,000 MT',
+    economicExposureCr: 220,
+    soilRootDeficit: '-46% Narmada canal tail-end shortfall',
+    ndviAnomalyDelta: '-0.18 vs 5-yr baseline',
+    preemptiveIntervention: 'Chilli & cotton drip irrigation grants + 25 tanker units',
     crops: [
-      { name: 'Pomegranate & Horticulture', lossRisk: 58, acreage: '0.9 L Ha', stage: 'Fruit cracking & defoliation', severity: 'Severe' },
-      { name: 'Rabi Jowar', lossRisk: 45, acreage: '3.4 L Ha', stage: 'Sowing moisture risk', severity: 'Moderate' },
-      { name: 'Sugarcane', lossRisk: 48, acreage: '1.8 L Ha', stage: 'High irrigation deficit', severity: 'Moderate' }
+      { name: 'Red Chilli (Mirchi)', lossRisk: 68, acreage: '1.8 L Ha', stage: 'Fruit setting water stress', severity: 'Severe' },
+      { name: 'Cotton', lossRisk: 59, acreage: '3.4 L Ha', stage: 'Boll retention drop', severity: 'Severe' },
+      { name: 'Soybean', lossRisk: 47, acreage: '1.7 L Ha', stage: 'Pod maturation', severity: 'Moderate' }
     ],
     polygonPath: 'M 215 285 L 295 325 L 345 375 L 295 425 L 195 395 L 185 330 Z',
     centroid: { x: 255, y: 355 }
   },
-  jalna: {
-    id: 'jalna',
-    name: 'Jalna',
-    talukas: 'Ambad, Partur, Ghansawangi & Bhokardan',
+  dewas: {
+    id: 'dewas',
+    name: 'Dewas',
+    talukas: 'Sonkatch, Bagli, Kannod & Khategaon',
     overallLossRiskPct: 53,
-    totalAcreageHa: '4.9 Lakh Hectares',
-    projectedYieldShortfallMT: '190,000 MT',
-    economicExposureCr: 135,
-    soilRootDeficit: '-44% dry plateau moisture depletion',
-    ndviAnomalyDelta: '-0.17 vs 5-yr baseline',
-    preemptiveIntervention: 'Seed pouch pre-positioning + agricultural feeder power guarantees',
+    totalAcreageHa: '5.8 Lakh Hectares',
+    projectedYieldShortfallMT: '235,000 MT',
+    economicExposureCr: 168,
+    soilRootDeficit: '-42% Malwa black soil saturation loss',
+    ndviAnomalyDelta: '-0.16 vs 5-yr baseline',
+    preemptiveIntervention: 'Soybean seed stock pre-positioning + fodder camp subsidies',
     crops: [
-      { name: 'Sweet Orange (Mosambi)', lossRisk: 64, acreage: '0.6 L Ha', stage: 'Fruit drop due to water stress', severity: 'Severe' },
-      { name: 'Cotton', lossRisk: 52, acreage: '2.6 L Ha', stage: 'Boll retention drop', severity: 'Severe' },
-      { name: 'Maize', lossRisk: 41, acreage: '1.2 L Ha', stage: 'Tasseling stage', severity: 'Moderate' }
+      { name: 'Soybean', lossRisk: 59, acreage: '3.8 L Ha', stage: 'Pod filling stress', severity: 'Severe' },
+      { name: 'Durum Wheat', lossRisk: 48, acreage: '1.4 L Ha', stage: 'Sowing moisture deficit', severity: 'Moderate' },
+      { name: 'Gram', lossRisk: 41, acreage: '0.6 L Ha', stage: 'Pre-sowing stage', severity: 'Moderate' }
     ],
     polygonPath: 'M 315 110 L 435 95 L 505 155 L 410 155 L 290 170 L 285 125 Z',
     centroid: { x: 385, y: 135 }
   },
-  hingoli: {
-    id: 'hingoli',
-    name: 'Hingoli',
-    talukas: 'Kalamnuri, Basmath & Sengaon',
-    overallLossRiskPct: 41,
-    totalAcreageHa: '3.6 Lakh Hectares',
-    projectedYieldShortfallMT: '130,000 MT',
-    economicExposureCr: 94,
-    soilRootDeficit: '-27% moisture deficit',
-    ndviAnomalyDelta: '-0.12 vs 5-yr baseline',
-    preemptiveIntervention: 'Drip kit allocation + turmeric micro-irrigation tranches',
+  dhar: {
+    id: 'dhar',
+    name: 'Dhar',
+    talukas: 'Badnawar, Sardarpur, Kukshi & Manawar',
+    overallLossRiskPct: 49,
+    totalAcreageHa: '6.6 Lakh Hectares',
+    projectedYieldShortfallMT: '240,000 MT',
+    economicExposureCr: 172,
+    soilRootDeficit: '-38% tribal plateaus moisture drop',
+    ndviAnomalyDelta: '-0.15 vs 5-yr baseline',
+    preemptiveIntervention: 'Community pond recharge + contingency seed kits',
     crops: [
-      { name: 'Turmeric', lossRisk: 48, acreage: '0.9 L Ha', stage: 'Rhizome expansion', severity: 'Moderate' },
-      { name: 'Soybean', lossRisk: 39, acreage: '1.9 L Ha', stage: 'Pod maturity', severity: 'Moderate' },
-      { name: 'Cotton', lossRisk: 36, acreage: '0.8 L Ha', stage: 'Boll development', severity: 'Moderate' }
+      { name: 'Soybean', lossRisk: 54, acreage: '3.6 L Ha', stage: 'Pod maturity', severity: 'Severe' },
+      { name: 'Cotton', lossRisk: 46, acreage: '1.9 L Ha', stage: 'Boll formation', severity: 'Moderate' },
+      { name: 'Maize', lossRisk: 38, acreage: '1.1 L Ha', stage: 'Cob filling', severity: 'Moderate' }
     ],
     polygonPath: 'M 435 95 L 530 145 L 480 180 Z',
     centroid: { x: 480, y: 140 }
   },
-  aurangabad: {
-    id: 'aurangabad',
-    name: 'Chhatrapati Sambhajinagar',
-    talukas: 'Paithan, Vaijapur, Gangapur & Sillod',
-    overallLossRiskPct: 38,
-    totalAcreageHa: '6.4 Lakh Hectares',
-    projectedYieldShortfallMT: '175,000 MT',
-    economicExposureCr: 122,
-    soilRootDeficit: '-25% Jayakwadi left-bank canal drop',
-    ndviAnomalyDelta: '-0.10 vs 5-yr baseline',
-    preemptiveIntervention: 'Jayakwadi dam sluice calibration + drinking water priority order',
+  panna: {
+    id: 'panna',
+    name: 'Panna',
+    talukas: 'Ajaigarh, Gunnor, Pawai & Shahnagar',
+    overallLossRiskPct: 54,
+    totalAcreageHa: '4.2 Lakh Hectares',
+    projectedYieldShortfallMT: '185,000 MT',
+    economicExposureCr: 138,
+    soilRootDeficit: '-44% rocky plateau depletion',
+    ndviAnomalyDelta: '-0.17 vs 5-yr baseline',
+    preemptiveIntervention: 'Ken basin emergency checkdams + 15 water tankers',
     crops: [
-      { name: 'Cotton', lossRisk: 44, acreage: '3.2 L Ha', stage: 'Flowering stage', severity: 'Moderate' },
-      { name: 'Bajra', lossRisk: 36, acreage: '1.8 L Ha', stage: 'Grain filling', severity: 'Moderate' },
-      { name: 'Maize', lossRisk: 31, acreage: '1.4 L Ha', stage: 'Cob development', severity: 'Moderate' }
+      { name: 'Soybean', lossRisk: 58, acreage: '2.1 L Ha', stage: 'Pod development', severity: 'Severe' },
+      { name: 'Gram', lossRisk: 49, acreage: '1.3 L Ha', stage: 'Sowing moisture crunch', severity: 'Moderate' },
+      { name: 'Paddy', lossRisk: 44, acreage: '0.8 L Ha', stage: 'Grain filling water stress', severity: 'Moderate' }
     ],
     polygonPath: 'M 240 100 L 315 110 L 290 170 L 210 150 Z',
     centroid: { x: 260, y: 130 }
   },
-  ahmednagar: {
-    id: 'ahmednagar',
-    name: 'Ahilyanagar (Ahmednagar)',
-    talukas: 'Sangamner, Shrigonda, Karjat & Jamkhed',
-    overallLossRiskPct: 45,
-    totalAcreageHa: '8.2 Lakh Hectares',
-    projectedYieldShortfallMT: '260,000 MT',
-    economicExposureCr: 180,
-    soilRootDeficit: '-32% Godavari-Pravara dry zone',
-    ndviAnomalyDelta: '-0.14 vs 5-yr baseline',
-    preemptiveIntervention: 'Fodder camps authorization + water tanker route clearing',
+  ujjain: {
+    id: 'ujjain',
+    name: 'Ujjain',
+    talukas: 'Badnagar, Mahidpur, Tarana & Nagda',
+    overallLossRiskPct: 44,
+    totalAcreageHa: '5.9 Lakh Hectares',
+    projectedYieldShortfallMT: '190,000 MT',
+    economicExposureCr: 145,
+    soilRootDeficit: '-33% Shipra river tributary decline',
+    ndviAnomalyDelta: '-0.12 vs 5-yr baseline',
+    preemptiveIntervention: 'Shipra barrage rationed discharge + micro-irrigation grants',
     crops: [
-      { name: 'Sugarcane', lossRisk: 52, acreage: '2.4 L Ha', stage: 'Growth deficit', severity: 'Severe' },
-      { name: 'Pomegranate & Onion', lossRisk: 46, acreage: '1.9 L Ha', stage: 'Bulb maturation', severity: 'Moderate' },
-      { name: 'Bajra', lossRisk: 38, acreage: '2.5 L Ha', stage: 'Grain filling', severity: 'Moderate' }
+      { name: 'Soybean', lossRisk: 49, acreage: '3.7 L Ha', stage: 'Pod maturation', severity: 'Moderate' },
+      { name: 'Garlic & Onion', lossRisk: 42, acreage: '1.1 L Ha', stage: 'Bulb enlargement', severity: 'Moderate' },
+      { name: 'Wheat', lossRisk: 34, acreage: '1.1 L Ha', stage: 'Sowing readiness', severity: 'Moderate' }
     ],
     polygonPath: 'M 180 160 L 260 170 L 240 250 L 170 230 Z',
     centroid: { x: 210, y: 200 }
-  },
-  pune: {
-    id: 'pune',
-    name: 'Pune',
-    talukas: 'Baramati, Indapur, Daund & Shirur',
-    overallLossRiskPct: 22,
-    totalAcreageHa: '5.8 Lakh Hectares',
-    projectedYieldShortfallMT: '85,000 MT',
-    economicExposureCr: 65,
-    soilRootDeficit: '-12% eastern rainshadow talukas',
-    ndviAnomalyDelta: '-0.04 vs 5-yr baseline',
-    preemptiveIntervention: 'Canal release monitoring + micro-irrigation checks',
-    crops: [
-      { name: 'Sugarcane', lossRisk: 28, acreage: '2.1 L Ha', stage: 'Normal vegetative', severity: 'Moderate' },
-      { name: 'Vegetables & Floriculture', lossRisk: 20, acreage: '1.5 L Ha', stage: 'Harvesting', severity: 'Moderate' },
-      { name: 'Wheat / Rabi Jowar', lossRisk: 18, acreage: '2.2 L Ha', stage: 'Sowing readiness', severity: 'Moderate' }
-    ],
-    polygonPath: 'M 120 220 L 190 230 L 170 310 L 110 290 Z',
-    centroid: { x: 150, y: 260 }
   }
 };
 
 export const DroughtRiskView: React.FC = () => {
   const { districts, setCurrentModule, showToast } = useApp();
   const [selectedHorizon, setSelectedHorizon] = useState<'30d' | '60d' | '90d'>('30d');
-  const [selectedDistrictId, setSelectedDistrictId] = useState<string>('beed');
+  const [selectedDistrictId, setSelectedDistrictId] = useState<string>('tikamgarh');
   const [cartographyMode, setCartographyMode] = useState<'leaflet' | 'schematic'>('leaflet');
   const [isWideMapLayout, setIsWideMapLayout] = useState<boolean>(false);
 
   const selectedDist = districts.find(d => d.id === selectedDistrictId) || districts[0];
   const activeCropProfile =
     REGIONAL_CROP_PROFILES[selectedDistrictId] ||
-    REGIONAL_CROP_PROFILES.beed;
+    REGIONAL_CROP_PROFILES.tikamgarh;
 
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   const years = [2026, 2025, 2024, 2023, 2022, 2021, 2020];
@@ -681,7 +662,7 @@ export const DroughtRiskView: React.FC = () => {
               Vegetation Condition Index (VCI) Multi-Year Heatmap
             </h3>
             <p className="text-xs text-[#6B7280]">
-              Monthly vegetation stress matrix across Maharashtra Marathwada belt (2020–2026)
+              Monthly vegetation stress matrix across Madhya Pradesh Bundelkhand & Nimar belt (2020–2026)
             </p>
           </div>
           <div className="flex items-center gap-3 text-[11px] text-[#6B7280]">

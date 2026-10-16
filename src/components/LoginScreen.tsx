@@ -155,7 +155,7 @@ export const LoginScreen: React.FC = () => {
       {/* Footer */}
       <footer className="w-full bg-white border-t border-[#E3E6EB] px-6 py-3 text-center text-xs text-[#6B7280]">
         <p>
-          © 2026 Maharashtra Drought Intelligence & Relief Preemption Platform · Open Climate Risk Analytics
+          © 2026 Madhya Pradesh Drought Intelligence & Relief Preemption Platform · Open Climate Risk Analytics
         </p>
       </footer>
     </div>
