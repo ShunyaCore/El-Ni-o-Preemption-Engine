@@ -166,8 +166,7 @@ The **El Niño Platform** provides an end-to-end operational loop connecting spa
 
 ## 🧮 5. Mathematical Formulations & Algorithmic Engines
 
-**Refer:** https://github.com/ShunyaCore/El-Ni-o-Preemption-Engine/maths.md
-
+[**Click Here:**](https://github.com/ShunyaCore/El-Ni-o-Preemption-Engine/blob/main/maths.md)
 ## 🖥️ 6. Operational Modules Breakdown
 
 ### Module 1: Overview Command Dashboard
