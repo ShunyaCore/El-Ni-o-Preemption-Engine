@@ -1,4 +1,5 @@
 # 🛰️ El Niño — Madhya Pradesh Drought Intelligence & Decision Support Platform
+> This is prototype, and is not associated with any organisation mentioned in the documentation.
 
 [![Platform](https://img.shields.io/badge/Platform-Madhya%20Pradesh%20Drought%20DSS-0F4C81.svg?style=flat-square)](https://github.com)
 [![React](https://img.shields.io/badge/React-18.3%20SPA-61DAFB.svg?style=flat-square&logo=react)](https://react.dev)
@@ -13,6 +14,15 @@
 > An enterprise-grade climate-risk analytics, deterministic resource optimization, satellite crop loss verification, and emergency fleet logistics platform.
 
 ---
+## Team Contribution:
+
+| Team Member       | Role / Contribution                         | Evidence / Artifact             | 
+| ----------------- | ------------------------------------------- | ------------------------------- | 
+| Hardik Das        | Problem framing, research, and requirements | [SRS sections / research notes] | 
+| Yatharth Ladkat   | Frontend & Backend, Prototype, and user flow| [Frontend awa Backend /commits] | 
+| Aaryan Savant     | Data processing and risk evaluation         | [Notebook / scripts / tests]    | 
+| Vihaan Pandey     | Optimization, routing, and evaluation       | [Solver code / results / tests] |
+
 
 ## 📋 Table of Contents
 1. [Executive Summary & Purpose](#-1-executive-summary--purpose)
@@ -37,9 +47,8 @@
 7. [System Architecture & Data Pipelines](#-7-system-architecture--data-pipelines)
 8. [End-to-End Operational Workflow & Walkthrough Case Scenario](#-8-end-to-end-operational-workflow--walkthrough-case-scenario)
 9. [Authoritative References & Data Sources](#-9-authoritative-references--data-sources)
-10. [Local Development, Installation & Build](#-10-local-development-installation--build)
-11. [Project Directory Structure](#-11-project-directory-structure)
-12. [Governance, Security & Transparency](#-12-governance-security--transparency)
+10. [Project Directory Structure](#-10-project-directory-structure)
+11. [Governance, Security & Transparency](#-11-governance-security--transparency)
 
 ---
 
@@ -157,67 +166,7 @@ The **El Niño Platform** provides an end-to-end operational loop connecting spa
 
 ## 🧮 5. Mathematical Formulations & Algorithmic Engines
 
-### 5.1 Deterministic Resource Allocation Formulation (MILP)
-
-Let $\mathcal{D} = \{1, 2, \dots, N\}$ be the set of distressed districts ($N = 8$ primary priority districts in MP).  
-For each district $i \in \mathcal{D}$, let $w_i \in (0, 1]$ represent its composite drought vulnerability weight.
-
-#### Decision Variables:
-* $x_{i}^{\text{tanker}} \ge 0$: Number of tanker trips allocated to district $i$ over planning horizon $T$.
-* $x_{i}^{\text{fodder}} \ge 0$: Metric tonnes of cattle fodder allocated to district $i$.
-* $x_{i}^{\text{seed}} \ge 0$: Hectares of contingency seed subsidy allocated to district $i$.
-* $x_{i}^{\text{cash}} \ge 0$: Number of direct cash transfer farmer beneficiaries in district $i$.
-
-#### Objective Function:
-Maximize total risk-weighted demand satisfaction:
-$$\max \sum_{i \in \mathcal{D}} w_i \left( \alpha_1 \frac{x_{i}^{\text{tanker}}}{D_{i}^{\text{tanker}}} + \alpha_2 \frac{x_{i}^{\text{fodder}}}{D_{i}^{\text{fodder}}} + \alpha_3 \frac{x_{i}^{\text{seed}}}{D_{i}^{\text{seed}}} + \alpha_4 \frac{x_{i}^{\text{cash}}}{D_{i}^{\text{cash}}} \right)$$
-
-where $\alpha_1, \alpha_2, \alpha_3, \alpha_4$ are normalized commodity preference weights ($\sum \alpha_k = 1$), and $D_{i}^k$ represents the unconstrained registered demand for commodity $k$ in district $i$.
-
-#### Subject to Constraints:
-1. **Total Fiscal Budget Ceiling**:
-   $$\sum_{i \in \mathcal{D}} \left( c_{\text{tanker}} x_{i}^{\text{tanker}} + c_{\text{fodder}} x_{i}^{\text{fodder}} + c_{\text{seed}} x_{i}^{\text{seed}} + c_{\text{cash}} x_{i}^{\text{cash}} \right) \le B_{\text{total}} - B_{\text{contingency}}$$
-   where $c_k$ represents the statutory unit cost for commodity $k$ ($c_{\text{tanker}} = ₹3,200$/trip, $c_{\text{fodder}} = ₹8,500$/tonne, etc.).
-
-2. **Statutory Equity Service Floor**:
-   $$x_{i}^k \ge \theta_{\text{floor}} \cdot D_{i}^k, \quad \forall i \in \mathcal{D}, \quad \forall k \in \{\text{tanker, fodder, seed, cash}\}$$
-   where $\theta_{\text{floor}} \in [0.15, 0.25]$ ensures no distressed district receives zero allocation.
-
-3. **Physical Fleet & Warehouse Capacity Upper Bounds**:
-   $$\sum_{i \in \mathcal{D}} x_{i}^{\text{tanker}} \le K_{\text{fleet\_max}} \cdot T$$
-   $$\sum_{i \in \mathcal{D}} x_{i}^{\text{fodder}} \le S_{\text{warehouse\_max}}$$
-
-4. **Demand Non-Exceedance**:
-   $$x_{i}^k \le D_{i}^k, \quad \forall i \in \mathcal{D}, \quad \forall k$$
-
----
-
-### 5.2 Standardized Precipitation Index (SPI-3M)
-
-The 3-month Standardized Precipitation Index evaluates cumulative rainfall deficit over a 90-day window against a 30-year gamma distribution:
-
-$$f(x; \alpha, \beta) = \frac{1}{\beta^\alpha \Gamma(\alpha)} x^{\alpha - 1} e^{-x / \beta}, \quad \text{for } x > 0$$
-
-The cumulative probability $G(x)$ is transformed to a standard Gaussian random variable $Z$ with mean $0$ and variance $1$:
-$$\text{SPI} = Z = -\left( t - \frac{c_0 + c_1 t + c_2 t^2}{1 + d_1 t + d_2 t^2 + d_3 t^3} \right), \quad t = \sqrt{\ln\left(\frac{1}{[H(x)]^2}\right)}$$
-
-* $\text{SPI} \le -2.00$: **Extremely Dry** (Emergency Relief Mandatory — Tikamgarh: $-2.24$)
-* $-1.99 \le \text{SPI} \le -1.50$: **Severely Dry** (Chhatarpur: $-2.12$, Barwani: $-2.05$)
-* $-1.49 \le \text{SPI} \le -1.00$: **Moderately Dry**
-
----
-
-### 5.3 Vegetation Condition Index (VCI)
-
-Acquired from ISRO SAC VEDAS Krishi-DSS, comparing current sensor NDVI against historical extremes:
-
-$$\text{VCI} = \frac{\text{NDVI}_{\text{current}} - \text{NDVI}_{\text{min}}}{\text{NDVI}_{\text{max}} - \text{NDVI}_{\text{min}}} \times 100$$
-
-* $\text{VCI} < 20\%$: **Critical Agrarian Desiccation / Vegetative Stunt**
-* $20\% \le \text{VCI} < 35\%$: **Severe Crop Moisture Stress**
-* $35\% \le \text{VCI} < 50\%$: **Moderate Drought**
-
----
+**Refer:** 
 
 ## 🖥️ 6. Operational Modules Breakdown
 
@@ -361,45 +310,7 @@ $$\text{VCI} = \frac{\text{NDVI}_{\text{current}} - \text{NDVI}_{\text{min}}}{\t
 
 ---
 
-## 🛠️ 10. Local Development, Installation & Build
-
-### Prerequisites
-* **Node.js**: v18.0.0 or higher
-* **npm**: v9.0.0 or higher
-
-### Installation Steps
-
-1. **Clone the Repository**:
-   ```bash
-   git clone https://github.com/your-username/elnino-drought-intelligence.git
-   cd elnino-drought-intelligence
-   ```
-
-2. **Install Dependencies**:
-   ```bash
-   npm install
-   ```
-
-3. **Launch the Development Server**:
-   ```bash
-   npm run dev
-   ```
-   The application will be live at `http://localhost:3000`.
-
-4. **Verify TypeScript & Linting**:
-   ```bash
-   npm run lint
-   ```
-
-5. **Build for Production**:
-   ```bash
-   npm run build
-   ```
-   Compiles optimized production assets to the `dist/` directory.
-
----
-
-## 📁 11. Project Directory Structure
+## 📁 10. Project Directory Structure
 
 ```
 ├── index.html                   # HTML entry point with metadata & Inter font links
@@ -439,7 +350,7 @@ $$\text{VCI} = \frac{\text{NDVI}_{\text{current}} - \text{NDVI}_{\text{min}}}{\t
 
 ---
 
-## 🔒 12. Governance, Security & Transparency
+## 🔒 11. Governance, Security & Transparency
 
 * **Human-in-the-Loop Governance**: The platform is an analytical **Decision Support System (DSS)**. It does not disburse funds or dispatch physical assets autonomously; all fiscal transfers require authorized human officer verification and digital treasury approval.
 * **Open Science & Data Portability**: All underlying geospatial polygons (GeoJSON) and allocation ledgers (CSV) can be exported at any time, ensuring full transparency for legislative review and state audit authorities.
